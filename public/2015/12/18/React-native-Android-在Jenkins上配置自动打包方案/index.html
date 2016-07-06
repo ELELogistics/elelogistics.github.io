@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="饿了么 ele android" />
+  <meta name="keywords" content="React-Native," />
 
 
 
@@ -84,15 +84,22 @@
 
 
 
-<meta name="description" content="美好生活，触手可达">
-<meta property="og:type" content="website">
-<meta property="og:title" content="饿了么物流技术">
-<meta property="og:url" content="https://elelogistics.github.io/index.html">
+<meta name="description" content="使用jenkins来实现自动化构建，可以简化开发测试的流程，原来debug包都不会做混淆，现在用了jenkins会自动的打混淆包，除了环境不一样，其他配置debug和release包都一样，这样就可以避免代码混淆带来的问题，早日发现早日治疗。推荐大家在废弃的电脑上搭建一个Jenkins。具体的搭建流程见[这里](http://my.oschina.net/u/930967/blog/299058)">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React-native Android 在Jenkins上配置自动打包方案">
+<meta property="og:url" content="https://elelogistics.github.io/2015/12/18/React-native-Android-在Jenkins上配置自动打包方案/index.html">
 <meta property="og:site_name" content="饿了么物流技术">
-<meta property="og:description" content="美好生活，触手可达">
+<meta property="og:description" content="使用jenkins来实现自动化构建，可以简化开发测试的流程，原来debug包都不会做混淆，现在用了jenkins会自动的打混淆包，除了环境不一样，其他配置debug和release包都一样，这样就可以避免代码混淆带来的问题，早日发现早日治疗。推荐大家在废弃的电脑上搭建一个Jenkins。具体的搭建流程见[这里](http://my.oschina.net/u/930967/blog/299058)">
+<meta property="og:image" content="http://img.blog.csdn.net/20151128142442620">
+<meta property="og:image" content="http://img.blog.csdn.net/20151128142526224">
+<meta property="og:image" content="http://img.blog.csdn.net/20151128143605795">
+<meta property="og:image" content="http://img.blog.csdn.net/20151128143748789">
+<meta property="og:image" content="http://img.blog.csdn.net/20151128150252868">
+<meta property="og:updated_time" content="2016-06-13T09:51:34.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="饿了么物流技术">
-<meta name="twitter:description" content="美好生活，触手可达">
+<meta name="twitter:title" content="React-native Android 在Jenkins上配置自动打包方案">
+<meta name="twitter:description" content="使用jenkins来实现自动化构建，可以简化开发测试的流程，原来debug包都不会做混淆，现在用了jenkins会自动的打混淆包，除了环境不一样，其他配置debug和release包都一样，这样就可以避免代码混淆带来的问题，早日发现早日治疗。推荐大家在废弃的电脑上搭建一个Jenkins。具体的搭建流程见[这里](http://my.oschina.net/u/930967/blog/299058)">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20151128142442620">
 
 
 
@@ -113,9 +120,9 @@
 
 
 
-  <link rel="canonical" href="https://elelogistics.github.io/"/>
+  <link rel="canonical" href="https://elelogistics.github.io/2015/12/18/React-native-Android-在Jenkins上配置自动打包方案/"/>
 
-  <title> 饿了么物流技术 </title>
+  <title> React-native Android 在Jenkins上配置自动打包方案 | 饿了么物流技术 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -146,9 +153,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left 
-   page-home 
- ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -235,9 +240,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
   
@@ -257,232 +262,7 @@
             
             
               
-                
-                <a class="post-title-link" href="/2016/05/21/借助Packet-Capture-实现无Root抓请求/" itemprop="url">
-                  借助Packet Capture 实现无Root抓请求
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-05-21T10:49:29+08:00" content="2016-05-21">
-              2016-05-21
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/05/21/借助Packet-Capture-实现无Root抓请求/" class="leancloud_visitors" data-flag-title="借助Packet Capture 实现无Root抓请求">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          
- 背景是这样的，有一天运营的同事反馈达达可以抓到我们的订单,简单查看了一下流程，发现达达先会下载一个插件，安装后，会提示信任一个vpn证书，然后就可以获取到我们的订单。
-
-   上一次达达商家版通过Android的Accessibility api监听我们应用的布局变化，获取了每个view中的数据，拼接成了他们自己的订单，但是这个api随着napos的升级被堵死了。这次他们换了一个思路，通过建立虚拟vpn的方式充当中间人，攻击者与通讯的两端分别创建独立的联系，并交换其所收到的数据，使通讯的两端认为他们正在通过一个私密的连接与对方直接对话，但事实上整个会话都被攻击者完全控制。在中间人攻击中，攻
-          ...
-
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/05/21/借助Packet-Capture-实现无Root抓请求/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/02/28/APP市场推广统计有效推广量新思路/" itemprop="url">
-                  APP市场推广统计有效推广量新思路
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-02-28T15:54:14+08:00" content="2016-02-28">
-              2016-02-28
-            </time>
-          </span>
-
-          
-
-          
-            
-          
-
-          
-
-          
-          
-             <span id="/2016/02/28/APP市场推广统计有效推广量新思路/" class="leancloud_visitors" data-flag-title="APP市场推广统计有效推广量新思路">
-               &nbsp; | &nbsp;
-               <span class="post-meta-item-icon">
-                 <i class="fa fa-eye"></i>
-               </span>
-               <span class="post-meta-item-text">阅读次数 </span>
-               <span class="leancloud-visitors-count"></span>
-              </span>
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-          豌豆荚的黑科技
-日前，在一次下载[包名浏览器.apk]的时候搜索到了豌豆荚的网站，那就直接下载吧，可是下载后发现，文件有点大，安装到手机上之后，果然不是我要下载的软件，而是豌豆荚.apk，随机破口大骂，豌豆荚太猥琐了，误导用户下载自己的app，但是已经安装好了豌豆荚，那只能借用一下，心里嘀咕，安装好[包名浏览器]就把你给卸载掉。当我点开豌豆荚的时候，奇怪的事情发生了，豌豆荚自动的搜索到了[包名浏览器]，并且跳转到了下载详情页面。作为一名Android开发人员，不禁要『咦』的一声，表示不科学，这个黑科技有点意思怎么实现的尼？
-
-  好奇心促使我，操开了豌豆荚的包，在文件目录里面并没有发现什么特别
-          ...
-
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2016/02/28/APP市场推广统计有效推广量新思路/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2015/12/18/React-native-Android-在Jenkins上配置自动打包方案/" itemprop="url">
-                  React-native Android 在Jenkins上配置自动打包方案
-                </a>
+                React-native Android 在Jenkins上配置自动打包方案
               
             
           </h1>
@@ -531,46 +311,99 @@
       
 
       
-        
-          
-          使用jenkins来实现自动化构建，可以简化开发测试的流程，原来debug包都不会做混淆，现在用了jenkins会自动的打混淆包，除了环境不一样，其他配置debug和release包都一样，这样就可以避免代码混淆带来的问题，早日发现早日治疗。推荐大家在废弃的电脑上搭建一个Jenkins。具体的搭建流程见[这里](http://my.oschina.net/u/930967/blog/299058)     
-这里介绍一下我在项目中使用了React-native之后的jenkins配置，默认已经在jenkins上已经搭建好了普通Android的打包环境，如果想打带有React-native的ap
-          ...
+        <pre><code>使用jenkins来实现自动化构建，可以简化开发测试的流程，原来debug包都不会做混淆，现在用了jenkins会自动的打混淆包，除了环境不一样，其他配置debug和release包都一样，这样就可以避免代码混淆带来的问题，早日发现早日治疗。推荐大家在废弃的电脑上搭建一个Jenkins。具体的搭建流程见[这里](http://my.oschina.net/u/930967/blog/299058)     
+</code></pre><p>这里介绍一下我在项目中使用了React-native之后的jenkins配置，默认已经在jenkins上已经搭建好了普通Android的打包环境，如果想打带有React-native的apk，首先在React官方的<a href="https://facebook.github.io/react-native/docs/signed-apk-android.html#content" target="_blank" rel="external">Generating Signed APK</a>中有bundle命令来生成index.android.bundle</p>
+<pre><code>$ react-native bundle --platform android --dev false --entry-file index.android.js \
+  --bundle-output android/app/src/main/assets/index.android.bundle \
+  --assets-dest android/app/src/main/res/
+</code></pre><p>所以我们在Android打包之前首先要执行这个命令，明确了这个区别，就开始动手了。</p>
+<ul>
+<li><p>首先在jenkins服务器上升级buildToolsVersion，compileSdkVersion 到23<br><img src="http://img.blog.csdn.net/20151128142442620" alt="这里我全部升级完了"><br>如果下载慢，建议换成sdk.gdgshanghai.com的镜像<br><img src="http://img.blog.csdn.net/20151128142526224" alt="sdk.gdgshanghai.com"></p>
+</li>
+<li><p>接下来在服务器上搭建react-native环境</p>
+</li>
+</ul>
+<p>不做重复的事情，很多文章已经写的很清楚，具体搭建步骤参考下面的博客<a href="http://www.race604.com/react-native-for-android-start/" target="_blank" rel="external">http://www.race604.com/react-native-for-android-start/</a></p>
+<pre><code>注意一点，很多同学搭建换成后，执行
+react-native init AwesomeProject
+会发现卡了半天还是没有成功，这个时候建议你使用
+npm config set registry=https://registry.npm.taobao.org
+将npm的源换成淘宝镜像
+</code></pre><ul>
+<li>测试环境安装成功之后，开始配置我们的Jenkins</li>
+</ul>
+<p>我们是通过jenkins Invoke Gradle script执行assembleQa –stacktrace task来打包的，<br><img src="http://img.blog.csdn.net/20151128143605795" alt="Invoke Gradle script"><br>如果我们希望在执行这个task之前让React-native 生成index.android.bundle，那么我们可以在build.gradle写这样的task，但是这里我介绍一个更简单的方式，在jenkins中增加构建步骤-&gt;windows系统选择Execute windows batch command ||mac系统选择Excute shell<br><img src="http://img.blog.csdn.net/20151128143748789" alt="选择Excute shell"></p>
+<p>#关键的步骤来了！！！！！</p>
+<p>我们按住Execute shell的右上角，将它拖动到 Invoke Gradle script的前面，这样就可以先执行Execute shell中的命令</p>
+<ul>
+<li>接下来开始写Execute shell中的命令</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">react-native bundle --platform android --dev false --entry-file react-native/index.android.js \</div><div class="line"> --bundle-output app/src/main/assets/index.android.bundle \</div><div class="line"> --assets-dest app/src/main/res/</div></pre></td></tr></table></figure>
+<p>测试一下，失败，报react-native: command not found<br>google一下，React-native jenkins，发现没有任何相关的记录，菊花一紧，每当Stack Overflow上国外友人还没有踩过坑的时候，我就有一种使命感，难道我已经走在了全世界码农的前面？难道我就要这样走向人生颠覆了么，这样的幻觉让我像疯狗一样查资料誓要把这个问题解决，给全世界人民带来福利。</p>
+<p>打了一针鸡血，发现jenkins的shell命令是跑在自己的Shell中的，这意味着什么？需要我们指定绝对路径，好吧，更换一成绝对路径。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">which react-native</div></pre></td></tr></table></figure>
+<p>获取react-native的绝对路径,文件路径也一并换掉，整个命令变成了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">/usr/local/bin/react-native bundle --platform android -dev false --entry-file /Users/jenkins/.jenkins/jobs/testAndroid-qa/workspace/react-native/index.android.js \</div><div class="line"> --bundle-output /Users/jenkins/.jenkins/jobs/testAndroid-qa/workspace/app/src/main/assets/index.android.bundle \</div><div class="line"> --assets-dest /Users/jenkins/.jenkins/jobs/testAndroid-qa/workspace/app/src/main/res/</div></pre></td></tr></table></figure>
+<p>再来构建-&gt;成功。</p>
+<p>看一下我的构建历史<br><img src="http://img.blog.csdn.net/20151128150252868" alt="这里写图片描述"></p>
+<pre><code>不断的失败，
+不断的解决，
+我为全世界人民踩坑，
+我为全世界人民探路，
+我活在自我陶醉的程序员世界。
+</code></pre>
+      
+    </div>
 
-          <div class="post-more-link text-center">
-            <a class="btn" href="/2015/12/18/React-native-Android-在Jenkins上配置自动打包方案/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
+    <div>
+      
         
       
     </div>
 
     <div>
       
-    </div>
+        
 
-    <div>
       
     </div>
 
     <footer class="post-footer">
       
-
+        <div class="post-tags">
+          
+            <a href="/tags/React-Native/" rel="tag">#React-Native</a>
+          
+        </div>
       
 
       
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/28/APP市场推广统计有效推广量新思路/" rel="prev" title="APP市场推广统计有效推广量新思路">
+                APP市场推广统计有效推广量新思路 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
-        <div class="post-eof"></div>
+
+      
       
     </footer>
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -578,6 +411,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -597,8 +434,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/ico.png"
@@ -641,6 +487,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -744,6 +601,10 @@
 
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
 
   
 
