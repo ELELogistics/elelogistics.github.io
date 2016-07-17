@@ -1,13 +1,17 @@
 ---
-title: Android编译时注解框架-什么是编译时注解
-date: 2016-07-17 15:10:58
+title: Android编译时注解框架系列-什么是编译时注解
+date: 2016-07-17 16:10:58
 author : 暴打小女孩
 tags: Android
 ---
 
 ### 概述
 
-提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题。
+**Android编译时注解框架从入门到项目实践**。该系列将通过5篇博客一步步教你打造一个属于自己的编译时注解框架，并在之后开源出基于APT的编译时注解框架。
+
+提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题...
+
+
 
 <!-- more -->
 
@@ -381,17 +385,13 @@ APT就好像一块蛋糕摆在你面前，就看你如何优雅的吃了。
 
 《Android编译时注解框架-什么是编译时注解》
 
-[《Android编译时注解框架-Run Demo》](https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/run-demo/android编译时注解框架-run_demo.md)
+[《Android编译时注解框架-Run Demo》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-run_demo/)
 
-[《Android编译时注解框架-Run Project：OnceClick》](https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/run-project/android编译时注解框架-run_project.md)
+[《Android编译时注解框架-Run Project：OnceClick》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-run_project/)
 
-[《Android编译时注解框架-爬坑》](https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/爬坑/android编译时注解框架-爬坑.md)
+[《Android编译时注解框架-爬坑》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-爬坑/)
 
-[《Android编译时注解框架-语法讲解》](https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/语法讲解/android编译时注解框架-语法讲解.md)
-
-[《Android编译时注解框架-数据库ORM框架CakeDao》](https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/CakeDao/android编译时注解框架-数据库orm框架cakedao.md)
-
-[《Android编译时注解框架-APP更新回滚框架CakeRun》](https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/CakeRun/android编译时注解框架-hold_bug框架cakerun.md)
+[《Android编译时注解框架-语法讲解》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-语法讲解/)
 
 
 
