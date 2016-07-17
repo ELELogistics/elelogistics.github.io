@@ -84,12 +84,14 @@
 
 
 
-<meta name="description" content="概述提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题。">
+<meta name="description" content="概述Android编译时注解框架从入门到项目实践。该系列将通过5篇博客一步步教你打造一个属于自己的编译时注解框架，并在之后开源出基于APT的编译时注解框架。
+提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题…">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Android编译时注解框架-什么是编译时注解">
-<meta property="og:url" content="https://elelogistics.github.io/2016/07/17/android编译时注解框架-什么是编译时注解/index.html">
+<meta property="og:title" content="Android编译时注解框架系列-什么是编译时注解">
+<meta property="og:url" content="https://elelogistics.github.io/2016/07/17/Android编译时注解框架-什么是编译时注解/index.html">
 <meta property="og:site_name" content="饿了么物流技术">
-<meta property="og:description" content="概述提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题。">
+<meta property="og:description" content="概述Android编译时注解框架从入门到项目实践。该系列将通过5篇博客一步步教你打造一个属于自己的编译时注解框架，并在之后开源出基于APT的编译时注解框架。
+提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题…">
 <meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/1.jpeg">
 <meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/2.jpeg">
 <meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/3.jpeg">
@@ -102,10 +104,11 @@
 <meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/11.jpeg">
 <meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/12.jpeg">
 <meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/13.jpeg">
-<meta property="og:updated_time" content="2016-07-17T09:05:50.000Z">
+<meta property="og:updated_time" content="2016-07-17T13:46:50.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Android编译时注解框架-什么是编译时注解">
-<meta name="twitter:description" content="概述提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题。">
+<meta name="twitter:title" content="Android编译时注解框架系列-什么是编译时注解">
+<meta name="twitter:description" content="概述Android编译时注解框架从入门到项目实践。该系列将通过5篇博客一步步教你打造一个属于自己的编译时注解框架，并在之后开源出基于APT的编译时注解框架。
+提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题…">
 <meta name="twitter:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/1.jpeg">
 
 
@@ -127,9 +130,9 @@
 
 
 
-  <link rel="canonical" href="https://elelogistics.github.io/2016/07/17/android编译时注解框架-什么是编译时注解/"/>
+  <link rel="canonical" href="https://elelogistics.github.io/2016/07/17/Android编译时注解框架-什么是编译时注解/"/>
 
-  <title> Android编译时注解框架-什么是编译时注解 | 饿了么物流技术 </title>
+  <title> Android编译时注解框架系列-什么是编译时注解 | 饿了么物流技术 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -269,7 +272,7 @@
             
             
               
-                Android编译时注解框架-什么是编译时注解
+                Android编译时注解框架系列-什么是编译时注解
               
             
           </h1>
@@ -281,7 +284,7 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-07-17T15:10:58+08:00" content="2016-07-17">
+            <time itemprop="dateCreated" datetime="2016-07-17T16:10:58+08:00" content="2016-07-17">
               2016-07-17
             </time>
           </span>
@@ -311,7 +314,7 @@
 
           
           
-             <span id="/2016/07/17/android编译时注解框架-什么是编译时注解/" class="leancloud_visitors" data-flag-title="Android编译时注解框架-什么是编译时注解">
+             <span id="/2016/07/17/Android编译时注解框架-什么是编译时注解/" class="leancloud_visitors" data-flag-title="Android编译时注解框架系列-什么是编译时注解">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -333,7 +336,8 @@
       
 
       
-        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题。</p>
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p><strong>Android编译时注解框架从入门到项目实践</strong>。该系列将通过5篇博客一步步教你打造一个属于自己的编译时注解框架，并在之后开源出基于APT的编译时注解框架。</p>
+<p>提到注解，普遍都会有两种态度：黑科技、低性能。使用注解往往可以实现用非常少的代码作出匪夷所思的事情，比如这些框架：ButterKnife、Retrofit。但一直被人诟病的是，运行时注解会因为java反射而引起较为严重的性能问题…</p>
 <a id="more"></a>
 <p>今天我们要讲的是，不会对性能有任何影响的黑科技：<strong>编译时注解</strong>。也有人叫它<strong>代码生成</strong>，其实他们还是有些区别的，在编译时对注解做处理，通过注解，获取必要信息，在项目中生成代码，运行时调用，和直接运行手写代码没有任何区别。而更准确的叫法：APT - Annotation Processing Tool</p>
 <p>得当的使用编译时注解，可以极大的提高开发效率，避免编写重复、易错的代码。大部分时候编译时注解都可以代替java反射，利用可以直接调用的代码代替反射，极大的提升运行效率。</p>
@@ -547,12 +551,10 @@ public void bind(final Finder finder, final T target, Object source) {
 <p>后续篇章我将会陆续推出几款以Cake命名的APT框架。</p>
 <p><br></p>
 <p>《Android编译时注解框架-什么是编译时注解》</p>
-<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/run-demo/android编译时注解框架-run_demo.md" target="_blank" rel="external">《Android编译时注解框架-Run Demo》</a></p>
-<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/run-project/android编译时注解框架-run_project.md" target="_blank" rel="external">《Android编译时注解框架-Run Project：OnceClick》</a></p>
-<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/爬坑/android编译时注解框架-爬坑.md" target="_blank" rel="external">《Android编译时注解框架-爬坑》</a></p>
-<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/语法讲解/android编译时注解框架-语法讲解.md" target="_blank" rel="external">《Android编译时注解框架-语法讲解》</a></p>
-<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/CakeDao/android编译时注解框架-数据库orm框架cakedao.md" target="_blank" rel="external">《Android编译时注解框架-数据库ORM框架CakeDao》</a></p>
-<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/blob/master/CakeRun/android编译时注解框架-hold_bug框架cakerun.md" target="_blank" rel="external">《Android编译时注解框架-APP更新回滚框架CakeRun》</a></p>
+<p><a href="https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-run_demo/" target="_blank" rel="external">《Android编译时注解框架-Run Demo》</a></p>
+<p><a href="https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-run_project/" target="_blank" rel="external">《Android编译时注解框架-Run Project：OnceClick》</a></p>
+<p><a href="https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-爬坑/" target="_blank" rel="external">《Android编译时注解框架-爬坑》</a></p>
+<p><a href="https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-语法讲解/" target="_blank" rel="external">《Android编译时注解框架-语法讲解》</a></p>
 
       
     </div>
