@@ -1,0 +1,10 @@
+.DS_Store
+.idea/
+*.log
+node_modules/
+
+# Ignore unused verdors' files
+
+public/
+db.json
+.deploy_git

@@ -1,7 +1,8 @@
 ---
 title: HermesEventBus-饿了么开源的Android跨进程事件分发框架
 date: 2016-07-13 15:54:58
-tags:
+author : 进击的小羊
+tags: Android
 ---
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于Android不同进程之前不能相互通信，所以当开发过程中遇到跨进程通信的时候,常用的方案就是AIDL(Android Interface Definition Language)通过它我们可以定义进程间的通信接口,但是当应用中出现大量跨进程通信的时候，比如你想体验一下插件化开发或者特殊需求在单应用中需要开多个进程，那么写过AIDL的同学都会有痛不欲生的感觉。现在福利来了，可以试试饿了么开源了一款进程间事件分发的库---[HermesEventBus](https://github.com/eleme/HermesEventBus)。
 
