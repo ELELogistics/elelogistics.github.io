@@ -94,12 +94,14 @@ IntroductionIt is easy to write a simple app with React Native, because at the b
 <meta property="og:description" content="This article discusses about how we compose React-Native-based components with Redux in Hummingbird Crowdsource App.
 
 IntroductionIt is easy to write a simple app with React Native, because at the be">
-<meta property="og:updated_time" content="2016-08-02T07:59:55.000Z">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/react.png">
+<meta property="og:updated_time" content="2016-08-02T08:21:16.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Crowdsource App Write In React-Native">
 <meta name="twitter:description" content="This article discusses about how we compose React-Native-based components with Redux in Hummingbird Crowdsource App.
 
 IntroductionIt is easy to write a simple app with React Native, because at the be">
+<meta name="twitter:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/react.png">
 
 
 
@@ -264,6 +266,7 @@ IntroductionIt is easy to write a simple app with React Native, because at the b
 <p>This article discusses about how we compose React-Native-based components with Redux in Hummingbird Crowdsource App.</p>
 </blockquote>
 <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>It is easy to write a simple app with <code>React Native</code>, because at the beginning you do not care about the deeper problems such as the data flow and possible extension in the future. However, as the amount of components written by React Native increases, it is of vital importance to consider these problems because the system becomes larger and its coupling becomes higher.</p>
+<p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/react.png" alt=""></p>
 <p>Among all the techniques to decrease the coupling of a system, <code>Redux</code> is, in our opinion, a better choice. As is known, <code>React Native</code> renders the UI according to the <strong>“state”</strong> and the <strong>“props”</strong>. But it is harder to maintain the consistency between the UI and the  <strong>“state”</strong> or the <strong>“props”</strong> as the amount of components increases. To solve this problem, the <code>Flux</code> architecture provides an elegant pattern for controlling the data flow and rendering the UI, which can be introduced to perform the navigation in <code>React Native</code>. And <code>Redux</code> is a predictable state container for React Native, which evolves the ideas of Flux. Therefore, in the React Native development of our app, we use Redux to control the data flow, to decrease the coupling between each component and to make it easier to add more components into our project.</p>
 <p>Now let’s discuss the details.</p>
 <h2 id="React-Native-with-Redux"><a href="#React-Native-with-Redux" class="headerlink" title="React Native with Redux"></a>React Native with Redux</h2><p>Now I give you an example to illustrate how we control the data flow in our crowdsource project using the <code>Redux</code> architecture. In the app of our project, a user may sometimes inquire his member level. There is, of course, a corresponding component in our app which provides him with such information. The UI of the component shows the user’s member level. When the user enters the component, a request is sent to fetch the member level from the server and after getting the result of the request, the UI is refreshed to show the member level.</p>
