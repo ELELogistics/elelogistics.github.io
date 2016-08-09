@@ -1,0 +1,816 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="APT," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="概述先讲一下编写《Android编译时注解框架》的初衷吧，APT其实并不难，可以说是简单且高效，但关于APT的资料却并不多，甚至很多人都不知道这么一个技术。国内关于APT的博客屈指可数，唯二找到的几篇初级讲解一个是用Eclipse写得，一个是用AndroidStudio加Intellij。刚开始着实踩了不少坑，但事实是，APT完全可以用AndroidStudio单独实现。光是项目搭建就如此麻烦了，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android编译时注解框架系列2-Run Demo">
+<meta property="og:url" content="https://elelogistics.github.io/2016/08/05/apt-run_demo/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="概述先讲一下编写《Android编译时注解框架》的初衷吧，APT其实并不难，可以说是简单且高效，但关于APT的资料却并不多，甚至很多人都不知道这么一个技术。国内关于APT的博客屈指可数，唯二找到的几篇初级讲解一个是用Eclipse写得，一个是用AndroidStudio加Intellij。刚开始着实踩了不少坑，但事实是，APT完全可以用AndroidStudio单独实现。光是项目搭建就如此麻烦了，">
+<meta property="og:image" content="http://img1.ph.126.net/u57VJi5uksh4duN6yMFxOA==/6631542754722720703.jpeg">
+<meta property="og:image" content="http://img0.ph.126.net/UhzqKVMFfwu3ty-OxxyMCg==/6631790144838976047.jpeg">
+<meta property="og:image" content="http://img1.ph.126.net/F8_ZnOElNPV06vSCsJnvFw==/6631658203443642814.jpeg">
+<meta property="og:image" content="http://img2.ph.126.net/cc1rbYqrXAfXk9lzz4dP8g==/6631577939094811679.jpeg">
+<meta property="og:image" content="http://img0.ph.126.net/JcFdC1YgKtkFQGqozEa_iw==/6631616422001785860.jpeg">
+<meta property="og:image" content="http://img1.ph.126.net/ODbgMyTTqIym9R-XzgPoWA==/6631704382932005509.jpeg">
+<meta property="og:image" content="http://img0.ph.126.net/Q4hJNglipWrhbm8BCEXaWg==/6631701084397122195.jpeg">
+<meta property="og:image" content="http://img0.ph.126.net/VhQ-R3WDsxyN0Jj-tjlbOw==/6631456992815762880.jpeg">
+<meta property="og:image" content="http://img1.ph.126.net/aLdtGF6QzHmAx9RgQA9xUg==/6631790144838976048.jpeg">
+<meta property="og:image" content="http://img2.ph.126.net/RpZ7TNvkMhh16qZw1Mickg==/6631662601490157227.jpeg">
+<meta property="og:image" content="http://img2.ph.126.net/j5zjxfuq-5c7iitXiRIyvA==/6631606526397135920.jpeg">
+<meta property="og:image" content="http://img2.ph.126.net/BG1Js3oL3cgWFoiqyK2gGQ==/6631701084397122194.jpeg">
+<meta property="og:image" content="http://img2.ph.126.net/Qy8xMkNkIv20akzOwLwqpA==/6631748363397120041.jpegg">
+<meta property="og:image" content="http://img1.ph.126.net/TdCL0wMyvStVQ_yBDMst8Q==/6631771453141303831.jpeg">
+<meta property="og:updated_time" content="2016-08-09T08:20:10.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android编译时注解框架系列2-Run Demo">
+<meta name="twitter:description" content="概述先讲一下编写《Android编译时注解框架》的初衷吧，APT其实并不难，可以说是简单且高效，但关于APT的资料却并不多，甚至很多人都不知道这么一个技术。国内关于APT的博客屈指可数，唯二找到的几篇初级讲解一个是用Eclipse写得，一个是用AndroidStudio加Intellij。刚开始着实踩了不少坑，但事实是，APT完全可以用AndroidStudio单独实现。光是项目搭建就如此麻烦了，">
+<meta name="twitter:image" content="http://img1.ph.126.net/u57VJi5uksh4duN6yMFxOA==/6631542754722720703.jpeg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2016/08/05/apt-run_demo/"/>
+
+  <title> Android编译时注解框架系列2-Run Demo | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Android编译时注解框架系列2-Run Demo
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-05T15:50:58+08:00" content="2016-08-05">
+              2016-08-05
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">暴打小女孩</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">APT</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/08/05/apt-run_demo/" class="leancloud_visitors" data-flag-title="Android编译时注解框架系列2-Run Demo">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>先讲一下编写《Android编译时注解框架》的初衷吧，APT其实并不难，可以说是简单且高效，但关于APT的资料却并不多，甚至很多人都不知道这么一个技术。国内关于APT的博客屈指可数，唯二找到的几篇初级讲解一个是用Eclipse写得，一个是用AndroidStudio加Intellij。刚开始着实踩了不少坑，但事实是，APT完全可以用AndroidStudio单独实现。光是项目搭建就如此麻烦了，更别提语法讲解了。资料匮乏无疑提高了APT的入门门槛。</p>
+<p>正因为如此，这个系列博客就这样诞生啦~现在就教你用AndroidStudio一步步打造自己的APT框架。</p>
+<a id="more"></a>
+<p>以我自己的学习习惯来讲，比起前期大量枯燥的基础知识积累，我更喜欢先把项目跑起来再说，虽然会不明所以，但反而会促进学习兴趣，并且在有结果的场景下一步步深入。</p>
+<p>所以作为《Android编译时注解框架》系列的第二篇，我们不管三七二十一，先把APT跑起来再说，看看这到底是个什么东西。跑起来，就入门啦！</p>
+<p><strong>在Running的过程中，有很多语法，我们都暂时一并跳过，都放到《Android编译时注解框架-语法讲解》统一讲。</strong></p>
+<h3 id="Running"><a href="#Running" class="headerlink" title="Running"></a>Running</h3><h4 id="项目搭建"><a href="#项目搭建" class="headerlink" title="项目搭建"></a>项目搭建</h4><p>首先创建一个Android项目</p>
+<p><img src="http://img1.ph.126.net/u57VJi5uksh4duN6yMFxOA==/6631542754722720703.jpeg" alt=""></p>
+<p>然后给我们的项目增加一个module,一定要记得是Java Library.</p>
+<p>因为APT需要用到jdk下的 【 <em>javax.~ </em>】包下的类，这在AndroidSdk中是没有的。</p>
+<p><img src="http://img0.ph.126.net/UhzqKVMFfwu3ty-OxxyMCg==/6631790144838976047.jpeg" alt=""></p>
+<p><img src="http://img1.ph.126.net/F8_ZnOElNPV06vSCsJnvFw==/6631658203443642814.jpeg" alt=""></p>
+<h4 id="自定义注解"><a href="#自定义注解" class="headerlink" title="自定义注解"></a>自定义注解</h4><p>新建一个类，GetMsg。就是我们自定义的注解。</p>
+<p><img src="http://img2.ph.126.net/cc1rbYqrXAfXk9lzz4dP8g==/6631577939094811679.jpeg" alt=""></p>
+<p>这是一个编译时注解，用<em>@Retention(RetentionPolicy.CLASS)</em>修饰。</p>
+<p>这个注解只能修饰方法。用<em>@Target(ElementType.METHOD)</em>修饰。</p>
+<p>且这个注解可以设置两个值。id和name。name是有默认值的，可以不设置。 </p>
+<h4 id="创建Processor"><a href="#创建Processor" class="headerlink" title="创建Processor"></a>创建Processor</h4><p>Processor是用来处理Annotation的类。继承自AbstractProcessor。</p>
+<p><img src="http://img0.ph.126.net/JcFdC1YgKtkFQGqozEa_iw==/6631616422001785860.jpeg" alt=""></p>
+<p>复写AbstractProcessor两个最重要的方法。</p>
+<p><em>process</em>方法是用来处理注解的，我们一会写。</p>
+<p><em>getSupportedAnnotationTypes</em>用来表示该Processor处理哪些注解。这里我们只有一个<em>GetMsg</em>注解需要处理。</p>
+<h4 id="重写process方法"><a href="#重写process方法" class="headerlink" title="重写process方法"></a>重写process方法</h4><p>我们的目的呢，是获取修饰了GetMsg注解的方法所有信息，只有获得了这些信息，才有依据生成代码不是吗?</p>
+<pre><code>@Override
+public boolean process(Set&lt;? extends TypeElement&gt; annotations, RoundEnvironment env) {
+    Messager messager = processingEnv.getMessager();
+    for (Element element : env.getElementsAnnotatedWith(GetMsg.class)) {
+        PackageElement packageElement = (PackageElement) element
+                .getEnclosingElement();
+        //获取该注解所在类的包名
+        String packageName = packageElement.getQualifiedName().toString();
+        TypeElement classElement = (TypeElement) element;
+        //获取该注解所在类的类名
+        String className = classElement.getSimpleName().toString();
+        //获取该注解所在类的全类名
+        String fullClassName = classElement.getQualifiedName().toString();
+        VariableElement variableElement = (VariableElement) element.getEnclosingElement();
+        //获取方法名
+        String methodName = variableElement.getSimpleName().toString();
+        //获取该注解的值
+        int id = classElement.getAnnotation(GetMsg.class).id();
+        String name = classElement.getAnnotation(GetMsg.class).name();
+        messager.printMessage(Diagnostic.Kind.NOTE,
+                &quot;Annotation class : packageName = &quot; + packageName);
+        messager.printMessage(Diagnostic.Kind.NOTE,
+                &quot;Annotation class : className = &quot; + className);
+        messager.printMessage(Diagnostic.Kind.NOTE,
+                &quot;Annotation class : fullClassName = &quot; + fullClassName);
+        messager.printMessage(Diagnostic.Kind.NOTE,
+                &quot;Annotation class : methodName = &quot; + methodName);
+        messager.printMessage(Diagnostic.Kind.NOTE,
+                &quot;Annotation class : id = &quot; + id + &quot;  name = &quot; + name);
+    }
+    return true;
+}
+</code></pre><p>简单介绍一下代码：</p>
+<p>1.Messager 用来输出。就像我们平时用的System.out.pringln()和Log.d。输出位置在编译器下方的Messages窗口。这里System.out也是可以用的哦~</p>
+<p>2.用for循环遍历所有的 GetMsg注解，然后进行处理。</p>
+<p>3.Diagnostic.Kind.NOTE 类似于Log.d Log.e这样的等级。</p>
+<p>4.return true;表示该Process已经处理了，其他的Process不需要再处理了。</p>
+<h4 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h4><p>一定不能忘记的文件配置。</p>
+<p>在main文件夹下创建一个resources.META-INF.services文件夹，创建文件</p>
+<p>javax.annotation.processing.Processor</p>
+<p><img src="http://img1.ph.126.net/ODbgMyTTqIym9R-XzgPoWA==/6631704382932005509.jpeg" alt=""></p>
+<p>文件内容是Process类的包名+类名</p>
+<p><img src="http://img0.ph.126.net/Q4hJNglipWrhbm8BCEXaWg==/6631701084397122195.jpeg" alt=""></p>
+<p>忘记这个配置文件的后果就是，注解无法生效。</p>
+<h4 id="编译jar"><a href="#编译jar" class="headerlink" title="编译jar"></a>编译jar</h4><p>这里有一个坑，我们的主Module是不可以直接引用这个java Module的。（直接引用，可以成功运行一次~修改代码以后就不能运行了）</p>
+<p>而如何单独编译这个java Module呢？</p>
+<p>在编译器Gradle视图里，找到Module apt下的build目录下的Build按钮。双击运行。</p>
+<p><img src="http://img0.ph.126.net/VhQ-R3WDsxyN0Jj-tjlbOw==/6631456992815762880.jpeg" alt=""></p>
+<p>代码没有问题编译通过的话，会有BUILD SUCCESS提示</p>
+<p><img src="http://img1.ph.126.net/aLdtGF6QzHmAx9RgQA9xUg==/6631790144838976048.jpeg" alt=""></p>
+<p>生成的jar包在 apt 下的build目录下的libs下</p>
+<p><img src="http://img2.ph.126.net/RpZ7TNvkMhh16qZw1Mickg==/6631662601490157227.jpeg" alt=""></p>
+<p>将apt.jar拷贝到app下的libs目录，右键该jar，点击Add as Library，添加Library.</p>
+<p><img src="http://img2.ph.126.net/j5zjxfuq-5c7iitXiRIyvA==/6631606526397135920.jpeg" alt=""></p>
+<p><img src="http://img2.ph.126.net/BG1Js3oL3cgWFoiqyK2gGQ==/6631701084397122194.jpeg" alt=""></p>
+<p>在APP项目中使用该注解GetMsg。运行。</p>
+<p><img src="http://img2.ph.126.net/Qy8xMkNkIv20akzOwLwqpA==/6631748363397120041.jpegg" alt=""></p>
+<p><strong>当你apt这个包的代码有修改时，需要重复2.6这个步骤。这是比较烦的，但是没办法</strong></p>
+<h4 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h4><p><img src="http://img1.ph.126.net/TdCL0wMyvStVQ_yBDMst8Q==/6631771453141303831.jpeg" alt=""></p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>这个Demo只是使用了注解，并且根据注解得到一些必要的信息。没有做代码生成的操作，生成代码的具体操作我们放到后面开始写框架时再讲。</p>
+<p>整个项目跑起来，遇到了比较多的坑，我们在下一章讲《Android编译时注解框架-爬坑》</p>
+<p>这个Demo的代码我放到了GitHub:</p>
+<p><a href="https://github.com/lizhaoxuan/Android-APT-Framework/tree/master/run-demo/CakeDao" target="_blank" rel="external">https://github.com/lizhaoxuan/Android-APT-Framework/tree/master/run-demo/CakeDao</a></p>
+<p><br></p>
+<p><a href="https://lizhaoxuan.github.io/2016/07/17/apt-run_demo/" target="_blank" rel="external">原地址</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/APT/" rel="tag">#APT</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/07/17/ Android编译时注解框架系列1-什么是编译时注解/" rel="next" title="Android编译时注解框架系列1-什么是编译时注解">
+                <i class="fa fa-chevron-left"></i> Android编译时注解框架系列1-什么是编译时注解
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#概述"><span class="nav-number">1.</span> <span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Running"><span class="nav-number">2.</span> <span class="nav-text">Running</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#项目搭建"><span class="nav-number">2.1.</span> <span class="nav-text">项目搭建</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义注解"><span class="nav-number">2.2.</span> <span class="nav-text">自定义注解</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#创建Processor"><span class="nav-number">2.3.</span> <span class="nav-text">创建Processor</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#重写process方法"><span class="nav-number">2.4.</span> <span class="nav-text">重写process方法</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#配置"><span class="nav-number">2.5.</span> <span class="nav-text">配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#编译jar"><span class="nav-number">2.6.</span> <span class="nav-text">编译jar</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#运行结果"><span class="nav-number">2.7.</span> <span class="nav-text">运行结果</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
