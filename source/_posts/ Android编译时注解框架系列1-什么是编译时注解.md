@@ -383,16 +383,7 @@ APT就好像一块蛋糕摆在你面前，就看你如何优雅的吃了。
 
 <br/>
 
-《Android编译时注解框架-什么是编译时注解》
-
-[《Android编译时注解框架-Run Demo》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-run_demo/)
-
-[《Android编译时注解框架-Run Project：OnceClick》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-run_project/)
-
-[《Android编译时注解框架-爬坑》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-爬坑/)
-
-[《Android编译时注解框架-语法讲解》](https://lizhaoxuan.github.io/2016/07/17/android编译时注解框架-语法讲解/)
-
+[原地址](https://lizhaoxuan.github.io/2016/07/17/apt-wathapt/)
 
 
 
