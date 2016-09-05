@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Android," />
+  <meta name="keywords" content="饿了么 ele android" />
 
 
 
@@ -84,18 +84,16 @@
 
 
 
-<meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;由于Android不同进程之前不能相互通信，所以当开发过程中遇到跨进程通信的时候,常用的方案就是AIDL(Android Interface Definition Language)通过它我们可以定义进程间的通信接口,但是当应用中出现大量跨进程通信的时候，比如你想体验一下插件化开发或者特殊需求在单应用中">
+<meta name="description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-ToyRoom。">
 <meta property="og:type" content="article">
-<meta property="og:title" content="HermesEventBus-饿了么开源的Android跨进程事件分发框架">
-<meta property="og:url" content="https://elelogistics.github.io/2016/07/13/HermesEventBus-一种新的Android跨进程事件分发框架/index.html">
+<meta property="og:title" content="ToyRoom-饿了么开源的Android业务流框架">
+<meta property="og:url" content="https://elelogistics.github.io/2016/09/05/ToyRoom-饿了么开源的Android业务流框架/index.html">
 <meta property="og:site_name" content="饿了么物流技术">
-<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;由于Android不同进程之前不能相互通信，所以当开发过程中遇到跨进程通信的时候,常用的方案就是AIDL(Android Interface Definition Language)通过它我们可以定义进程间的通信接口,但是当应用中出现大量跨进程通信的时候，比如你想体验一下插件化开发或者特殊需求在单应用中">
-<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/figure.png">
-<meta property="og:updated_time" content="2016-07-17T06:39:38.000Z">
+<meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-ToyRoom。">
+<meta property="og:updated_time" content="2016-09-05T16:24:19.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="HermesEventBus-饿了么开源的Android跨进程事件分发框架">
-<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;由于Android不同进程之前不能相互通信，所以当开发过程中遇到跨进程通信的时候,常用的方案就是AIDL(Android Interface Definition Language)通过它我们可以定义进程间的通信接口,但是当应用中出现大量跨进程通信的时候，比如你想体验一下插件化开发或者特殊需求在单应用中">
-<meta name="twitter:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/figure.png">
+<meta name="twitter:title" content="ToyRoom-饿了么开源的Android业务流框架">
+<meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-ToyRoom。">
 
 
 
@@ -116,9 +114,9 @@
 
 
 
-  <link rel="canonical" href="https://elelogistics.github.io/2016/07/13/HermesEventBus-一种新的Android跨进程事件分发框架/"/>
+  <link rel="canonical" href="https://elelogistics.github.io/2016/09/05/ToyRoom-饿了么开源的Android业务流框架/"/>
 
-  <title> HermesEventBus-饿了么开源的Android跨进程事件分发框架 | 饿了么物流技术 </title>
+  <title> ToyRoom-饿了么开源的Android业务流框架 | 饿了么物流技术 </title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -268,7 +266,7 @@
             
             
               
-                HermesEventBus-饿了么开源的Android跨进程事件分发框架
+                ToyRoom-饿了么开源的Android业务流框架
               
             
           </h1>
@@ -280,8 +278,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-07-13T15:54:58+08:00" content="2016-07-13">
-              2016-07-13
+            <time itemprop="dateCreated" datetime="2016-09-05T20:21:40+08:00" content="2016-09-05">
+              2016-09-05
             </time>
           </span>
 
@@ -290,13 +288,11 @@
           
   
        <span id="post_author">
-       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">进击的小羊</span>
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author"></span>
        </span>
 
         <span id="post_tags">
        &nbsp; | &nbsp; 标签&nbsp; 
-        
-           <span id="post_tags">Android</span>
         
        
        </span>
@@ -310,7 +306,7 @@
 
           
           
-             <span id="/2016/07/13/HermesEventBus-一种新的Android跨进程事件分发框架/" class="leancloud_visitors" data-flag-title="HermesEventBus-饿了么开源的Android跨进程事件分发框架">
+             <span id="/2016/09/05/ToyRoom-饿了么开源的Android业务流框架/" class="leancloud_visitors" data-flag-title="ToyRoom-饿了么开源的Android业务流框架">
                &nbsp; | &nbsp;
                <span class="post-meta-item-icon">
                  <i class="fa fa-eye"></i>
@@ -332,47 +328,47 @@
       
 
       
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;由于Android不同进程之前不能相互通信，所以当开发过程中遇到跨进程通信的时候,常用的方案就是AIDL(Android Interface Definition Language)通过它我们可以定义进程间的通信接口,但是当应用中出现大量跨进程通信的时候，比如你想体验一下插件化开发或者特殊需求在单应用中需要开多个进程，那么写过AIDL的同学都会有痛不欲生的感觉。现在福利来了，可以试试饿了么开源了一款进程间事件分发的库—<a href="https://github.com/eleme/HermesEventBus" target="_blank" rel="external">HermesEventBus</a>。</p>
+        <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">ToyRoom</a>。</p>
 <a id="more"></a>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;在介绍HermesEventBus之前先简单介绍一下它底层依赖的库Hermes—-同样是由饿了么Android资深工程师赵立飞操刀的一套新颖巧妙易用的Android进程间通信IPC框架,开发Hermes的初衷是为了解决插件化框架<a href="https://github.com/DroidPluginTeam/DroidPlugin" target="_blank" rel="external">DroidPlugin</a>的主从进程通信困难的问题,最后实现的效果是将进程间通信变的像调用本地函数一样方便简单，并且支持进程间函数回调和垃圾回收。</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;想了解更多，请移步飞神的<a href="https://github.com/Xiaofei-it/Hermes" target="_blank" rel="external">Hermes</a>，下面开始正式介绍HermesEventBus。</p>
-<h1 id="HermesEventBus"><a href="#HermesEventBus" class="headerlink" title="HermesEventBus"></a>HermesEventBus</h1><p>Hermes-EventBus是一个基于EventBus的、能在进程间发送和接收event的库，在IPC或者插件开发中非常有用。它底层基于<br>EventBus，并且和EventBus有相同API。</p>
-<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>事件收发是基于EventBus，IPC通信是基于Hermes。Hermes是一个简单易用的Android IPC库。</p>
-<p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/figure.png" alt="事件流图"></p>
-<p>首先选一个进程作为主进程，将其他进程作为子进程。</p>
-<p>每次一个event被发送都会经过以下四步：</p>
-<p>1、使用Hermes库将event传递给主进程。</p>
-<p>2、主进程使用EventBus在主进程内部发送event。</p>
-<p>3、主进程使用Hermes库将event传递给所有的子进程。</p>
-<p>4、每个子进程使用EventBus在子进程内部发送event。</p>
-<h1 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h1><p>能在app内实现多进程event收发，也可以跨app实现event收发。</p>
-<h2 id="单一app内的用法"><a href="#单一app内的用法" class="headerlink" title="单一app内的用法"></a>单一app内的用法</h2><p>如果你在单一app内进行多进程开发，那么只需要做以下三步：</p>
-<h3 id="Step-1"><a href="#Step-1" class="headerlink" title="Step 1"></a>Step 1</h3><p>在gradle文件中加入下面的依赖:</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies &#123;</div><div class="line">    compile &apos;xiaofei.library:hermes-eventbus:0.1.1&apos;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="Step-2"><a href="#Step-2" class="headerlink" title="Step 2"></a>Step 2</h3><p>在Application的onCreate中加上以下语句进行初始化：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HermesEventBus.getDefault().init(this);</div></pre></td></tr></table></figure>
-<h3 id="Step-3"><a href="#Step-3" class="headerlink" title="Step 3"></a>Step 3</h3><p>每次使用EventBus的时候，用HermesEventBus代替EventBus。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">HermesEventBus.getDefault().register(this);</div><div class="line"></div><div class="line">HermesEventBus.getDefault().post(new Event());</div></pre></td></tr></table></figure>
-<p>HermesEventBus也能够在一个进程间传递event，所以如果你已经使用了HermesEventBus，那么就不要再使用EventBus了。</p>
-<h2 id="多个app间的用法（使用DroidPlugin的时候就是这种情况）"><a href="#多个app间的用法（使用DroidPlugin的时候就是这种情况）" class="headerlink" title="多个app间的用法（使用DroidPlugin的时候就是这种情况）"></a>多个app间的用法（使用DroidPlugin的时候就是这种情况）</h2><p>如果你想在多个app间收发event，那么就做如下几步：</p>
-<h3 id="Step-1-1"><a href="#Step-1-1" class="headerlink" title="Step 1"></a>Step 1</h3><p>在每个app的gradle文件中加入依赖：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dependencies &#123;</div><div class="line">    compile &apos;xiaofei.library:hermes-eventbus:0.1.1&apos;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="Step-2-1"><a href="#Step-2-1" class="headerlink" title="Step 2"></a>Step 2</h3><p>选择一个app作为主app。你可以选择任意app作为主app，但最好选择那个存活时间最长的app。</p>
-<p>在使用DroidPlugin的时候，你可以把宿主app作为主app。</p>
-<p>在主app的AndroidManifest.xml中加入下面的service：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">&lt;service android:name=&quot;xiaofei.library.hermes.HermesService$HermesService0&quot;/&gt;</div></pre></td></tr></table></figure>
-<p>你可以加上一些属性。</p>
-<h3 id="Step-3-1"><a href="#Step-3-1" class="headerlink" title="Step 3"></a>Step 3</h3><p>在app间收发的事件类必须有相同的包名、相同的类名和相同的方法。</p>
-<p>务必记住在代码混淆的时候将这些类keep！！！</p>
-<h3 id="Step-4"><a href="#Step-4" class="headerlink" title="Step 4"></a>Step 4</h3><p>在主app的application类的onCreate方法中加入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HermesEventBus.getDefault().init(this);</div></pre></td></tr></table></figure>
-<p>在其他app的Application类的onCreate方法中加入：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">HermesEventBus.getDefault().connectApp(this, packageName);</div></pre></td></tr></table></figure>
-<p>“packageName”指的是主app的包名。</p>
-<h3 id="Step-5"><a href="#Step-5" class="headerlink" title="Step 5"></a>Step 5</h3><p>每次使用EventBus的时候，用HermesEventBus代替EventBus。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">HermesEventBus.getDefault().register(this);</div><div class="line"></div><div class="line">HermesEventBus.getDefault().post(new Event());</div></pre></td></tr></table></figure>
-<p>HermesEventBus也能够在一个进程间传递event，所以如果你已经使用了HermesEventBus，那么就不要再使用EventBus了。</p>
-<p><strong><a href="https://github.com/eleme/HermesEventBus" target="_blank" rel="external">HermesEventBus</a> 现已开源，欢迎大家前去提PR。</strong></p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大家在平时的业务开发过程中肯定遇到过这样的情况：在面向业务逻辑的编程中，一个特定的业务对象的改变可能会引起各个组件的变化，业务逻辑的复杂性也会增加模块之间的耦合。比如在订单列表页面，我们调用了一个异步网络请求去获取订单数据，当网络数据返回后，需要对数据进行处理，然后将数据保存到数据库，再通知多个tab页面刷新UI，之前我们使用EventBus来使用通知分发，但是当业务越来越多的时候，我们发现EventBus的onEvent方法维护变的不可控，因为我们不知道有多少个地方响应了这个Event，最后代码就变得难以维护，这时候我们就在想如何能把这些响应逻辑像流水线一样在一个地方铺开，先执行A，再执行B，最后执行C，一目了然，让世界重新回到我们的掌控中。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基于这个需求，饿了么开发了一套面向业务逻辑的编程库-<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">ToyRoom</a>，ToyRoom库提供了一种全新的编程模式，将业务对象的变化对各个模块的影响通过方法链表示出来。在方法链中，每个方法有一个action参数，这个action执行相应的操作改变特定的组件。方法串起来后就代表了一系列的对各个组件的操作。这样你就能从这一个文件中看到整个<strong>世界</strong>的变化。而且用过RxJava的同学会对它感觉格外亲切。诺，ToyRoom现在已经开源，欢迎大家品鉴。</p>
+<h2 id="特色"><a href="#特色" class="headerlink" title="特色"></a>特色</h2><ol>
+<li><p>为面向业务逻辑的编程提供一种全新的编程模式。</p>
+</li>
+<li><p>无论业务逻辑怎么变化，使用ToyRoom库编写的代码都易于理解和维护。</p>
+</li>
+<li><p>能够方便地发送网络请求和处理回调，尤其是发送并发请求和连续请求。</p>
+</li>
+<li><p>能够方便地执行耗时任务和处理回调。</p>
+</li>
+<li><p>提供强大丰富的数据流控制的API和线程调度的API。</p>
+</li>
+</ol>
+<h2 id="预览"><a href="#预览" class="headerlink" title="预览"></a>预览</h2><p>ToyRoom库基于<a href="https://github.com/Xiaofei-it/Shelly" target="_blank" rel="external">Shelly</a>库。<a href="https://github.com/Xiaofei-it/Shelly" target="_blank" rel="external">Shelly</a>是一个面向业务逻辑的编程库，它提供了一种全新的编程模式，将业务对象的变化对各个模块的影响通过方法链表示出来。</p>
+<p>使用ToyRoom库时，你可以使用一个方法链创建一个名为“Domino”的对象。方法链中的每个方法都以一个action作为参数。创建的Domino一旦被调用，就会根据方法链中的action序列执行每个action。</p>
+<p>在介绍之前，我们先看一个例子。</p>
+<p>假设现在你想打印文件夹里所有文件的名字。使用ToyRoom库，你可以写如下代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">Shelly.&lt;String&gt;createDomino(&quot;Print file names&quot;)</div><div class="line">        .background()</div><div class="line">        .flatMap((Function1) (input) -&gt; &#123;</div><div class="line">                File[] files = new File(input).listFiles();</div><div class="line">                List&lt;String&gt; result = new ArrayList&lt;String&gt;();</div><div class="line">                for (File file : files) &#123;</div><div class="line">                    result.add(file.getName());</div><div class="line">                &#125;</div><div class="line">                return result;</div><div class="line">        &#125;)</div><div class="line">        .perform((Action1) (input) -&gt; &#123;</div><div class="line">                System.out.println(input);</div><div class="line">        &#125;)</div><div class="line">        .commit();</div></pre></td></tr></table></figure>
+<p>上面的代码用方法链打印文件夹中的文件名。文件夹的路径被传入，<code>Function1</code>获取此路径下的所有文件并将文件名传给<code>Action1</code>，<code>Action1</code>将文件名打印出来。</p>
+<p>我们看一个稍微复杂的例子。假设现在你想使用Retrofit发送HTTP请求，然后</p>
+<ol>
+<li><p>如果服务端的响应成功，那么调用<code>MyActivity</code>和<code>SecondActivity</code>中的两个函数；</p>
+</li>
+<li><p>如果服务端的响应失败，那么在屏幕上显示一个toast；</p>
+</li>
+<li><p>如果在发请求的时候出现错误或者异常，那么打印错误信息。</p>
+</li>
+</ol>
+<p>使用ToyRoom库，你可以写下面的代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">Shelly.&lt;String&gt;createDomino(&quot;Sending request&quot;)</div><div class="line">        .background()</div><div class="line">        .beginRetrofitTask((RetrofitTask) (s) -&gt; &#123;</div><div class="line">                return netInterface.test(s);</div><div class="line">        &#125;)</div><div class="line">        .uiThread()</div><div class="line">        .onSuccessResult(MainActivity.class, (TargetAction1) (mainActivity, input) -&gt; &#123;</div><div class="line">                mainActivity.show(input.string());</div><div class="line">        &#125;)</div><div class="line">        .onSuccessResult(SecondActivity.class, (TargetAction1) (secondActivity, input) -&gt; &#123;</div><div class="line">                secondActivity.show(input.string());</div><div class="line">        &#125;)</div><div class="line">        .onResponseFailure(MainActivity.class, (TargetAction1) (mainActivity, input) -&gt; &#123;</div><div class="line">                Toast.makeText(</div><div class="line">                    mainActivity.getApplicationContext(),</div><div class="line">                    input.errorBody().string(),</div><div class="line">                    Toast.LENGTH_SHORT</div><div class="line">                ).show();</div><div class="line">        &#125;)</div><div class="line">        .onFailure((Action1) (input) -&gt; &#123;</div><div class="line">                Log.e(&quot;Eric Zhao&quot;, &quot;Error&quot;, input);</div><div class="line">        &#125;)</div><div class="line">        .endTask()</div><div class="line">        .commit();</div></pre></td></tr></table></figure>
+<p>一个URL被传入，Retrofit发送HTTP请求，之后根据不同结果执行相应的操作。</p>
+<p>代码中有一些线程调度相关的东西，比如<code>background()</code>和<code>uiThread()</code>。<code>background()</code>是说下面的操作在后台执行。<code>uiThread()</code>是说下面的操作在主线程（UI线程）执行。</p>
+<p>上面的例子中，你可以看出发送HTTP请求后<code>MainActivity</code>和<code>SecondActivity</code>是如何变化的。我们在一个地方就可以看到整个世界的变化。</p>
+<p>注意，如果不调用Domino，上面这段代码实际上并不会执行任何操作！这段代码做的只是提交并存储Domino，供以后使用。想要让Domino执行操作，必须调用它。只有调用Domino后，它才会执行操作。</p>
+<p>这些只是简单的例子。实际上，ToyRoom库是非常强大的，将在后面几节介绍。</p>
+<h2 id="与RxJava比较"><a href="#与RxJava比较" class="headerlink" title="与RxJava比较"></a>与RxJava比较</h2><p>在开发ToyRoom库的过程中，我发现了RxJva。然后我研究并学习了它的思想和实现，因此ToyRoom库和RxJava风格在某种程度上相似，但它们的思想、实现和用法很不相同，具体细节在<a href="doc/THEORY.md">理论部分</a>描述.</p>
+<h2 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">compile &apos;me.ele.android:toyroom:0.1.1&apos;</div></pre></td></tr></table></figure>
+<h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><p>具体的用法请异步–<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">https://github.com/eleme/ToyRoom</a>  ，这里有详细的DEMO和测试用例。</p>
 
       
     </div>
@@ -392,24 +388,18 @@
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/Android/" rel="tag">#Android</a>
-          
-        </div>
-      
 
       
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
+              <a href="/2016/08/05/apt-run_demo/" rel="next" title="Android编译时注解框架系列2-Run Demo">
+                <i class="fa fa-chevron-left"></i> Android编译时注解框架系列2-Run Demo
+              </a>
+            
           </div>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2016/07/17/ Android编译时注解框架系列1-什么是编译时注解/" rel="prev" title="Android编译时注解框架系列1-什么是编译时注解">
-                Android编译时注解框架系列1-什么是编译时注解 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -516,7 +506,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HermesEventBus"><span class="nav-number">1.</span> <span class="nav-text">HermesEventBus</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原理"><span class="nav-number">2.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#用法"><span class="nav-number">3.</span> <span class="nav-text">用法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#单一app内的用法"><span class="nav-number">3.1.</span> <span class="nav-text">单一app内的用法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-1"><span class="nav-number">3.1.1.</span> <span class="nav-text">Step 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-2"><span class="nav-number">3.1.2.</span> <span class="nav-text">Step 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-3"><span class="nav-number">3.1.3.</span> <span class="nav-text">Step 3</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#多个app间的用法（使用DroidPlugin的时候就是这种情况）"><span class="nav-number">3.2.</span> <span class="nav-text">多个app间的用法（使用DroidPlugin的时候就是这种情况）</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-1-1"><span class="nav-number">3.2.1.</span> <span class="nav-text">Step 1</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-2-1"><span class="nav-number">3.2.2.</span> <span class="nav-text">Step 2</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-3-1"><span class="nav-number">3.2.3.</span> <span class="nav-text">Step 3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-4"><span class="nav-number">3.2.4.</span> <span class="nav-text">Step 4</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Step-5"><span class="nav-number">3.2.5.</span> <span class="nav-text">Step 5</span></a></li></ol></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#特色"><span class="nav-number">1.</span> <span class="nav-text">特色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预览"><span class="nav-number">2.</span> <span class="nav-text">预览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与RxJava比较"><span class="nav-number">3.</span> <span class="nav-text">与RxJava比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gradle"><span class="nav-number">4.</span> <span class="nav-text">Gradle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用法"><span class="nav-number">5.</span> <span class="nav-text">用法</span></a></li></ol></div>
             
           </div>
         </section>
