@@ -90,7 +90,7 @@
 <meta property="og:url" content="https://elelogistics.github.io/2016/09/05/ToyRoom-饿了么开源的Android业务流框架/index.html">
 <meta property="og:site_name" content="饿了么物流技术">
 <meta property="og:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-ToyRoom。">
-<meta property="og:updated_time" content="2016-09-05T16:27:16.000Z">
+<meta property="og:updated_time" content="2016-09-06T08:23:03.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ToyRoom-饿了么开源的Android业务流框架">
 <meta name="twitter:description" content="&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-ToyRoom。">
@@ -333,7 +333,8 @@
         <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;如何优雅的解偶？这是所有开发者都面临的一个大问题，饿了么给大家提供了新的选择-<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">ToyRoom</a>。</p>
 <a id="more"></a>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;大家在平时的业务开发过程中肯定遇到过这样的情况：在面向业务逻辑的编程中，一个特定的业务对象的改变可能会引起各个组件的变化，业务逻辑的复杂性也会增加模块之间的耦合。比如在订单列表页面，我们调用了一个异步网络请求去获取订单数据，当网络数据返回后，需要对数据进行处理，然后将数据保存到数据库，再通知多个tab页面刷新UI，之前我们使用EventBus来使用通知分发，但是当业务越来越多的时候，我们发现EventBus的onEvent方法维护变的不可控，因为我们不知道有多少个地方响应了这个Event，最后代码就变得难以维护，这时候我们就在想如何能把这些响应逻辑像流水线一样在一个地方铺开，先执行A，再执行B，最后执行C，一目了然，让世界重新回到我们的掌控中。</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基于这个需求，饿了么开发了一套面向业务逻辑的编程库-<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">ToyRoom</a>，ToyRoom库提供了一种全新的编程模式，将业务对象的变化对各个模块的影响通过方法链表示出来。在方法链中，每个方法有一个action参数，这个action执行相应的操作改变特定的组件。方法串起来后就代表了一系列的对各个组件的操作。这样你就能从这一个文件中看到整个<strong>世界</strong>的变化。而且用过RxJava的同学会对它感觉格外亲切。诺，ToyRoom现在已经开源，欢迎大家品鉴。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;基于这个需求，饿了么开发了一套面向业务逻辑的编程库-<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">ToyRoom</a>，ToyRoom库提供了一种全新的编程模式，将业务对象的变化对各个模块的影响通过方法链表示出来。在方法链中，每个方法有一个action参数，这个action执行相应的操作改变特定的组件。方法串起来后就代表了一系列的对各个组件的操作。这样你就能从这一个文件中看到整个<strong>世界</strong>的变化。</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;很多人会觉得这个库和RxJava很像，但其实只是API相似，仅仅是API相似！两个库针对的痛点、开发的初衷、用法、源码、方法论都是不同的。ToyRoom与RxJava完全不相干，绝对不是RxJava的替代品！希望大家搞清楚，并且重视这个区别。作者最担心的是曲高和寡，也担心很多人误以为这个库与RxJava类似。事实上，ToyRoom的开发难度非常大，很多源码的开发技术是原创的。具体区别请看<a href="https://github.com/eleme/ToyRoom/blob/master/doc-zh-cn/THEORY.md" target="_blank" rel="external">理论部分</a>的“与RxJava比较”一节。而且用过RxJava的同学会对它感觉格外亲切。诺，ToyRoom现在已经开源，欢迎大家品鉴。</p>
 <h2 id="特色"><a href="#特色" class="headerlink" title="特色"></a>特色</h2><ol>
 <li><p>为面向业务逻辑的编程提供一种全新的编程模式。</p>
 </li>
@@ -368,7 +369,6 @@
 <p>上面的例子中，你可以看出发送HTTP请求后<code>MainActivity</code>和<code>SecondActivity</code>是如何变化的。我们在一个地方就可以看到整个世界的变化。</p>
 <p>注意，如果不调用Domino，上面这段代码实际上并不会执行任何操作！这段代码做的只是提交并存储Domino，供以后使用。想要让Domino执行操作，必须调用它。只有调用Domino后，它才会执行操作。</p>
 <p>这些只是简单的例子。实际上，ToyRoom库是非常强大的，将在后面几节介绍。</p>
-<h2 id="与RxJava比较"><a href="#与RxJava比较" class="headerlink" title="与RxJava比较"></a>与RxJava比较</h2><p>在开发ToyRoom库的过程中，我发现了RxJva。然后我研究并学习了它的思想和实现，因此ToyRoom库和RxJava风格在某种程度上相似，但它们的思想、实现和用法很不相同，具体细节在<a href="doc/THEORY.md">理论部分</a>描述.</p>
 <h2 id="Gradle"><a href="#Gradle" class="headerlink" title="Gradle"></a>Gradle</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">compile &apos;me.ele.android:toyroom:0.1.1&apos;</div></pre></td></tr></table></figure>
 <h2 id="用法"><a href="#用法" class="headerlink" title="用法"></a>用法</h2><p>具体的用法请异步–<a href="https://github.com/eleme/ToyRoom" target="_blank" rel="external">https://github.com/eleme/ToyRoom</a>  ，这里有详细的DEMO和测试用例。</p>
 
@@ -514,7 +514,7 @@
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#特色"><span class="nav-number">1.</span> <span class="nav-text">特色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预览"><span class="nav-number">2.</span> <span class="nav-text">预览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#与RxJava比较"><span class="nav-number">3.</span> <span class="nav-text">与RxJava比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gradle"><span class="nav-number">4.</span> <span class="nav-text">Gradle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用法"><span class="nav-number">5.</span> <span class="nav-text">用法</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#特色"><span class="nav-number">1.</span> <span class="nav-text">特色</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#预览"><span class="nav-number">2.</span> <span class="nav-text">预览</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Gradle"><span class="nav-number">3.</span> <span class="nav-text">Gradle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用法"><span class="nav-number">4.</span> <span class="nav-text">用法</span></a></li></ol></div>
             
           </div>
         </section>
