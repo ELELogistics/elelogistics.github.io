@@ -1,0 +1,764 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="React-Native," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="在React-native升级到0.30的时候，打包bundle，发现多了一个文件index.android.bundle.meta，不知道是做什么用的，文档里面也没有找到相关的解释，打开发现就是一串编码过后的字符串,从meta的意思：变化来看，感觉是类似md5的文件标识,但是不能确定。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React-Native打包index.android.bundle.meta到底是什么?">
+<meta property="og:url" content="https://elelogistics.github.io/2016/09/19/React-Native打包index-android-bundle-meta到底是什么/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="在React-native升级到0.30的时候，打包bundle，发现多了一个文件index.android.bundle.meta，不知道是做什么用的，文档里面也没有找到相关的解释，打开发现就是一串编码过后的字符串,从meta的意思：变化来看，感觉是类似md5的文件标识,但是不能确定。">
+<meta property="og:updated_time" content="2016-10-11T13:58:17.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React-Native打包index.android.bundle.meta到底是什么?">
+<meta name="twitter:description" content="在React-native升级到0.30的时候，打包bundle，发现多了一个文件index.android.bundle.meta，不知道是做什么用的，文档里面也没有找到相关的解释，打开发现就是一串编码过后的字符串,从meta的意思：变化来看，感觉是类似md5的文件标识,但是不能确定。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2016/09/19/React-Native打包index-android-bundle-meta到底是什么/"/>
+
+  <title> React-Native打包index.android.bundle.meta到底是什么? | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                React-Native打包index.android.bundle.meta到底是什么?
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-19T14:11:26+08:00" content="2016-09-19">
+              2016-09-19
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">进击的小羊</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">React-Native</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/19/React-Native打包index-android-bundle-meta到底是什么/" class="leancloud_visitors" data-flag-title="React-Native打包index.android.bundle.meta到底是什么?">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在React-native升级到0.30的时候，打包bundle，发现多了一个文件index.android.bundle.meta，不知道是做什么用的，文档里面也没有找到相关的解释，打开发现就是一串编码过后的字符串,从meta的意思：变化来看，感觉是类似md5的文件标识,但是不能确定。</p>
+<a id="more"></a>
+<p>问了很多大神，都没有答案，所以试着自己去探索一下。</p>
+<p>因为之前解析过React-native 源码，所以我事先知道rn的打包脚本在react-native/node_modules/react-native/local-cli 这个文件下,这个文件夹下面的文件有</p>
+<pre><code> __mocks__             generate-android.js   rnpm
+__tests__             generator             runAndroid
+bundle                generator-android     runIOS
+cli.js                generator-ios         server
+cliEntry.js           generator-utils.js    setup_env.bat
+commands.js           init                  setup_env.sh
+default.config.js     library               upgrade
+dependencies          logAndroid            util
+generate              logIOS                wrong-react-native.js
+</code></pre><p>其中runAndroid runIOS是我们经常用到的命令，再看我们的打包命令：</p>
+<pre><code>react-native bundle --platform android  --dev false --entry-file index.android.js \
+  --bundle-output ../app/src/main/assets/index.android.bundle \
+  --assets-dest ../app/src/main/res/
+</code></pre><p>bundle也是个文件夹，打包相关的命令应该就在他下面了</p>
+<p>进去react-native/node_modules/react-native/local-cli/bundle/bundle.js </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">const buildBundle = require(&apos;./buildBundle&apos;);</div><div class="line">const outputBundle = require(&apos;./output/bundle&apos;);</div><div class="line">const outputPrepack = require(&apos;./output/prepack&apos;);</div><div class="line">const bundleCommandLineArgs = require(&apos;./bundleCommandLineArgs&apos;);</div><div class="line"></div><div class="line">function bundleWithOutput(argv, config, args, output, packagerInstance) &#123;</div><div class="line">  if (!output) &#123;</div><div class="line">    output = args.prepack ? outputPrepack : outputBundle;</div><div class="line">  &#125;</div><div class="line">  return buildBundle(args, config, output, packagerInstance);</div><div class="line">&#125;</div><div class="line"></div><div class="line">function bundle(argv, config, args, packagerInstance) &#123;</div><div class="line">  return bundleWithOutput(argv, config, args, undefined, packagerInstance);</div><div class="line">&#125;</div><div class="line"></div><div class="line">module.exports = &#123;</div><div class="line">  name: &apos;bundle&apos;,</div><div class="line">  description: &apos;builds the javascript bundle for offline use&apos;,</div><div class="line">  func: bundle,</div><div class="line">  options: bundleCommandLineArgs,</div><div class="line"></div><div class="line">  // not used by the CLI itself</div><div class="line">  withOutput: bundleWithOutput,</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>恩，js代码能看懂，bundle-》bundleWithOutput-》buildBundle,方法链跳到了buildBundle.js中</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">function buildBundle(args, config, output = outputBundle, packagerInstance) &#123;</div><div class="line">	...</div><div class="line">  const bundlePromise = output.build(packagerInstance, requestOpts)</div><div class="line">    .then(bundle =&gt; &#123;</div><div class="line">      if (shouldClosePackager) &#123;</div><div class="line">        packagerInstance.end();</div><div class="line">      &#125;</div><div class="line">      return saveBundle(output, bundle, args);</div><div class="line">    &#125;);</div><div class="line"></div><div class="line">  // Save the assets of the bundle</div><div class="line">  const assets = bundlePromise</div><div class="line">    .then(bundle =&gt; bundle.getAssets())</div><div class="line">    .then(outputAssets =&gt; saveAssets(</div><div class="line">      outputAssets,</div><div class="line">      args.platform,</div><div class="line">      args.assetsDest,</div><div class="line">    ));</div><div class="line"></div><div class="line">  // When we&apos;re done saving bundle output and the assets, we&apos;re done.</div><div class="line">  return assets;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里有俩个promise,一个是build&amp;save 还有一个saveAssets,看到这个就知道我们应该找对了，bundle文件是保存在assets下面的，这里我们的目的是看meta文件是怎么生成的，所以忽略其他细节，有兴趣的朋友自己去查看，代码很简单。</p>
+<p>继续./output/bundle.build 方法下面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">function saveBundleAndMap(bundle, options, log) &#123;</div><div class="line">  const &#123;</div><div class="line">    bundleOutput,</div><div class="line">    bundleEncoding: encoding,</div><div class="line">    dev,</div><div class="line">    sourcemapOutput</div><div class="line">  &#125; = options;</div><div class="line"></div><div class="line">  log(&apos;start&apos;);</div><div class="line">  const codeWithMap = createCodeWithMap(bundle, dev);</div><div class="line">  log(&apos;finish&apos;);</div><div class="line"></div><div class="line">  log(&apos;Writing bundle output to:&apos;, bundleOutput);</div><div class="line"></div><div class="line">  const &#123;code&#125; = codeWithMap;</div><div class="line">  const writeBundle = writeFile(bundleOutput, code, encoding);</div><div class="line">  const writeMetadata = writeFile(</div><div class="line">    bundleOutput + &apos;.meta&apos;,</div><div class="line">    meta(code, encoding),</div><div class="line">    &apos;binary&apos;);</div><div class="line">  Promise.all([writeBundle, writeMetadata])</div><div class="line">    .then(() =&gt; log(&apos;Done writing bundle output&apos;));</div><div class="line"></div><div class="line">  if (sourcemapOutput) &#123;</div><div class="line">    log(&apos;Writing sourcemap output to:&apos;, sourcemapOutput);</div><div class="line">    const writeMap = writeFile(sourcemapOutput, codeWithMap.map, null);</div><div class="line">    writeMap.then(() =&gt; log(&apos;Done writing sourcemap output&apos;));</div><div class="line">    return Promise.all([writeBundle, writeMetadata, writeMap]);</div><div class="line">  &#125; else &#123;</div><div class="line">    return writeBundle;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>眼尖的同学已经发现了.meta生成的代码，writeFile</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">function writeFile(file, data, encoding) &#123;</div><div class="line">  return new Promise((resolve, reject) =&gt; &#123;</div><div class="line">    fs.writeFile(</div><div class="line">      file,</div><div class="line">      data,</div><div class="line">      encoding,</div><div class="line">      error =&gt; error ? reject(error) : resolve()</div><div class="line">    );</div><div class="line">  &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>将data用encoding编码写到file文件中，</p>
+<pre><code>const writeMetadata = writeFile(
+  bundleOutput + &apos;.meta&apos;,
+  meta(code, encoding),
+  &apos;binary&apos;);
+</code></pre><ul>
+<li>这里的文件名就是:index.android.bundle.meta</li>
+<li>data是 meta(code, encoding)</li>
+<li>encoding 是binary 二进制</li>
+</ul>
+<p>忽略code是什么，先看一下meta方法做了什么</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">module.exports = function(code, encoding) &#123;</div><div class="line">  const hash = crypto.createHash(&apos;sha1&apos;);</div><div class="line">  hash.update(code, encoding);</div><div class="line">  const digest = hash.digest(&apos;binary&apos;);</div><div class="line">  const signature = Buffer(digest.length + 1);</div><div class="line">  signature.write(digest, &apos;binary&apos;);</div><div class="line">  signature.writeUInt8(</div><div class="line">    constantFor(tryAsciiPromotion(code, encoding)),</div><div class="line">    signature.length - 1);</div><div class="line">  return signature;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>先算出code的sha1，然后用binary编码</p>
+<p>虽然和我们之前想的md5算法有差别，但是作用都是一样的，</p>
+<p>再回去找一下code是什么，一番跳转，发现code就是bundle.getSource({dev})，也就是bundle中的内容</p>
+<p>验证一下我们的想法：</p>
+<p>==<br>发现用同样的源码打包俩次，获取的meta相同，如果改动一个字符，打出的meta就会改变==</p>
+<p><strong>结论：</strong></p>
+<p>index.android.bundle.meta中存储的是bundle的sha1值，每次打包都会生成一个meta唯一标识bundle，之后的代码中并没有实际作用，可以删除。</p>
+<p><a href="http://xujinyang.github.io/2016/09/19/React-Native%E6%89%93%E5%8C%85index-android-bundle-meta%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88/" target="_blank" rel="external">原文地址</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/React-Native/" rel="tag">#React-Native</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/13/React-Native-jsx-code-analyse2/" rel="next" title="React-Native 源码分析二-JSX如何渲染成原生页面(下)">
+                <i class="fa fa-chevron-left"></i> React-Native 源码分析二-JSX如何渲染成原生页面(下)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/10/09/React-Native-update-rn-img/" rel="prev" title="React-Native 图片热更新初探">
+                React-Native 图片热更新初探 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

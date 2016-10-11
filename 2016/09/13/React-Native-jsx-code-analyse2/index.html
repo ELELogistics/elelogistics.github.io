@@ -1,0 +1,805 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="React-Native," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="React-Native 源码分析二-JSX如何渲染成原生页面(上)中这次会反推JSX如何最终变化为原生控件的过程，上面这部分算是原生的绘制已经结束，下面开始到JS代码中找，JSX布局如何传达到原生的。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React-Native 源码分析二-JSX如何渲染成原生页面(下)">
+<meta property="og:url" content="https://elelogistics.github.io/2016/09/13/React-Native-jsx-code-analyse2/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="React-Native 源码分析二-JSX如何渲染成原生页面(上)中这次会反推JSX如何最终变化为原生控件的过程，上面这部分算是原生的绘制已经结束，下面开始到JS代码中找，JSX布局如何传达到原生的。">
+<meta property="og:updated_time" content="2016-10-11T13:56:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React-Native 源码分析二-JSX如何渲染成原生页面(下)">
+<meta name="twitter:description" content="React-Native 源码分析二-JSX如何渲染成原生页面(上)中这次会反推JSX如何最终变化为原生控件的过程，上面这部分算是原生的绘制已经结束，下面开始到JS代码中找，JSX布局如何传达到原生的。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2016/09/13/React-Native-jsx-code-analyse2/"/>
+
+  <title> React-Native 源码分析二-JSX如何渲染成原生页面(下) | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                React-Native 源码分析二-JSX如何渲染成原生页面(下)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-13T11:48:38+08:00" content="2016-09-13">
+              2016-09-13
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">进击的小羊</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">React-Native</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/13/React-Native-jsx-code-analyse2/" class="leancloud_visitors" data-flag-title="React-Native 源码分析二-JSX如何渲染成原生页面(下)">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://xujinyang.github.io/2016/09/12/React-Native-jsx%20analyse1/" target="_blank" rel="external"> React-Native 源码分析二-JSX如何渲染成原生页面(上)</a>中这次会反推JSX如何最终变化为原生控件的过程，上面这部分算是原生的绘制已经结束，下面开始到JS代码中找，JSX布局如何传达到原生的。</p>
+<a id="more"></a>
+<p>经验之谈：要凭借我的半吊子js和C水平要去扒拉React-Native js部分的代码，也是够吃力的，但是我找到了一个很好的工具-webStorm，之前使用sublime text，不能查看类直接的依赖，不能全局查找引用类的地方，在面对几百个类和他们直接错综复杂的关系的时候，着实心累。有了webStom可以直接跳转到引用的类中，如果要查一个类在什么地方用到，可以使用shift+command+F查找到所有的使用到这个字符串的地方,是在陌生领域探索的利器。还有就是在文件夹中全文搜索文件名，也是常用查找方式。</p>
+<p>在查看JS代码之前首先要找到一个突破口，因为我的脑子里面一直有个疑问，就是React和React-Native是如何搭配工作的，我们就从这个问题入手开始分析。</p>
+<p>先看一下一个很普通的RN页面</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">import React, &#123; Component &#125; from &apos;react&apos;;</div><div class="line">import &#123;</div><div class="line">  AppRegistry,</div><div class="line">  StyleSheet,</div><div class="line">  Text,</div><div class="line">  View</div><div class="line">&#125; from &apos;react-native&apos;;</div><div class="line"></div><div class="line">class TestReact extends Component &#123;</div><div class="line">  render() &#123;</div><div class="line">    return (</div><div class="line">      &lt;View style=&#123;styles.container&#125;&gt;</div><div class="line">        &lt;Text style=&#123;styles.welcome&#125;&gt;</div><div class="line">          Welcome to React Native!</div><div class="line">        &lt;/Text&gt;</div><div class="line">      &lt;/View&gt;</div><div class="line">    );</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line">...</div><div class="line"></div><div class="line">AppRegistry.registerComponent(&apos;TestReact&apos;, () =&gt; TestReact);</div></pre></td></tr></table></figure>
+<p>我们发现Component 是解构赋值于react,而Text 来自 react-native 那我们就到react.js中去看一下</p>
+<blockquote>
+<p>node_modules/react/lib/React.js </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">&apos;use strict&apos;;</div><div class="line"></div><div class="line">var _assign = require(&apos;object-assign&apos;);</div><div class="line"></div><div class="line">var ReactChildren = require(&apos;./ReactChildren&apos;);</div><div class="line">var ReactComponent = require(&apos;./ReactComponent&apos;);</div><div class="line">var ReactPureComponent = require(&apos;./ReactPureComponent&apos;);</div><div class="line">var ReactClass = require(&apos;./ReactClass&apos;);</div><div class="line">var ReactDOMFactories = require(&apos;./ReactDOMFactories&apos;);</div><div class="line">var ReactElement = require(&apos;./ReactElement&apos;);</div><div class="line">var ReactPropTypes = require(&apos;./ReactPropTypes&apos;);</div><div class="line">var ReactVersion = require(&apos;./ReactVersion&apos;);</div><div class="line">...</div><div class="line">var React = &#123;</div><div class="line"></div><div class="line">  // Modern</div><div class="line"></div><div class="line">  Children: &#123;</div><div class="line">    map: ReactChildren.map,</div><div class="line">    forEach: ReactChildren.forEach,</div><div class="line">    count: ReactChildren.count,</div><div class="line">    toArray: ReactChildren.toArray,</div><div class="line">    only: onlyChild</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  Component: ReactComponent,</div><div class="line">  PureComponent: ReactPureComponent,</div><div class="line"></div><div class="line">  createElement: createElement,</div><div class="line">  cloneElement: cloneElement,</div><div class="line">  isValidElement: ReactElement.isValidElement,</div><div class="line"></div><div class="line">  // Classic</div><div class="line"></div><div class="line">  PropTypes: ReactPropTypes,</div><div class="line">  createClass: ReactClass.createClass,</div><div class="line">  createFactory: createFactory,</div><div class="line"></div><div class="line">module.exports = React;</div></pre></td></tr></table></figure>
+<p>发现React只是引用了ReactComponent，ReactClass等类然后赋值给了自己的变量，想到老的写法中有React.createClass这样来创建组件的，那就到ReactClass中看下</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line">var ReactClassInterface = &#123;</div><div class="line"></div><div class="line">  mixins: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  statics: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  propTypes: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  contextTypes: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  childContextTypes: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  getDefaultProps: SpecPolicy.DEFINE_MANY_MERGED,</div><div class="line"></div><div class="line">  getInitialState: SpecPolicy.DEFINE_MANY_MERGED,</div><div class="line"></div><div class="line">  getChildContext: SpecPolicy.DEFINE_MANY_MERGED,</div><div class="line"></div><div class="line">  render: SpecPolicy.DEFINE_ONCE,</div><div class="line"></div><div class="line">  componentWillMount: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  componentDidMount: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  componentWillReceiveProps: SpecPolicy.DEFINE_MANY,</div><div class="line">  </div><div class="line">  shouldComponentUpdate: SpecPolicy.DEFINE_ONCE,</div><div class="line">  </div><div class="line">  componentWillUpdate: SpecPolicy.DEFINE_MANY,</div><div class="line"> </div><div class="line">  componentDidUpdate: SpecPolicy.DEFINE_MANY,</div><div class="line">  </div><div class="line">  componentWillUnmount: SpecPolicy.DEFINE_MANY,</div><div class="line"></div><div class="line">  updateComponent: SpecPolicy.OVERRIDE_BASE</div><div class="line"></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p>很熟悉是不是，这不就是RN的生命周期嘛，找到了生命周期，那么我就看也没有地方实现了这个接口并且调用render方法的，因为Rn是通过render方法来把数据传递到native，控制native渲染UI的。<br>在ReactClass.js中全局搜索render，并没有发现render的实现，再到ReactComponent.js中搜索也没有发现render的实现，这个时候感觉这样来查找好像大海捞针，我们还没有找到突破口，那我们换个思路，由大到小走不通，那我们就由小到大，由具体到抽象，从一个UI控件的实现来看看也没有什么收获。</p>
+<p>随便找个控件RefreshControl</p>
+<blockquote>
+<p>node_modules/react-native/Libraries/Components/RefreshControl/RefreshControl.js </p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div></pre></td><td class="code"><pre><div class="line">&apos;use strict&apos;;</div><div class="line"></div><div class="line">const ColorPropType = require(&apos;ColorPropType&apos;);</div><div class="line">const NativeMethodsMixin = require(&apos;react/lib/NativeMethodsMixin&apos;);</div><div class="line">const Platform = require(&apos;Platform&apos;);</div><div class="line">const React = require(&apos;React&apos;);</div><div class="line">const View = require(&apos;View&apos;);</div><div class="line"></div><div class="line">const requireNativeComponent = require(&apos;requireNativeComponent&apos;);</div><div class="line"></div><div class="line">if (Platform.OS === &apos;android&apos;) &#123;</div><div class="line">  var RefreshLayoutConsts = require(&apos;UIManager&apos;).AndroidSwipeRefreshLayout.Constants;</div><div class="line">&#125; else &#123;</div><div class="line">  var RefreshLayoutConsts = &#123;SIZE: &#123;&#125;&#125;;</div><div class="line">&#125;</div><div class="line"></div><div class="line">const RefreshControl = React.createClass(&#123;</div><div class="line">  statics: &#123;</div><div class="line">    SIZE: RefreshLayoutConsts.SIZE,</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  mixins: [NativeMethodsMixin],</div><div class="line"></div><div class="line">  propTypes: &#123;</div><div class="line">    ...View.propTypes,</div><div class="line">    </div><div class="line">    onRefresh: React.PropTypes.func,</div><div class="line">   </div><div class="line">    refreshing: React.PropTypes.bool.isRequired,</div><div class="line">    </div><div class="line">    tintColor: ColorPropType,</div><div class="line">    </div><div class="line">    titleColor: ColorPropType,</div><div class="line">    </div><div class="line">    title: React.PropTypes.string,</div><div class="line">    </div><div class="line">    enabled: React.PropTypes.bool,</div><div class="line">    </div><div class="line">    colors: React.PropTypes.arrayOf(ColorPropType),</div><div class="line">    </div><div class="line">    progressBackgroundColor: ColorPropType,</div><div class="line">   </div><div class="line">    size: React.PropTypes.oneOf([RefreshLayoutConsts.SIZE.DEFAULT, RefreshLayoutConsts.SIZE.LARGE]),</div><div class="line">    </div><div class="line">    progressViewOffset: React.PropTypes.number,</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  _nativeRef: (null: any),</div><div class="line">  _lastNativeRefreshing: false,</div><div class="line"></div><div class="line">  componentDidMount() &#123;</div><div class="line">    this._lastNativeRefreshing = this.props.refreshing;</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  componentDidUpdate(prevProps: &#123;refreshing: boolean&#125;) &#123;</div><div class="line"></div><div class="line">    if (this.props.refreshing !== prevProps.refreshing) &#123;</div><div class="line">      this._lastNativeRefreshing = this.props.refreshing;</div><div class="line">    &#125; else if (this.props.refreshing !== this._lastNativeRefreshing) &#123;</div><div class="line">      this._nativeRef.setNativeProps(&#123;refreshing: this.props.refreshing&#125;);</div><div class="line">      this._lastNativeRefreshing = this.props.refreshing;</div><div class="line">    &#125;</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  render() &#123;</div><div class="line">    return (</div><div class="line">      &lt;NativeRefreshControl</div><div class="line">        &#123;...this.props&#125;</div><div class="line">        ref=&#123;ref =&gt; this._nativeRef = ref&#125;</div><div class="line">        onRefresh=&#123;this._onRefresh&#125;</div><div class="line">      /&gt;</div><div class="line">    );</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  _onRefresh() &#123;</div><div class="line">    this._lastNativeRefreshing = true;</div><div class="line"></div><div class="line">    this.props.onRefresh &amp;&amp; this.props.onRefresh();</div><div class="line"></div><div class="line">    this.forceUpdate();</div><div class="line">  &#125;,</div><div class="line">&#125;);</div><div class="line"></div><div class="line">if (Platform.OS === &apos;ios&apos;) &#123;</div><div class="line">  var NativeRefreshControl = requireNativeComponent(</div><div class="line">    &apos;RCTRefreshControl&apos;,</div><div class="line">    RefreshControl</div><div class="line">  );</div><div class="line">&#125; else if (Platform.OS === &apos;android&apos;) &#123;</div><div class="line">  var NativeRefreshControl = requireNativeComponent(</div><div class="line">    &apos;AndroidSwipeRefreshLayout&apos;,</div><div class="line">    RefreshControl</div><div class="line">  );</div><div class="line">&#125;</div><div class="line"></div><div class="line">module.exports = RefreshControl;</div></pre></td></tr></table></figure>
+<p>跳过前面的属性定义，直接来看render是如何渲染控件的</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">render() &#123;</div><div class="line">    return (</div><div class="line">      &lt;NativeRefreshControl</div><div class="line">        &#123;...this.props&#125;</div><div class="line">        ref=&#123;ref =&gt; this._nativeRef = ref&#125;</div><div class="line">        onRefresh=&#123;this._onRefresh&#125;</div><div class="line">      /&gt;</div><div class="line">    );</div><div class="line">  &#125;,</div></pre></td></tr></table></figure>
+<p>NativeRefreshControl是ios和Android平台通用的控件，所以有了下面区分平台的兼容代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">if (Platform.OS === &apos;ios&apos;) &#123;</div><div class="line">  var NativeRefreshControl = requireNativeComponent(</div><div class="line">    &apos;RCTRefreshControl&apos;,</div><div class="line">    RefreshControl</div><div class="line">  );</div><div class="line">&#125; else if (Platform.OS === &apos;android&apos;) &#123;</div><div class="line">  var NativeRefreshControl = requireNativeComponent(</div><div class="line">    &apos;AndroidSwipeRefreshLayout&apos;,</div><div class="line">    RefreshControl</div><div class="line">  );</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们的目光停在了requireNativeComponent这个方法上，在ios平台使用RCTRefreshControl，在Android平台使用AndroidSwipeRefreshLayout，看来就是他来兼容各平台的api。在文件夹内全局搜索<br>requireNativeComponent.js（这个类不在同级目录，所以不方便找，这个时候就全局搜索）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line">&apos;use strict&apos;;</div><div class="line"></div><div class="line">var ReactNativeStyleAttributes = require(&apos;ReactNativeStyleAttributes&apos;);</div><div class="line">var UIManager = require(&apos;UIManager&apos;);</div><div class="line">var UnimplementedView = require(&apos;UnimplementedView&apos;);</div><div class="line"></div><div class="line">var createReactNativeComponentClass = require(&apos;react/lib/createReactNativeComponentClass&apos;);</div><div class="line">...</div><div class="line">import type &#123; ComponentInterface &#125; from &apos;verifyPropTypes&apos;;</div><div class="line"></div><div class="line">function requireNativeComponent(</div><div class="line">  viewName: string,</div><div class="line">  componentInterface?: ?ComponentInterface,</div><div class="line">  extraConfig?: ?&#123;nativeOnly?: Object&#125;,</div><div class="line">): Function &#123;</div><div class="line">  var viewConfig = UIManager[viewName];</div><div class="line">  if (!viewConfig || !viewConfig.NativeProps) &#123;</div><div class="line">    warning(false, &apos;Native component for &quot;%s&quot; does not exist&apos;, viewName);</div><div class="line">    return UnimplementedView;</div><div class="line">  &#125;</div><div class="line">  var nativeProps = &#123;</div><div class="line">    ...UIManager.RCTView.NativeProps,</div><div class="line">    ...viewConfig.NativeProps,</div><div class="line">  &#125;;</div><div class="line">  viewConfig.uiViewClassName = viewName;</div><div class="line">  viewConfig.validAttributes = &#123;&#125;;</div><div class="line">  viewConfig.propTypes = componentInterface &amp;&amp; componentInterface.propTypes;</div><div class="line">  ...</div><div class="line">  viewConfig.validAttributes.style = ReactNativeStyleAttributes;</div><div class="line"></div><div class="line">  return createReactNativeComponentClass(viewConfig);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>requireNativeComponent根据前面传过来的viewname,extraConfig，生成了配置变量viewConfig,最后调用createReactNativeComponentClass(viewConfig)</p>
+<pre><code>var createReactNativeComponentClass = require(&apos;react/lib/createReactNativeComponentClass&apos;);
+</code></pre><p>createReactNativeComponentClass来自react的lib目录下，看到了react有点欣喜，感觉这条路走对了，不废话，继续跟入</p>
+<blockquote>
+<p>/node_modules/react/lib/createReactNativeComponentClass.js</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">&apos;use strict&apos;;</div><div class="line"></div><div class="line">var ReactNativeBaseComponent = require(&apos;./ReactNativeBaseComponent&apos;);</div><div class="line"></div><div class="line">var createReactNativeComponentClass = function (viewConfig) &#123;</div><div class="line">  var Constructor = function (element) &#123;</div><div class="line">    this._currentElement = element;</div><div class="line">    this._topLevelWrapper = null;</div><div class="line">    this._hostParent = null;</div><div class="line">    this._hostContainerInfo = null;</div><div class="line">    this._rootNodeID = 0;</div><div class="line">    this._renderedChildren = null;</div><div class="line">  &#125;;</div><div class="line">  Constructor.displayName = viewConfig.uiViewClassName;</div><div class="line">  Constructor.viewConfig = viewConfig;</div><div class="line">  Constructor.propTypes = viewConfig.propTypes;</div><div class="line">  Constructor.prototype = new ReactNativeBaseComponent(viewConfig);</div><div class="line">  Constructor.prototype.constructor = Constructor;</div><div class="line"></div><div class="line">  return Constructor;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">module.exports = createReactNativeComponentClass;</div></pre></td></tr></table></figure>
+<p>createReactNativeComponentClass方法很简单，返回了一个构造函数，但是我们传入的viewConfig被new 了一个new ReactNativeBaseComponent(viewConfig)</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line">&apos;use strict&apos;;</div><div class="line"></div><div class="line">var _assign = require(&apos;object-assign&apos;);</div><div class="line"></div><div class="line">var NativeMethodsMixin = require(&apos;./NativeMethodsMixin&apos;);</div><div class="line">var ReactNativeAttributePayload = require(&apos;./ReactNativeAttributePayload&apos;);</div><div class="line">var ReactNativeComponentTree = require(&apos;./ReactNativeComponentTree&apos;);</div><div class="line">var ReactNativeEventEmitter = require(&apos;./ReactNativeEventEmitter&apos;);</div><div class="line">var ReactNativeTagHandles = require(&apos;./ReactNativeTagHandles&apos;);</div><div class="line">var ReactMultiChild = require(&apos;./ReactMultiChild&apos;);</div><div class="line">var UIManager = require(&apos;react-native/lib/UIManager&apos;);</div><div class="line"></div><div class="line">var ReactNativeBaseComponent = function (viewConfig) &#123;</div><div class="line">  this.viewConfig = viewConfig;</div><div class="line">&#125;;</div><div class="line"></div><div class="line"></div><div class="line">ReactNativeBaseComponent.Mixin = &#123;</div><div class="line">  getPublicInstance: function () &#123;</div><div class="line">    // TODO: This should probably use a composite wrapper</div><div class="line">    return this;</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  unmountComponent: function () &#123;</div><div class="line">    ReactNativeComponentTree.uncacheNode(this);</div><div class="line">    deleteAllListeners(this);</div><div class="line">    this.unmountChildren();</div><div class="line">    this._rootNodeID = 0;</div><div class="line">  &#125;,</div><div class="line"></div><div class="line">  mountComponent: function (transaction, hostParent, hostContainerInfo, context) &#123;</div><div class="line">    var tag = ReactNativeTagHandles.allocateTag();</div><div class="line"></div><div class="line">    this._rootNodeID = tag;</div><div class="line">    this._hostParent = hostParent;</div><div class="line">    this._hostContainerInfo = hostContainerInfo;</div><div class="line"></div><div class="line">    if (process.env.NODE_ENV !== &apos;production&apos;) &#123;</div><div class="line">      for (var key in this.viewConfig.validAttributes) &#123;</div><div class="line">        if (this._currentElement.props.hasOwnProperty(key)) &#123;</div><div class="line">          deepFreezeAndThrowOnMutationInDev(this._currentElement.props[key]);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    var updatePayload = ReactNativeAttributePayload.create(this._currentElement.props, this.viewConfig.validAttributes);</div><div class="line"></div><div class="line">    var nativeTopRootTag = hostContainerInfo._tag;</div><div class="line">    UIManager.createView(tag, this.viewConfig.uiViewClassName, nativeTopRootTag, updatePayload);</div><div class="line"></div><div class="line">    ReactNativeComponentTree.precacheNode(this, tag);</div><div class="line"></div><div class="line">    this._registerListenersUponCreation(this._currentElement.props);</div><div class="line">    this.initializeChildren(this._currentElement.props.children, tag, transaction, context);</div><div class="line">    return tag;</div><div class="line">  &#125;</div><div class="line">&#125;;</div><div class="line"></div><div class="line">_assign(ReactNativeBaseComponent.prototype, ReactMultiChild.Mixin, ReactNativeBaseComponent.Mixin, NativeMethodsMixin);</div><div class="line"></div><div class="line">module.exports = ReactNativeBaseComponent;</div></pre></td></tr></table></figure>
+<p>进到ReactNativeBaseComponent 里面我们发现了俩个很重要的地方：</p>
+<ol>
+<li><p>var UIManager = require(‘react-native/lib/UIManager’);UIManager是JS管理原生UI的的控制类，它的出现代表着这里有人要直接控制原生UI</p>
+</li>
+<li><p>mountComponent: function (transaction, hostParent, hostContainerInfo, context) 基本上就是render的意思,仔细研究一下这个方法</p>
+</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">mountComponent: function (transaction, hostParent, hostContainerInfo, context) &#123;</div><div class="line">    var tag = ReactNativeTagHandles.allocateTag();</div><div class="line"></div><div class="line">    this._rootNodeID = tag;</div><div class="line">    this._hostParent = hostParent;</div><div class="line">    this._hostContainerInfo = hostContainerInfo;</div><div class="line"></div><div class="line">    if (process.env.NODE_ENV !== &apos;production&apos;) &#123;</div><div class="line">      for (var key in this.viewConfig.validAttributes) &#123;</div><div class="line">        if (this._currentElement.props.hasOwnProperty(key)) &#123;</div><div class="line">          deepFreezeAndThrowOnMutationInDev(this._currentElement.props[key]);</div><div class="line">        &#125;</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    var updatePayload = ReactNativeAttributePayload.create(this._currentElement.props, this.viewConfig.validAttributes);</div><div class="line"></div><div class="line">    var nativeTopRootTag = hostContainerInfo._tag;</div><div class="line">    UIManager.createView(tag, this.viewConfig.uiViewClassName, nativeTopRootTag, updatePayload);</div><div class="line"></div><div class="line">    ReactNativeComponentTree.precacheNode(this, tag);</div><div class="line"></div><div class="line">    this._registerListenersUponCreation(this._currentElement.props);</div><div class="line">    this.initializeChildren(this._currentElement.props.children, tag, transaction, context);</div><div class="line">    return tag;</div><div class="line">  &#125;</div><div class="line">&#125;;</div></pre></td></tr></table></figure>
+<p> UIManager.createView(tag, this.viewConfig.uiViewClassName, nativeTopRootTag, updatePayload) 找到了这个方法，就是找到了突破口，刚刚一路跟过来，我们在RefreshControl render方法中发现是new 了一个ReactNativeBaseComponent()，现在发现ReactNativeBaseComponent的mountComponent方法直接就调用了UIManager.createView，这和我们上一篇中讲到的com/facebook/react/uimanager/UIManagerModule.java中的createView方法难道不谋而合？我们直接点UIManager.createView进去看看，发现跳转到了不是UIManager.js 而是react-native/Libraries/ReactNative/UIManagerStatTracker.js这个不知道又是JS什么奇葩的技能导致的。不管了，不懂的东西已经那么多了，不在乎再多一个，直接看</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div></pre></td><td class="code"><pre><div class="line"> var UIManager = require(&apos;UIManager&apos;);</div><div class="line"></div><div class="line">var installed = false;</div><div class="line">var UIManagerStatTracker = &#123;</div><div class="line">  install: function() &#123;</div><div class="line">    if (installed) &#123;</div><div class="line">      return;</div><div class="line">    &#125;</div><div class="line">    installed = true;</div><div class="line">    var statLogHandle;</div><div class="line">    var stats = &#123;&#125;;</div><div class="line">    function printStats() &#123;</div><div class="line">      console.log(&#123;UIManagerStatTracker: stats&#125;);</div><div class="line">      statLogHandle = null;</div><div class="line">    &#125;</div><div class="line">    function incStat(key: string, increment: number) &#123;</div><div class="line">      stats[key] = (stats[key] || 0) + increment;</div><div class="line">      if (!statLogHandle) &#123;</div><div class="line">        statLogHandle = setImmediate(printStats);</div><div class="line">      &#125;</div><div class="line">    &#125;</div><div class="line">    var createViewOrig = UIManager.createView;</div><div class="line">    UIManager.createView = function(tag, className, rootTag, props) &#123;</div><div class="line">      incStat(&apos;createView&apos;, 1);</div><div class="line">      incStat(&apos;setProp&apos;, Object.keys(props || []).length);</div><div class="line">      createViewOrig(tag, className, rootTag, props);</div><div class="line">    &#125;;</div><div class="line">    var updateViewOrig = UIManager.updateView;</div><div class="line">    UIManager.updateView = function(tag, className, props) &#123;</div><div class="line">      incStat(&apos;updateView&apos;, 1);</div><div class="line">      incStat(&apos;setProp&apos;, Object.keys(props || []).length);</div><div class="line">      updateViewOrig(tag, className, props);</div><div class="line">    &#125;;</div><div class="line">    var manageChildrenOrig = UIManager.manageChildren;</div><div class="line">    UIManager.manageChildren = function(tag, moveFrom, moveTo, addTags, addIndices, remove) &#123;</div><div class="line">      incStat(&apos;manageChildren&apos;, 1);</div><div class="line">      incStat(&apos;move&apos;, Object.keys(moveFrom || []).length);</div><div class="line">      incStat(&apos;remove&apos;, Object.keys(remove || []).length);</div><div class="line">      manageChildrenOrig(tag, moveFrom, moveTo, addTags, addIndices, remove);</div><div class="line">    &#125;;</div><div class="line">  &#125;,</div><div class="line">&#125;;</div><div class="line"></div><div class="line">module.exports = UIManagerStatTracker;</div></pre></td></tr></table></figure>
+<p>有意思的东西出现了：</p>
+<ul>
+<li>UIManager.createView</li>
+<li>UIManager.updateView</li>
+<li>UIManager.manageChildren</li>
+</ul>
+<p>这三个方法在UIManagerModule中也出现过</p>
+<blockquote>
+<p>com/facebook/react/uimanager/UIManagerModule.java</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">public class UIManagerModule extends ReactContextBaseJavaModule implements</div><div class="line">    OnBatchCompleteListener, LifecycleEventListener &#123;</div><div class="line"></div><div class="line">...</div><div class="line"></div><div class="line">  @ReactMethod</div><div class="line">  public void removeRootView(int rootViewTag) &#123;</div><div class="line">    mUIImplementation.removeRootView(rootViewTag);</div><div class="line">  &#125;</div><div class="line"></div><div class="line"> </div><div class="line">  @ReactMethod</div><div class="line">  public void createView(int tag, String className, int rootViewTag, ReadableMap props) &#123;</div><div class="line">    if (DEBUG) &#123;</div><div class="line">      FLog.d(</div><div class="line">          ReactConstants.TAG,</div><div class="line">          &quot;(UIManager.createView) tag: &quot; + tag + &quot;, class: &quot; + className + &quot;, props: &quot; + props);</div><div class="line">    &#125;</div><div class="line">    mUIImplementation.createView(tag, className, rootViewTag, props);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  @ReactMethod</div><div class="line">  public void updateView(int tag, String className, ReadableMap props) &#123;</div><div class="line">    if (DEBUG) &#123;</div><div class="line">      FLog.d(</div><div class="line">          ReactConstants.TAG,</div><div class="line">          &quot;(UIManager.updateView) tag: &quot; + tag + &quot;, class: &quot; + className + &quot;, props: &quot; + props);</div><div class="line">    &#125;</div><div class="line">    mUIImplementation.updateView(tag, className, props);</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  @ReactMethod</div><div class="line">  public void manageChildren(</div><div class="line">      int viewTag,</div><div class="line">      @Nullable ReadableArray moveFrom,</div><div class="line">      @Nullable ReadableArray moveTo,</div><div class="line">      @Nullable ReadableArray addChildTags,</div><div class="line">      @Nullable ReadableArray addAtIndices,</div><div class="line">      @Nullable ReadableArray removeFrom) &#123;</div><div class="line">    if (DEBUG) &#123;</div><div class="line">      FLog.d(</div><div class="line">          ReactConstants.TAG,</div><div class="line">          &quot;(UIManager.manageChildren) tag: &quot; + viewTag +</div><div class="line">          &quot;, moveFrom: &quot; + moveFrom +</div><div class="line">          &quot;, moveTo: &quot; + moveTo +</div><div class="line">          &quot;, addTags: &quot; + addChildTags +</div><div class="line">          &quot;, atIndices: &quot; + addAtIndices +</div><div class="line">          &quot;, removeFrom: &quot; + removeFrom);</div><div class="line">    &#125;</div><div class="line">    mUIImplementation.manageChildren(</div><div class="line">        viewTag,</div><div class="line">        moveFrom,</div><div class="line">        moveTo,</div><div class="line">        addChildTags,</div><div class="line">        addAtIndices,</div><div class="line">        removeFrom);</div><div class="line">  &#125;</div><div class="line">	...</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这时候我们可以认为这个地方就是在调用原生的方法在createView或者是创建了createView的配置信息。</p>
+<p>分析到这里我们已经有点眉目了，原来Rn和原生一样，也是先渲染内部子控件，然后再渲染外部控件。所以Component来自React的，但是UI控件是React-Native的，在render生命周期执行的时候会执行子控件的render方法，子控件会调用UIManager来把信息传递到原始的UIManagerModule，UIManagerModule根据传过来的Tag找到对应的UIManager，最后生成一个Operation添加到UI处理队列中，当mDispatchUIRunnables执行runable的时候调用Operation.execute抽象方法，其实就是调用UIManager.createViewInstance来真正生成View，然后调用viewManager.updateProperties 设置View的属性。这样一个控件就创建出来了。</p>
+<p>最后附上The Life-Cycle of a Composite Component</p>
+<blockquote>
+<p>react/lib/ReactCompositeComponent.js</p>
+</blockquote>
+<pre><code>/**
+ * ------------------ The Life-Cycle of a Composite Component ------------------
+ *
+ * - constructor: Initialization of state. The instance is now retained.
+ *   - componentWillMount
+ *   - render
+ *   - [children&apos;s constructors]
+ *     - [children&apos;s componentWillMount and render]
+ *     - [children&apos;s componentDidMount]
+ *     - componentDidMount
+ *
+ *       Update Phases:
+ *       - componentWillReceiveProps (only called if parent updated)
+ *       - shouldComponentUpdate
+ *         - componentWillUpdate
+ *           - render
+ *           - [children&apos;s constructors or receive props phases]
+ *         - componentDidUpdate
+ *
+ *     - componentWillUnmount
+ *     - [children&apos;s componentWillUnmount]
+ *   - [children destroyed]
+ * - (destroyed): The instance is now blank, released by React and ready for GC.
+ *
+ * -----------------------------------------------------------------------------
+ */
+</code></pre><p><a href="http://xujinyang.github.io/2016/09/13/React-Native-jsx%20analyse2/" target="_blank" rel="external">原文地址</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/React-Native/" rel="tag">#React-Native</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/12/React-Native-jsx-code-analyse1/" rel="next" title="React-Native 源码分析二-JSX如何渲染成原生页面(上)">
+                <i class="fa fa-chevron-left"></i> React-Native 源码分析二-JSX如何渲染成原生页面(上)
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/19/React-Native打包index-android-bundle-meta到底是什么/" rel="prev" title="React-Native打包index.android.bundle.meta到底是什么?">
+                React-Native打包index.android.bundle.meta到底是什么? <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

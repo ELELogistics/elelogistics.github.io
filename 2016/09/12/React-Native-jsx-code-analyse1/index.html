@@ -1,0 +1,750 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="React-Native," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文跳过了React-Native 的通讯过程，详细请参考大头鬼写的Java和JS的通讯原理，虽然0.33版本加入了懒加载，原来配置表生成的时机和方式发生了改变,但是原理还是没有改变：通过约定的JSON，解析出moduleName,function name，然后通过本地找到对应的模块中的方法，然后通过反射执行这些方法，实现调用。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React-Native 源码分析二-JSX如何渲染成原生页面(上)">
+<meta property="og:url" content="https://elelogistics.github.io/2016/09/12/React-Native-jsx-code-analyse1/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="本文跳过了React-Native 的通讯过程，详细请参考大头鬼写的Java和JS的通讯原理，虽然0.33版本加入了懒加载，原来配置表生成的时机和方式发生了改变,但是原理还是没有改变：通过约定的JSON，解析出moduleName,function name，然后通过本地找到对应的模块中的方法，然后通过反射执行这些方法，实现调用。">
+<meta property="og:updated_time" content="2016-10-11T13:54:53.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React-Native 源码分析二-JSX如何渲染成原生页面(上)">
+<meta name="twitter:description" content="本文跳过了React-Native 的通讯过程，详细请参考大头鬼写的Java和JS的通讯原理，虽然0.33版本加入了懒加载，原来配置表生成的时机和方式发生了改变,但是原理还是没有改变：通过约定的JSON，解析出moduleName,function name，然后通过本地找到对应的模块中的方法，然后通过反射执行这些方法，实现调用。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2016/09/12/React-Native-jsx-code-analyse1/"/>
+
+  <title> React-Native 源码分析二-JSX如何渲染成原生页面(上) | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                React-Native 源码分析二-JSX如何渲染成原生页面(上)
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-12T18:04:17+08:00" content="2016-09-12">
+              2016-09-12
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">进击的小羊</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">React-Native</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2016/09/12/React-Native-jsx-code-analyse1/" class="leancloud_visitors" data-flag-title="React-Native 源码分析二-JSX如何渲染成原生页面(上)">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文跳过了React-Native 的通讯过程，详细请参考大头鬼写的<a href="https://zhuanlan.zhihu.com/p/20464825" target="_blank" rel="external">Java和JS的通讯原理</a>，虽然0.33版本加入了懒加载，原来配置表生成的时机和方式发生了改变,但是原理还是没有改变：通过约定的JSON，解析出moduleName,function name，然后通过本地找到对应的模块中的方法，然后通过反射执行这些方法，实现调用。</p>
+<a id="more"></a>
+<p>这篇将从Android原生反推JSX如何最终变化为原生控件的过程。</p>
+<p>博主使用的环境是（版本很重要，RN发展飞快，不同的版本之间可能有差别）</p>
+<blockquote>
+<p> “react”: “15.3.1”,</p>
+<p> “react-native”: “^0.33.0”,</p>
+</blockquote>
+<p>在<a href="http://xujinyang.github.io/2016/09/09/React-Native-%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/" target="_blank" rel="external">React-Native 源码分析一-如何启动JS页面</a>的最后一步，我们看到XReactInstanceManagerImpl.java的attachMeasuredRootViewToInstance方法中有设置View的逻辑</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> private void attachMeasuredRootViewToInstance(</div><div class="line">...</div><div class="line">   UIManagerModule uiManagerModule = catalystInstance.getNativeModule(UIManagerModule.class);</div><div class="line">   int rootTag = uiManagerModule.addMeasuredRootView(rootView);</div><div class="line">   rootView.setRootViewTag(rootTag);</div><div class="line">   ...</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>可以看到uiManagerModule.addMeasuredRootView(rootView)这个方法好像很厉害的样子，进去看看<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">public int addMeasuredRootView(final SizeMonitoringFrameLayout rootView) &#123;</div><div class="line">	//去掉了宽高赋值的代码</div><div class="line">	</div><div class="line">    mUIImplementation.registerRootView(rootView, tag, width, height, themedRootContext);</div><div class="line">	//忽略了setOnSizeChangedListener</div><div class="line"> 	</div><div class="line">    return tag;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>去掉无关代码之后，可以看到 mUIImplementation.registerRootView(rootView, tag, width, height, themedRootContext)方法传递了view和相关宽，高，theme信息进去，进去看代码发现利用这些数据构造了一个ReactShadowNode，然后add到了mOperationsQueue中，一看到Queue立马想到肯定有个UI相关的轮循在处理UI绘制事务。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">public void registerRootView(</div><div class="line">      SizeMonitoringFrameLayout rootView,</div><div class="line">      int tag,</div><div class="line">      int width,</div><div class="line">      int height,</div><div class="line">      ThemedReactContext context) &#123;</div><div class="line">    final ReactShadowNode rootCSSNode = createRootShadowNode();</div><div class="line">    rootCSSNode.setReactTag(tag);</div><div class="line">    rootCSSNode.setThemedContext(context);</div><div class="line">    rootCSSNode.setStyleWidth(width);</div><div class="line">    rootCSSNode.setStyleHeight(height);</div><div class="line"></div><div class="line">    mShadowNodeRegistry.addRootNode(rootCSSNode);</div><div class="line"></div><div class="line">    // register it within NativeViewHierarchyManager</div><div class="line">    mOperationsQueue.addRootView(tag, rootView, context);</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>所以我们先放下这里，回到上一个方法addMeasuredRootView的注释<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line">   * Registers a new root view. JS can use the returned tag with manageChildren to add/remove</div><div class="line">   * children to this view.</div><div class="line">   *</div><div class="line">   * Note that this must be called after getWidth()/getHeight() actually return something. See</div><div class="line">   * CatalystApplicationFragment as an example.</div><div class="line">   *</div><div class="line">   * TODO(6242243): Make addMeasuredRootView thread safe</div><div class="line">   * NB: this method is horribly not-thread-safe.</div><div class="line">   */</div></pre></td></tr></table></figure></p>
+<p>js能根据tag，使用manageChildren 来添加，删除 rootview中的子view</p>
+<p>那么可以猜想manageChildren 可能是js直接控制原生代码增删布局的入口，来看下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">@ReactMethod</div><div class="line">  public void manageChildren(</div><div class="line">      int viewTag,</div><div class="line">      @Nullable ReadableArray moveFrom,</div><div class="line">      @Nullable ReadableArray moveTo,</div><div class="line">      @Nullable ReadableArray addChildTags,</div><div class="line">      @Nullable ReadableArray addAtIndices,</div><div class="line">      @Nullable ReadableArray removeFrom) &#123;</div><div class="line"></div><div class="line">    mUIImplementation.manageChildren(</div><div class="line">        viewTag,</div><div class="line">        moveFrom,</div><div class="line">        moveTo,</div><div class="line">        addChildTags,</div><div class="line">        addAtIndices,</div><div class="line">        removeFrom);</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>果然这是个用ReactMethod注解过的方法，代表这他要被JS直接调用,从注释:Interface for adding/removing/moving views within a parent view from JS也能知道js通过这个方法增删改view，同样有@ReactMethod注解的类还有：createView，removeRootView，updateView，setChildren，replaceExistingNonRootView，removeSubviewsFromContainerWithID，measure，measureInWindow。。。等等方法，随便找了一个方法看一下，比如createView</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"> @ReactMethod</div><div class="line">public void createView(int tag, String className, int rootViewTag, ReadableMap props) &#123;</div><div class="line">  if (DEBUG) &#123;</div><div class="line">    FLog.d(</div><div class="line">        ReactConstants.TAG,</div><div class="line">        &quot;(UIManager.createView) tag: &quot; + tag + &quot;, class: &quot; + className + &quot;, props: &quot; + props);</div><div class="line">  &#125;</div><div class="line">  mUIImplementation.createView(tag, className, rootViewTag, props);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>继续进mUIImplementation.createView，</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">public void createView(int tag, String className, int rootViewTag, ReadableMap props) &#123;</div><div class="line">   ReactShadowNode cssNode = createShadowNode(className);</div><div class="line">   ReactShadowNode rootNode = mShadowNodeRegistry.getNode(rootViewTag);</div><div class="line">   cssNode.setReactTag(tag);</div><div class="line">   cssNode.setViewClassName(className);</div><div class="line">   cssNode.setRootNode(rootNode);</div><div class="line">   cssNode.setThemedContext(rootNode.getThemedContext());</div><div class="line"></div><div class="line">   mShadowNodeRegistry.addNode(cssNode);</div><div class="line"></div><div class="line">   ReactStylesDiffMap styles = null;</div><div class="line">   if (props != null) &#123;</div><div class="line">     styles = new ReactStylesDiffMap(props);</div><div class="line">     cssNode.updateProperties(styles);</div><div class="line">   &#125;</div><div class="line"></div><div class="line">   handleCreateView(cssNode, rootViewTag, styles);</div><div class="line"> &#125;</div></pre></td></tr></table></figure>
+<p>构造一个ReactShadowNode，其中createShadowNode 是通过className 找到之前注册的ViewManager比如ReactTextInputManager,再设置他的rootNode，最后handleCreateView</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">  protected void handleCreateView(</div><div class="line">      ReactShadowNode cssNode,</div><div class="line">      int rootViewTag,</div><div class="line">      @Nullable ReactStylesDiffMap styles) &#123;</div><div class="line">    if (!cssNode.isVirtual()) &#123;</div><div class="line">      mNativeViewHierarchyOptimizer.handleCreateView(cssNode, cssNode.getThemedContext(), styles);</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  public void handleCreateView(</div><div class="line">      ReactShadowNode node,</div><div class="line">      ThemedReactContext themedContext,</div><div class="line">      @Nullable ReactStylesDiffMap initialProps) &#123;</div><div class="line">    if (!ENABLED) &#123;</div><div class="line">      int tag = node.getReactTag();</div><div class="line">      mUIViewOperationQueue.enqueueCreateView(</div><div class="line">          themedContext,</div><div class="line">          tag,</div><div class="line">          node.getViewClass(),</div><div class="line">          initialProps);</div><div class="line">      return;</div><div class="line">    &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">public void enqueueCreateView(</div><div class="line">      ThemedReactContext themedContext,</div><div class="line">      int viewReactTag,</div><div class="line">      String viewClassName,</div><div class="line">      @Nullable ReactStylesDiffMap initialProps) &#123;</div><div class="line">    synchronized (mNonBatchedOperationsLock) &#123;</div><div class="line">      mNonBatchedOperations.addLast(</div><div class="line">        new CreateViewOperation(</div><div class="line">          themedContext,</div><div class="line">          viewReactTag,</div><div class="line">          viewClassName,</div><div class="line">          initialProps));</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>这样一路跟下去，我们会发现，如果要createView的一个View，最后只是在ArrayDeque<uioperation> mNonBatchedOperations中add了一个CreateViewOperation()，很敏感的会发现UIOperation 是抽象的接口<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public interface UIOperation &#123;</div><div class="line">    void execute();</div><div class="line">  &#125;</div></pre></td></tr></table></figure></uioperation></p>
+<p>果然只有一个接口execute，那自然的还有很多实现了UIOperation的类比如：RemoveRootViewOperation，ChangeJSResponderOperation，ShowPopupMenuOperation等等，<br>之前我们好像隐约的感觉到有个UI轮询在不停的执行这些UIOperation，也就是业务方只需要往池子里面添加就行，这样的队列在Android很多系统中都有遇到，比如Handle还有EventBus，有兴趣的读者可以看一下我之前的<a href="http://xujinyang.github.io/2016/03/26/%E9%98%9F%E5%88%97%E5%9C%A8Android%E4%B8%AD%E7%9A%84%E4%BD%BF%E7%94%A8/" target="_blank" rel="external">一个总结</a><br>这个类的名字com/facebook/react/uimanager/UIViewOperationQueue.java 所以大胆的在里面找轮训的代码，很快我们发现了dispatchViewUpdates方法<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">void dispatchViewUpdates(final int batchId) &#123;</div><div class="line">			...</div><div class="line">                if (nonBatchedOperations != null) &#123;</div><div class="line">                  for (UIOperation op : nonBatchedOperations) &#123;</div><div class="line">                    op.execute();</div><div class="line">                  &#125;</div><div class="line">                &#125;</div><div class="line"></div><div class="line">                ...</div><div class="line">          &#125;);</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<p>在一个线程数组中添加了一个线程，专门for循环调用各自的execute()方法，这里举个例子CreateViewOperation</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">private final class CreateViewOperation extends ViewOperation &#123;</div><div class="line"></div><div class="line">    private final ThemedReactContext mThemedContext;</div><div class="line">    private final String mClassName;</div><div class="line">    private final @Nullable ReactStylesDiffMap mInitialProps;</div><div class="line"></div><div class="line">    public CreateViewOperation(</div><div class="line">        ThemedReactContext themedContext,</div><div class="line">        int tag,</div><div class="line">        String className,</div><div class="line">        @Nullable ReactStylesDiffMap initialProps) &#123;</div><div class="line">      super(tag);</div><div class="line">      mThemedContext = themedContext;</div><div class="line">      mClassName = className;</div><div class="line">      mInitialProps = initialProps;</div><div class="line">      Systrace.startAsyncFlow(Systrace.TRACE_TAG_REACT_VIEW, &quot;createView&quot;, mTag);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public void execute() &#123;</div><div class="line">      Systrace.endAsyncFlow(Systrace.TRACE_TAG_REACT_VIEW, &quot;createView&quot;, mTag);</div><div class="line">      mNativeViewHierarchyManager.createView(</div><div class="line">          mThemedContext,</div><div class="line">          mTag,</div><div class="line">          mClassName,</div><div class="line">          mInitialProps);</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure>
+<p>执行execute方法也就是 执行mNativeViewHierarchyManager.createView<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">public void createView(</div><div class="line">      ThemedReactContext themedContext,</div><div class="line">      int tag,</div><div class="line">      String className,</div><div class="line">      @Nullable ReactStylesDiffMap initialProps) &#123;</div><div class="line"> 		...</div><div class="line">    try &#123;</div><div class="line">      ViewManager viewManager = mViewManagers.get(className);</div><div class="line"></div><div class="line">      View view = viewManager.createView(themedContext, mJSResponderHandler);</div><div class="line">      mTagsToViews.put(tag, view);</div><div class="line">      mTagsToViewManagers.put(tag, viewManager);</div><div class="line"></div><div class="line">      view.setId(tag);</div><div class="line">      if (initialProps != null) &#123;</div><div class="line">        viewManager.updateProperties(view, initialProps);</div><div class="line">      &#125;</div><div class="line">    &#125; finally &#123;</div><div class="line">      Systrace.endSection(Systrace.TRACE_TAG_REACT_VIEW);</div><div class="line">    &#125;</div><div class="line">  &#125;</div></pre></td></tr></table></figure></p>
+<p>这里的mViewManagers.get(className) 是根据className找到之前MainReactPackage里面添加的各种ViewManagers，然后调用ViewManager的createView方法，因为ViewManager是父类，他的createView里调用抽象方法createViewInstance,看下面代码</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">public final T createView(</div><div class="line">     ThemedReactContext reactContext,</div><div class="line">     JSResponderHandler jsResponderHandler) &#123;</div><div class="line">   T view = createViewInstance(reactContext);</div><div class="line">   addEventEmitters(reactContext, view);</div><div class="line">   if (view instanceof ReactInterceptingViewGroup) &#123;</div><div class="line">     ((ReactInterceptingViewGroup) view).setOnInterceptTouchEventListener(jsResponderHandler);</div><div class="line">   &#125;</div><div class="line">   return view;</div><div class="line"> &#125;</div><div class="line"></div><div class="line">protected abstract T createViewInstance(ThemedReactContext reactContext);</div></pre></td></tr></table></figure>
+<p>createViewInstance 抽象方法是每个子类必须要实现的方法，也是正在构造View的方法，还是举个例子：ReactTextInputManager</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">public class ReactTextInputManager extends BaseViewManager&lt;ReactEditText, LayoutShadowNode&gt; &#123;</div><div class="line"></div><div class="line">  /* package */ static final String REACT_CLASS = &quot;AndroidTextInput&quot;;</div><div class="line"></div><div class="line"></div><div class="line">  @Override</div><div class="line">  public String getName() &#123;</div><div class="line">    return REACT_CLASS;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  @Override</div><div class="line">  public ReactEditText createViewInstance(ThemedReactContext context) &#123;</div><div class="line">    ReactEditText editText = new ReactEditText(context);</div><div class="line">    int inputType = editText.getInputType();</div><div class="line">    editText.setInputType(inputType &amp; (~InputType.TYPE_TEXT_FLAG_MULTI_LINE));</div><div class="line">    editText.setImeOptions(EditorInfo.IME_ACTION_DONE);</div><div class="line">    editText.setTextSize(</div><div class="line">        TypedValue.COMPLEX_UNIT_PX,</div><div class="line">        (int) Math.ceil(PixelUtil.toPixelFromSP(ViewDefaults.FONT_SIZE_SP)));</div><div class="line">    return editText;</div><div class="line">  &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>他的createViewInstance方法就是new ReactEditText(context)，到这里一个View已经创建完成，那么他的属性在哪里设置？放心JS已经将生成一个View要的数据都带了回来，initialProps中就是jsx中的style，viewManager.updateProperties(view, initialProps);再下面就是解析，设置属性，然后在在rootView中测量大小，确定位置，原生的UI渲染就完成了，期间细节太繁琐，不容易都写出来，只是描述一个流程，如果真正了解绘制细节的，还有好几个重要的类需要慢慢解析，请需求的同学自行解读。</p>
+<p>前文中这次会反推JSX如何最终变化为原生控件的过程，上面这部分算是原生的绘制已经结束，下面开始到JS代码中找，JSX布局如何传达到原生的。</p>
+<p><a href="http://xujinyang.github.io/2016/09/12/React-Native-jsx%20analyse1/" target="_blank" rel="external">原文地址</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/React-Native/" rel="tag">#React-Native</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/05/ToyRoom-饿了么开源的Android业务流框架/" rel="next" title="ToyRoom-饿了么开源的Android业务流框架">
+                <i class="fa fa-chevron-left"></i> ToyRoom-饿了么开源的Android业务流框架
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/09/13/React-Native-jsx-code-analyse2/" rel="prev" title="React-Native 源码分析二-JSX如何渲染成原生页面(下)">
+                React-Native 源码分析二-JSX如何渲染成原生页面(下) <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">8</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <p class="post-toc-empty">此文章未包含目录</p>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
