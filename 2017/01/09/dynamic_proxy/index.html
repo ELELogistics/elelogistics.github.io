@@ -1,0 +1,864 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Java," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="关于动态代理与其在应用中的实现参考了楼江航 的文章，有关ASM的未及研究，本文主要总结以下内容：
+动态代理的背景
+
+动态代理的实现方式
+
+JDK和CGLIB的实现方式
+
+JDK和CGLIB的优劣对比
+
+应用中的使用场景">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态代理的实现与案例">
+<meta property="og:url" content="https://elelogistics.github.io/2017/01/09/dynamic_proxy/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="关于动态代理与其在应用中的实现参考了楼江航 的文章，有关ASM的未及研究，本文主要总结以下内容：
+动态代理的背景
+
+动态代理的实现方式
+
+JDK和CGLIB的实现方式
+
+JDK和CGLIB的优劣对比
+
+应用中的使用场景">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_1.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_2.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_3.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_4.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_5.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_6.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_7.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_8.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_9.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_10.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_11.jpg">
+<meta property="og:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_12.jpg">
+<meta property="og:updated_time" content="2017-01-09T09:52:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="动态代理的实现与案例">
+<meta name="twitter:description" content="关于动态代理与其在应用中的实现参考了楼江航 的文章，有关ASM的未及研究，本文主要总结以下内容：
+动态代理的背景
+
+动态代理的实现方式
+
+JDK和CGLIB的实现方式
+
+JDK和CGLIB的优劣对比
+
+应用中的使用场景">
+<meta name="twitter:image" content="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2017/01/09/dynamic_proxy/"/>
+
+  <title> 动态代理的实现与案例 | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                动态代理的实现与案例
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-01-09T10:00:00+08:00" content="2017-01-09">
+              2017-01-09
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">陈帅</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">Java</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/01/09/dynamic_proxy/" class="leancloud_visitors" data-flag-title="动态代理的实现与案例">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>关于动态代理与其在应用中的实现参考了<a href="http://agapple.iteye.com/blog/799827" title="Title" target="_blank" rel="external">楼江航</a> 的文章，有关ASM的未及研究，本文主要总结以下内容：</p>
+<pre><code>动态代理的背景
+
+动态代理的实现方式
+
+JDK和CGLIB的实现方式
+
+JDK和CGLIB的优劣对比
+
+应用中的使用场景
+</code></pre><a id="more"></a>
+<h2 id="代理"><a href="#代理" class="headerlink" title="代理"></a><strong>代理</strong></h2><p>代理的概念不言而喻，它可以实现过滤请求、插入横切逻辑等功能，应用场景丰富多彩。<br>代理的方式分为静态代理和动态代理两种。</p>
+<h3 id="静态代理"><a href="#静态代理" class="headerlink" title="静态代理"></a><strong>静态代理</strong></h3><p>程序运行前代理类的字节码文件依然存在，需要程序员编写源文件。</p>
+<pre><code>缺点：要针对于每一个类撰写代理类；对于单个被代理的类，如果需要被代理的方法很多，又加大了工作量。
+
+优点：直观，可读性较强。
+</code></pre><h3 id="动态代理"><a href="#动态代理" class="headerlink" title="动态代理"></a><strong>动态代理</strong></h3><p>程序运行时动态生成代理类的字节码文件，不需要程序员编写代理类java文件。</p>
+<pre><code>缺点：由于是运行时动态生成的，因此可读性不是很强；而且受限于被代理类自身的属性（jdk需要提供接口，cglib需要是非私有类）。
+
+优点：代码更加简洁，解放了无谓的编码工作。
+</code></pre><hr>
+<h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a><strong>实现方式</strong></h2><p>让你来实现一个代理类，需要哪些上下文，有哪些解决方案~正是JDK和CGLIB两种解决方案的映射。</p>
+<p>要生产一个类A的代理类，唯一需要了解的就是生成一个什么类，因此就有了基于该类的接口构造一个“A”，或者继承A生产一个“B”。（一开始刚接触jdk动态代理的时候我也很不解为什么要提供接口）。</p>
+<p>至于如何生成一个class文件，在既定规则下你当然可以先生产java文件，再编译成字节码文件。而最好的做法是直接操作字节码文件，jdk和cglib生成字节码文件分别用的sun的ProxyGenerator和开源项目ASM字节码框架。</p>
+<hr>
+<h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a><strong>环境准备</strong></h2><h3 id="引cglib和asm的jar包"><a href="#引cglib和asm的jar包" class="headerlink" title="引cglib和asm的jar包"></a><strong>引cglib和asm的jar包</strong></h3><p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_1.jpg" alt="环境准备"></p>
+<h3 id="target类"><a href="#target类" class="headerlink" title="target类"></a><strong>target类</strong></h3><p>接口：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">public interface BookFacade &#123;</div><div class="line">    </div><div class="line">    public void addBook();  </div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public class BookFacadeImpl implements BookFacade, Serializable &#123;</div><div class="line">	  </div><div class="line">    private static final long serialVersionUID = 1L;</div><div class="line"></div><div class="line">    @Override  </div><div class="line">    public void addBook() &#123;  </div><div class="line">        System.out.println(&quot;增加图书方法。。。&quot;);  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="代理类"><a href="#代理类" class="headerlink" title="代理类"></a><strong>代理类</strong></h3><p>JDK代理类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">public class BookFacadeProxy implements InvocationHandler &#123;  </div><div class="line">    private Object target;  </div><div class="line">    /** </div><div class="line">     * 绑定委托对象并返回一个代理类 </div><div class="line">     * @param target </div><div class="line">     * @return </div><div class="line">     */  </div><div class="line">    public Object bind(Object target) &#123;  </div><div class="line">        this.target = target;  </div><div class="line">        //取得代理对象  </div><div class="line">        return Proxy.newProxyInstance(target.getClass().getClassLoader(),  </div><div class="line">                target.getClass().getInterfaces(), this);   //要绑定接口(这是一个缺陷，cglib弥补了这一缺陷)  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">    @Override  </div><div class="line">    /** </div><div class="line">     * 调用方法 </div><div class="line">     */  </div><div class="line">    public Object invoke(Object proxy, Method method, Object[] args)  </div><div class="line">            throws Throwable &#123;  </div><div class="line">        Object result=null;  </div><div class="line">        System.out.println(&quot;事物开始&quot;);  </div><div class="line">        //执行方法  </div><div class="line">        result=method.invoke(target, args);  </div><div class="line">        System.out.println(&quot;事物结束&quot;);  </div><div class="line">        return result;  </div><div class="line">    &#125;  </div><div class="line">  </div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>CGLIB代理类<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">public class BookFacadeProxyCglib implements MethodInterceptor &#123;</div><div class="line"></div><div class="line">    private Object target;</div><div class="line"></div><div class="line">    public Object getInstance(Object target) &#123;</div><div class="line">        this.target = target;</div><div class="line">        Enhancer enhancer = new Enhancer();</div><div class="line">        enhancer.setSuperclass(this.target.getClass());</div><div class="line">        // 回调方法</div><div class="line">        // enhancer.setCallbackType(this.getClass());</div><div class="line">        enhancer.setCallback(this);</div><div class="line">        // 创建代理对象</div><div class="line">        return enhancer.create();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable &#123;</div><div class="line">        System.out.println(&quot;before run!&quot;);</div><div class="line">        proxy.invokeSuper(obj, args);</div><div class="line">        System.out.println(&quot;after run!&quot;);</div><div class="line">        return null;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="client类"><a href="#client类" class="headerlink" title="client类"></a><strong>client类</strong></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div></pre></td><td class="code"><pre><div class="line">public class TestProxy &#123;  </div><div class="line">    </div><div class="line">    private static String outputFile = &quot;/Users/apple/Downloads/out&quot;;</div><div class="line">    //控制cglib生成的class文件持久化到本地硬盘</div><div class="line">    static &#123;</div><div class="line">        System.setProperty(DebuggingClassWriter.DEBUG_LOCATION_PROPERTY, outputFile);</div><div class="line">    &#125;</div><div class="line">  </div><div class="line">    public static void main(String[] args) throws IOException &#123;</div><div class="line">        TestProxy testProxy = new TestProxy();</div><div class="line">        BookFacadeImpl bookProxy = testProxy.cglibProxyClient();</div><div class="line">        bookProxy.addBook();</div><div class="line">        // jdkToFile(bookProxy);</div><div class="line">        // testProxy.testSerail();</div><div class="line">    &#125;  </div><div class="line"></div><div class="line">    public void testSerail() throws IOException &#123;</div><div class="line">        BookFacadeImpl obj = new BookFacadeImpl();</div><div class="line">        toFile(obj);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    public void jdkProxyClient() &#123;</div><div class="line">        BookFacadeProxy proxy = new BookFacadeProxy();  </div><div class="line">        BookFacade bookProxy = (BookFacade) proxy.bind(new BookFacadeImpl());  </div><div class="line">        bookProxy.addBook();  </div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    public BookFacadeImpl cglibProxyClient() &#123;</div><div class="line">        BookFacadeProxyCglib proxy = new BookFacadeProxyCglib();</div><div class="line">        BookFacadeImpl bookProxy = (BookFacadeImpl) proxy.getInstance(new BookFacadeImpl());</div><div class="line">        return bookProxy;</div><div class="line">    &#125;</div><div class="line">    //JDK动态代理生成的字节码文件持久化</div><div class="line">    public static void jdkToFile(BookFacadeImpl obj) throws IOException &#123;</div><div class="line">        Class clazz = obj.getClass();</div><div class="line">        String className = clazz.getName();</div><div class="line">        byte[] classFile = ProxyGenerator.generateProxyClass(className, BookFacadeImpl.class.getInterfaces());</div><div class="line"></div><div class="line">        FileOutputStream fos = new FileOutputStream(outputFile);</div><div class="line">        // ClassReader cr = new ClassReader(className);</div><div class="line">        // byte[] bits = cr.b;</div><div class="line">        fos.write(classFile);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">    //另一种JDK字节码文件持久化方法</div><div class="line">    public static void toFile(BookFacadeImpl obj) throws IOException &#123;</div><div class="line">        Class clazz = obj.getClass();</div><div class="line">        String className = clazz.getName();</div><div class="line">        FileOutputStream fos = new FileOutputStream(outputFile);</div><div class="line">        ClassReader cr = new ClassReader(className);</div><div class="line">        byte[] bits = cr.b;</div><div class="line">        fos.write(bits);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="JDK动态代理实现原理"><a href="#JDK动态代理实现原理" class="headerlink" title="JDK动态代理实现原理"></a><strong>JDK动态代理实现原理</strong></h2><h3 id="反编译后源文件"><a href="#反编译后源文件" class="headerlink" title="反编译后源文件"></a><strong>反编译后源文件</strong></h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div></pre></td><td class="code"><pre><div class="line">public final class $Proxy0 extends Proxy</div><div class="line">	implements BookFacade, Serializable</div><div class="line">&#123;</div><div class="line"></div><div class="line">	private static Method m1;</div><div class="line">	private static Method m3;</div><div class="line">	private static Method m0;</div><div class="line">	private static Method m2;</div><div class="line"></div><div class="line">	public $Proxy0(InvocationHandler invocationhandler)</div><div class="line">	&#123;</div><div class="line">		super(invocationhandler);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public final boolean equals(Object obj)</div><div class="line">	&#123;</div><div class="line">		try</div><div class="line">		&#123;</div><div class="line">			return ((Boolean)super.h.invoke(this, m1, new Object[] &#123;</div><div class="line">				obj</div><div class="line">			&#125;)).booleanValue();</div><div class="line">		&#125;</div><div class="line">		catch (Error ) &#123; &#125;</div><div class="line">		catch (Throwable throwable)</div><div class="line">		&#123;</div><div class="line">			throw new UndeclaredThrowableException(throwable);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public final void addBook()</div><div class="line">	&#123;</div><div class="line">		try</div><div class="line">		&#123;</div><div class="line">			super.h.invoke(this, m3, null);</div><div class="line">			return;</div><div class="line">		&#125;</div><div class="line">		catch (Error ) &#123; &#125;</div><div class="line">		catch (Throwable throwable)</div><div class="line">		&#123;</div><div class="line">			throw new UndeclaredThrowableException(throwable);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public final int hashCode()</div><div class="line">	&#123;</div><div class="line">		try</div><div class="line">		&#123;</div><div class="line">			return ((Integer)super.h.invoke(this, m0, null)).intValue();</div><div class="line">		&#125;</div><div class="line">		catch (Error ) &#123; &#125;</div><div class="line">		catch (Throwable throwable)</div><div class="line">		&#123;</div><div class="line">			throw new UndeclaredThrowableException(throwable);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	public final String toString()</div><div class="line">	&#123;</div><div class="line">		try</div><div class="line">		&#123;</div><div class="line">			return (String)super.h.invoke(this, m2, null);</div><div class="line">		&#125;</div><div class="line">		catch (Error ) &#123; &#125;</div><div class="line">		catch (Throwable throwable)</div><div class="line">		&#123;</div><div class="line">			throw new UndeclaredThrowableException(throwable);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	static </div><div class="line">	&#123;</div><div class="line">		try</div><div class="line">		&#123;</div><div class="line">			m1 = Class.forName(&quot;java.lang.Object&quot;).getMethod(&quot;equals&quot;, new Class[] &#123;</div><div class="line">				Class.forName(&quot;java.lang.Object&quot;)</div><div class="line">			&#125;);</div><div class="line">			m3 = Class.forName(&quot;proxy.BookFacade&quot;).getMethod(&quot;addBook&quot;, new Class[0]);</div><div class="line">			m0 = Class.forName(&quot;java.lang.Object&quot;).getMethod(&quot;hashCode&quot;, new Class[0]);</div><div class="line">			m2 = Class.forName(&quot;java.lang.Object&quot;).getMethod(&quot;toString&quot;, new Class[0]);</div><div class="line">		&#125;</div><div class="line">		catch (NoSuchMethodException nosuchmethodexception)</div><div class="line">		&#123;</div><div class="line">			throw new NoSuchMethodError(nosuchmethodexception.getMessage());</div><div class="line">		&#125;</div><div class="line">		catch (ClassNotFoundException classnotfoundexception)</div><div class="line">		&#123;</div><div class="line">			throw new NoClassDefFoundError(classnotfoundexception.getMessage());</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="代理类生成原理"><a href="#代理类生成原理" class="headerlink" title="代理类生成原理"></a><strong>代理类生成原理</strong></h3><h4 id="Proxy的newProxyInstance"><a href="#Proxy的newProxyInstance" class="headerlink" title="Proxy的newProxyInstance"></a><strong>Proxy的newProxyInstance</strong></h4><p>生成代理类，然后把横切逻辑作为构造函数的入参去实例化该代理类。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line">public static Object newProxyInstance(ClassLoader loader,</div><div class="line">                                          Class&lt;?&gt;[] interfaces,</div><div class="line">                                          InvocationHandler h)</div><div class="line">        throws IllegalArgumentException</div><div class="line">    &#123;</div><div class="line">        if (h == null) &#123;</div><div class="line">            throw new NullPointerException();</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        /*</div><div class="line">         * Look up or generate the designated proxy class.</div><div class="line">         */</div><div class="line">        Class cl = getProxyClass(loader, interfaces);</div><div class="line"></div><div class="line">        /*</div><div class="line">         * Invoke its constructor with the designated invocation handler.</div><div class="line">         */</div><div class="line">        try &#123;</div><div class="line">            Constructor cons = cl.getConstructor(constructorParams);</div><div class="line">            return (Object) cons.newInstance(new Object[] &#123; h &#125;);</div><div class="line">        &#125; catch (NoSuchMethodException e) &#123;</div><div class="line">            throw new InternalError(e.toString());</div><div class="line">        &#125; catch (IllegalAccessException e) &#123;</div><div class="line">            throw new InternalError(e.toString());</div><div class="line">        &#125; catch (InstantiationException e) &#123;</div><div class="line">            throw new InternalError(e.toString());</div><div class="line">        &#125; catch (InvocationTargetException e) &#123;</div><div class="line">            throw new InternalError(e.toString());</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<h4 id="Proxy的getProxyClass"><a href="#Proxy的getProxyClass" class="headerlink" title="Proxy的getProxyClass"></a><strong>Proxy的getProxyClass</strong></h4><p>相当于CGLIB的Enhance.create，主要做的是key和缓存的管理。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div></pre></td><td class="code"><pre><div class="line">public static Class&lt;?&gt; getProxyClass(ClassLoader loader, </div><div class="line">                                         Class&lt;?&gt;... interfaces)</div><div class="line">	throws IllegalArgumentException</div><div class="line">    &#123;</div><div class="line">	// 如果目标类实现的接口数大于65535个则抛出异常（我XX，谁会写这么NB的代码啊？）</div><div class="line">	if (interfaces.length &gt; 65535) &#123;</div><div class="line">	    throw new IllegalArgumentException(&quot;interface limit exceeded&quot;);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	//遍历target类的接口</div><div class="line"></div><div class="line">	Class proxyClass = null;</div><div class="line"></div><div class="line">	String[] interfaceNames = new String[interfaces.length];</div><div class="line"></div><div class="line">	Set interfaceSet = new HashSet();	// for detecting duplicates</div><div class="line"></div><div class="line">	for (int i = 0; i &lt; interfaces.length; i++) &#123;</div><div class="line">	    </div><div class="line">	    String interfaceName = interfaces[i].getName();</div><div class="line">	    Class interfaceClass = null;</div><div class="line">	    try &#123;</div><div class="line">		interfaceClass = Class.forName(interfaceName, false, loader);</div><div class="line">	    &#125; catch (ClassNotFoundException e) &#123;</div><div class="line">	    &#125;</div><div class="line">	    if (interfaceClass != interfaces[i]) &#123;</div><div class="line">		throw new IllegalArgumentException(</div><div class="line">		    interfaces[i] + &quot; is not visible from class loader&quot;);</div><div class="line">	    &#125;</div><div class="line"></div><div class="line">		.......</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	// 把目标类实现的接口名称作为缓存（Map）中的key，相当于CGLIB的KeyFactory</div><div class="line">	Object key = Arrays.asList(interfaceNames);</div><div class="line"></div><div class="line">	Map cache;</div><div class="line">	</div><div class="line">	synchronized (loaderToCache) &#123;</div><div class="line">	    cache = (Map) loaderToCache.get(loader);</div><div class="line">	    if (cache == null) &#123;</div><div class="line">		cache = new HashMap();</div><div class="line">		loaderToCache.put(loader, cache);</div><div class="line">	    &#125;</div><div class="line"></div><div class="line">	&#125;</div><div class="line"></div><div class="line">	synchronized (cache) &#123;</div><div class="line"></div><div class="line">	    do &#123;</div><div class="line">		// 根据接口的名称从缓存中获取对象</div><div class="line">		Object value = cache.get(key);</div><div class="line">		if (value instanceof Reference) &#123;</div><div class="line">		    proxyClass = (Class) ((Reference) value).get();</div><div class="line">		&#125;</div><div class="line">		if (proxyClass != null) &#123;</div><div class="line">		    // 如果代理对象的Class实例已经存在，则直接返回</div><div class="line">		    return proxyClass;</div><div class="line">		&#125; else if (value == pendingGenerationMarker) &#123;</div><div class="line">		    try &#123;</div><div class="line">			cache.wait();</div><div class="line">		    &#125; catch (InterruptedException e) &#123;</div><div class="line">		    &#125;</div><div class="line">		    continue;</div><div class="line">		&#125; else &#123;</div><div class="line">		    cache.put(key, pendingGenerationMarker);</div><div class="line">		    break;</div><div class="line">		&#125;</div><div class="line">	    &#125; while (true);</div><div class="line">	&#125;</div><div class="line"></div><div class="line">	try &#123;</div><div class="line">	       .......</div><div class="line">		</div><div class="line">		// 动态生成代理对象</div><div class="line">		byte[] proxyClassFile = ProxyGenerator.generateProxyClass(</div><div class="line">		    proxyName, interfaces);</div><div class="line">		try &#123;</div><div class="line">			// 根据代理类的字节码生成代理类的实例</div><div class="line">		    proxyClass = defineClass0(loader, proxyName,</div><div class="line">			proxyClassFile, 0, proxyClassFile.length);</div><div class="line">		&#125; catch (ClassFormatError e) &#123;</div><div class="line">		    throw new IllegalArgumentException(e.toString());</div><div class="line">		&#125;</div><div class="line">	    &#125;</div><div class="line">	    // add to set of all generated proxy classes, for isProxyClass</div><div class="line">	    proxyClasses.put(proxyClass, null);</div><div class="line"></div><div class="line">	&#125; </div><div class="line">	.......</div><div class="line">	</div><div class="line">	return proxyClass;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<h4 id="ProxyGenerator的generateProxyClass"><a href="#ProxyGenerator的generateProxyClass" class="headerlink" title="ProxyGenerator的generateProxyClass"></a><strong>ProxyGenerator的generateProxyClass</strong></h4><p>其实这里才是核心，但是关于字节码的处理就不做深究了，倒不如去研究asm框架，性能差距可不小。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">public static byte[] generateProxyClass(final String name,</div><div class="line">                                            Class[] interfaces)</div><div class="line">    &#123;</div><div class="line">        ProxyGenerator gen = new ProxyGenerator(name, interfaces);</div><div class="line">		// 动态生成代理类的字节码</div><div class="line">        final byte[] classFile = gen.generateClassFile();</div><div class="line"></div><div class="line">		// 持久化字节码，client中的持久化也就是抄的这里</div><div class="line">        if (saveGeneratedFiles) &#123;</div><div class="line">            java.security.AccessController.doPrivileged(</div><div class="line">            new java.security.PrivilegedAction&lt;Void&gt;() &#123;</div><div class="line">                public Void run() &#123;</div><div class="line">                    try &#123;</div><div class="line">                        FileOutputStream file =</div><div class="line">                            new FileOutputStream(dotToSlash(name) + &quot;.class&quot;);</div><div class="line">                        file.write(classFile);</div><div class="line">                        file.close();</div><div class="line">                        return null;</div><div class="line">                    &#125; catch (IOException e) &#123;</div><div class="line">                        throw new InternalError(</div><div class="line">                            &quot;I/O exception saving generated file: &quot; + e);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">        return classFile;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<h3 id="横切逻辑的invoke逻辑"><a href="#横切逻辑的invoke逻辑" class="headerlink" title="横切逻辑的invoke逻辑"></a><strong>横切逻辑的invoke逻辑</strong></h3><p>JDK的动态代理生成比较简单。细心的话你会发现构建代理类的时候入参只有接口和classloader，因此JDK的动态代理类功能也比较单一。最后看下横切逻辑是何时执行的。</p>
+<p>下面代码摘自于代理类中反编译后的addBook方法：</p>
+<p>“h”即横切逻辑类，返回h中invoke实现，会发现依赖于源target实例，通过反射来调用target中相应的方法。而cglib在此也做了较大的优化。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">public final void addBook()</div><div class="line">	&#123;</div><div class="line">		try</div><div class="line">		&#123;</div><div class="line">			super.h.invoke(this, m3, null);</div><div class="line">			return;</div><div class="line">		&#125;</div><div class="line">		catch (Error ) &#123; &#125;</div><div class="line">		catch (Throwable throwable)</div><div class="line">		&#123;</div><div class="line">			throw new UndeclaredThrowableException(throwable);</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure></p>
+<h2 id="CGLIB动态代理实现原理"><a href="#CGLIB动态代理实现原理" class="headerlink" title="CGLIB动态代理实现原理"></a><strong>CGLIB动态代理实现原理</strong></h2><h3 id="反编译后的代理类"><a href="#反编译后的代理类" class="headerlink" title="反编译后的代理类"></a><strong>反编译后的代理类</strong></h3><p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_2.jpg" alt="CGLIB反编译后的代理类1"><br><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_3.jpg" alt="CGLIB反编译后的代理类2"><br><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_4.jpg" alt="CGLIB反编译后的代理类3"></p>
+<h3 id="代理类简介"><a href="#代理类简介" class="headerlink" title="代理类简介"></a><strong>代理类简介</strong></h3><p>有个初步的认识，简要介绍这9个标注的地方：</p>
+<pre><code>①回调函数，由于是static类型，可以在class生成之后实例化前注入，适用于相同的class不同的回调函数的应用场景，在有些screen中回调函数是带有属性的，因此不能生成class的时候就织入。
+
+②用户定义的回调函数，织入class中，在诸多回调函数中拥有最高的优先级。
+
+③持有代理类和target类;④持有代理类和target类中相应的方法，每个方法均含有两个该组类；⑤⑥代理类和target中对应方法的具体实现。③~⑥都是用来替换反射调用的解决方法中的关键点，下面有详述。
+
+⑦非织入的回调函数处理逻辑，结合上面的描述可以总结，回调函数的优先级为：织入的回调函数&gt;ThreadLocal回调函数&gt;static回调函数，结合织入的回调函数的filter机制可以构建出更加强大的处理逻辑~
+
+⑧横切逻辑的执行，由此可以看出，默认采用MethodProxy来实行“反射”调用，空间换时间，加速了代理类的执行速度。
+
+⑨ThreadLocal或Static回调函数的注入，留给外界的接口，本文的案例也利用了该点功能。
+</code></pre><h3 id="代理类的生成流程"><a href="#代理类的生成流程" class="headerlink" title="代理类的生成流程"></a><strong>代理类的生成流程</strong></h3><p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_5.jpg" alt="代理类UML"><br>ClassGenerator类控制生成的流程，具体实现在Enhancer中，并且Enhancer也提供了自定义的key。</p>
+<h3 id="KeyFactory"><a href="#KeyFactory" class="headerlink" title="KeyFactory"></a><strong>KeyFactory</strong></h3><p>相比较上面JDK的key，CGLIB中Key的生成方式比较独特，而生成Key的生成策略也是由Enhancer来决定，所以最终动态生成的类增加了一个EnhancerKeyFactory。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">private static final EnhancerKey KEY_FACTORY =</div><div class="line">      (EnhancerKey)KeyFactory.create(EnhancerKey.class);</div></pre></td></tr></table></figure></p>
+<h3 id="ClassGenerator"><a href="#ClassGenerator" class="headerlink" title="ClassGenerator"></a><strong>ClassGenerator</strong></h3><p>抽象类，控制class生成的流程，不提供具体的实现。如下流程可以看到，具体的实现都留给了子类Enhancer实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div></pre></td><td class="code"><pre><div class="line">protected Object create(Object key) &#123;</div><div class="line">        try &#123;</div><div class="line">        	Class gen = null;</div><div class="line">        	</div><div class="line">            synchronized (source) &#123;</div><div class="line">                ClassLoader loader = getClassLoader();</div><div class="line">                Map cache2 = null;</div><div class="line">                cache2 = (Map)source.cache.get(loader);</div><div class="line">                if (cache2 == null) &#123;</div><div class="line">                    cache2 = new HashMap();</div><div class="line">                    cache2.put(NAME_KEY, new HashSet());</div><div class="line">                    source.cache.put(loader, cache2);</div><div class="line">                &#125; else if (useCache) &#123;</div><div class="line">                    Reference ref = (Reference)cache2.get(key);</div><div class="line">                    gen = (Class) (( ref == null ) ? null : ref.get()); </div><div class="line">                &#125;</div><div class="line">                if (gen == null) &#123;</div><div class="line">                    Object save = CURRENT.get();</div><div class="line">                    CURRENT.set(this);</div><div class="line">                    try &#123;</div><div class="line">                        this.key = key;</div><div class="line">                        </div><div class="line">                        if (attemptLoad) &#123;</div><div class="line">                            try &#123;</div><div class="line">                                gen = loader.loadClass(getClassName());</div><div class="line">                            &#125; catch (ClassNotFoundException e) &#123;</div><div class="line">                                // ignore</div><div class="line">                            &#125;</div><div class="line">                        &#125;</div><div class="line">                        if (gen == null) &#123;</div><div class="line">                            byte[] b = strategy.generate(this);</div><div class="line">                            String className = ClassNameReader.getClassName(new ClassReader(b));</div><div class="line">                            getClassNameCache(loader).add(className);</div><div class="line">                            gen = ReflectUtils.defineClass(className, b, loader);</div><div class="line">                        &#125;</div><div class="line">                       </div><div class="line">                        if (useCache) &#123;</div><div class="line">                            cache2.put(key, new WeakReference(gen));</div><div class="line">                        &#125;</div><div class="line">                        return firstInstance(gen);</div><div class="line">                    &#125; finally &#123;</div><div class="line">                        CURRENT.set(save);</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            return firstInstance(gen);</div><div class="line">        &#125; catch (RuntimeException e) &#123;</div><div class="line">            throw e;</div><div class="line">        &#125; catch (Error e) &#123;</div><div class="line">            throw e;</div><div class="line">        &#125; catch (Exception e) &#123;</div><div class="line">            throw new CodeGenerationException(e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<h3 id="GeneratorStrategy"><a href="#GeneratorStrategy" class="headerlink" title="GeneratorStrategy"></a><strong>GeneratorStrategy</strong></h3><p>正如其名，生成策略，提供给开发者扩展使用。</p>
+<p>如下可以看到，类很简洁，默认使用DebuggingClassWriter的字节码处理策略，transform空实现，留做拓展。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">ublic class DefaultGeneratorStrategy implements GeneratorStrategy &#123;</div><div class="line">    public static final DefaultGeneratorStrategy INSTANCE = new DefaultGeneratorStrategy();</div><div class="line">    </div><div class="line">    public byte[] generate(ClassGenerator cg) throws Exception &#123;</div><div class="line">        ClassWriter cw = getClassWriter();</div><div class="line">        transform(cg).generateClass(cw);</div><div class="line">        return transform(cw.toByteArray());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    protected ClassWriter getClassWriter() throws Exception &#123;</div><div class="line">      return new DebuggingClassWriter(ClassWriter.COMPUTE_MAXS);</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    protected byte[] transform(byte[] b) throws Exception &#123;</div><div class="line">        return b;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    protected ClassGenerator transform(ClassGenerator cg) throws Exception &#123;</div><div class="line">        return cg;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="CallBackFilter"><a href="#CallBackFilter" class="headerlink" title="CallBackFilter"></a><strong>CallBackFilter</strong></h3><p>当类中每个方法所需要的拦截器都不尽相同的时候，CallBackFilter就派上用场了。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">int index = filter.accept(actualMethod);</div><div class="line">            if (index &gt;= callbackTypes.length) &#123;</div><div class="line">                throw new IllegalArgumentException(&quot;Callback filter returned an index that is too large: &quot; + index);</div><div class="line">            &#125;</div><div class="line">            originalModifiers.put(method, new Integer((actualMethod != null) ? actualMethod.getModifiers() : method.getModifiers()));</div><div class="line">            indexes.put(method, new Integer(index));</div><div class="line">            List group = (List)groups.get(generators[index]);</div><div class="line">            if (group == null) &#123;</div><div class="line">                groups.put(generators[index], group = new ArrayList(methods.size()));</div><div class="line">            &#125;</div><div class="line">            group.add(method);</div></pre></td></tr></table></figure></p>
+<p>根据上面字节码处理逻辑可以总结出：</p>
+<p>（1）CallBackTypes可知，仅仅过滤织入class的那些回调函数</p>
+<p>（2）根据CallBackFilter的Accept函数来确定代理方法所需要执行的callBack下标。</p>
+<p>（3）一个方法只能织入一个CallBack</p>
+<h3 id="MultiCallBack"><a href="#MultiCallBack" class="headerlink" title="MultiCallBack"></a><strong>MultiCallBack</strong></h3><p>CallBack函数有多个子类，前面介绍的MethodInterCeptor只是其中一个，再介绍一个延迟加载的拦截器，应用面也是比较广的。</p>
+<p>LazyLoader意为用到再加载，Bean的部分属性设置为延迟加载在某些应用场景会有出乎意料的效果（案例）</p>
+<p>LazyLoader的原理可以从反编译的代码中总结出来：</p>
+<p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_6.jpg" alt="lazy loader"></p>
+<pre><code>①分别是回调函数和缓存的结果
+
+②每个方法的执行都要被代理到回调方法中
+
+③如果缓存中没有，则执行LoadObject方法，并缓存结果。
+</code></pre><h3 id="FastClass"><a href="#FastClass" class="headerlink" title="FastClass"></a><strong>FastClass</strong></h3><h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a><strong>前言</strong></h4><p>如果说CGLIB优于JDK的一点在于ASM框架的优势，那么另一个优势就是替换了原有了反射调用的局限性，对比下面JDK和CGLIB在invoke的异同：</p>
+<p>CGLIB：<br><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_7.jpg" alt="CGLIB"></p>
+<p>JDK:<br><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_8.jpg" alt="JDK"></p>
+<p>分析上面两段代码可以看到，CGLIB采用了Method的invokerSuper方法，走的并不是反射调用这一条道路。</p>
+<h4 id="FastClass实现原理"><a href="#FastClass实现原理" class="headerlink" title="FastClass实现原理"></a><strong>FastClass实现原理</strong></h4><p>大致流程如下：</p>
+<pre><code>执行invoke的时候cglib为代理类和taret类分别生成一份FastClass,主要用于Method名称和方法执行的映射
+
+代理类中每个方法都有MethodProxy，此类封装了代理类方法的上下文信息，用于和FastClass适配而已。
+
+代理类中的MethodProxy在执行invokerSuper时会依据方法名调用到代理类的FastClass对应的方法去执行。
+</code></pre><h4 id="FastClass的初始化"><a href="#FastClass的初始化" class="headerlink" title="FastClass的初始化"></a><strong>FastClass的初始化</strong></h4><p>下面可以看到，初始化的时候会生成代理类和target类的FastClass<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">private void init()</div><div class="line">    &#123;</div><div class="line">        /* </div><div class="line">         * Using a volatile invariant allows us to initialize the FastClass and</div><div class="line">         * method index pairs atomically.</div><div class="line">         * </div><div class="line">         * Double-checked locking is safe with volatile in Java 5.  Before 1.5 this </div><div class="line">         * code could allow fastClassInfo to be instantiated more than once, which</div><div class="line">         * appears to be benign.</div><div class="line">         */</div><div class="line">        if (fastClassInfo == null)</div><div class="line">        &#123;</div><div class="line">            synchronized (initLock)</div><div class="line">            &#123;</div><div class="line">                if (fastClassInfo == null)</div><div class="line">                &#123;</div><div class="line">                    CreateInfo ci = createInfo;</div><div class="line"></div><div class="line">                    FastClassInfo fci = new FastClassInfo();</div><div class="line">                    fci.f1 = helper(ci, ci.c1);</div><div class="line">                    fci.f2 = helper(ci, ci.c2);</div><div class="line">                    fci.i1 = fci.f1.getIndex(sig1);</div><div class="line">                    fci.i2 = fci.f2.getIndex(sig2);</div><div class="line">                    fastClassInfo = fci;</div><div class="line">                    createInfo = null;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<h4 id="反编译后的FastClass"><a href="#反编译后的FastClass" class="headerlink" title="反编译后的FastClass"></a><strong>反编译后的FastClass</strong></h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div></pre></td><td class="code"><pre><div class="line">public class BookFacadeImpl$$EnhancerByCGLIB$$1adc12da$$FastClassByCGLIB$$e7355050 extends FastClass</div><div class="line">&#123;</div><div class="line">    </div><div class="line">    public int getIndex(Signature signature)</div><div class="line">    &#123;</div><div class="line">        String s = signature.toString();</div><div class="line">        s;</div><div class="line">        s.hashCode();</div><div class="line">        JVM INSTR lookupswitch 27: default 527</div><div class="line">    //                   -2055565910: 236</div><div class="line">    //                   -1725733088: 247</div><div class="line">    //                   -1696758078: 258</div><div class="line">    //                   -1457535688: 269</div><div class="line">    //                   -1411812934: 280</div><div class="line">    //                   -1026001249: 291</div><div class="line">    //                   -894172689: 302</div><div class="line">    //                   -623122092: 312</div><div class="line">    //                   -419626537: 323</div><div class="line">    //                   243996900: 334</div><div class="line">    //                   374345669: 345</div><div class="line">    //                   560567118: 356</div><div class="line">    //                   811063227: 367</div><div class="line">    //                   946854621: 377</div><div class="line">    //                   973717575: 388</div><div class="line">    //                   1116248544: 399</div><div class="line">    //                   1221173700: 410</div><div class="line">    //                   1230699260: 420</div><div class="line">    //                   1365077639: 431</div><div class="line">    //                   1517819849: 442</div><div class="line">    //                   1584330438: 453</div><div class="line">    //                   1826985398: 464</div><div class="line">    //                   1902039948: 474</div><div class="line">    //                   1913648695: 485</div><div class="line">    //                   1972855819: 495</div><div class="line">    //                   1984935277: 506</div><div class="line">    //                   2011844968: 516;</div><div class="line">           goto _L1 _L2 _L3 _L4 _L5 _L6 _L7 _L8 _L9 _L10 _L11 _L12 _L13 _L14 _L15 _L16 _L17 _L18 _L19 _L20 _L21 _L22 _L23 _L24 _L25 _L26 _L27 _L28</div><div class="line">    //根据MethodProxy中的上下文信息适配合适的方法</div><div class="line">    public Object invoke(int i, Object obj, Object aobj[])</div><div class="line">        throws InvocationTargetException</div><div class="line">    &#123;</div><div class="line">        //拦截器中传入的代理类实例，依次为载体执行相应的方法，如果执行的是target类FastClass的话便会内存泄露</div><div class="line">        (BookFacadeImpl$$EnhancerByCGLIB$$1adc12da)obj;</div><div class="line">        i;</div><div class="line">        JVM INSTR tableswitch 0 26: default 392</div><div class="line">    //                   0 128</div><div class="line">    //                   1 143</div><div class="line">    //                   2 147</div><div class="line">    //                   3 159</div><div class="line">    //                   4 169</div><div class="line">    //                   5 191</div><div class="line">    //                   6 201</div><div class="line">    //                   7 206</div><div class="line">    //                   8 226</div><div class="line">    //                   9 237</div><div class="line">    //                   10 248</div><div class="line">    //                   11 259</div><div class="line">    //                   12 272</div><div class="line">    //                   13 276</div><div class="line">    //                   14 286</div><div class="line">    //                   15 291</div><div class="line">    //                   16 296</div><div class="line">    //                   17 301</div><div class="line">    //                   18 316</div><div class="line">    //                   19 320</div><div class="line">    //                   20 332</div><div class="line">    //                   21 336</div><div class="line">    //                   22 341</div><div class="line">    //                   23 355</div><div class="line">    //                   24 378</div><div class="line">    //                   25 382</div><div class="line">    //                   26 387;</div><div class="line">           goto _L1 _L2 _L3 _L4 _L5 _L6 _L7 _L8 _L9 _L10 _L11 _L12 _L13 _L14 _L15 _L16 _L17 _L18 _L19 </div><div class="line">_L2:</div><div class="line">        &quot;CGLIB$SET_THREAD_CALLBACKS([Lnet/sf/cglib/proxy/Callback;)V&quot;;</div><div class="line">        equals();</div><div class="line">        JVM INSTR ifeq 528;</div><div class="line">           goto _L29 _L30</div></pre></td></tr></table></figure>
+<h4 id="invoker-vs-invokerSuper"><a href="#invoker-vs-invokerSuper" class="headerlink" title="invoker vs invokerSuper"></a><strong>invoker vs invokerSuper</strong></h4><p>Method中执行的是invokerSuper方法，因此会调用代理类的FastClass中相应方法，进而回调代理类中的方法而进行target中原方法的调用，还记得下面那段代码么，上文提到过~，FastClass正是回调的该方法从而调用了target中的addBook实现。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">final void CGLIB$addBook$0()</div><div class="line">    &#123;</div><div class="line">        super.addBook();</div><div class="line">    &#125;</div></pre></td></tr></table></figure></p>
+<p>有了上面的基础，来看看 invoker方法，该方法调用的是target类FastClass中相应的方法，试想如果你真的写成了invoker方法，最后回调的可不是CGLIB$addBook$0这个方法了，而是代理类中的addBook方法了，那么循环调用就开始了，内存会发生泄露。</p>
+<p>你或许你已经发现了，CGLIB中很多field都是代理类和Target类双份的，其实target类感觉至此没有用，还会有不可预料到的风险。</p>
+<h3 id="CGLIB小结"><a href="#CGLIB小结" class="headerlink" title="CGLIB小结"></a><strong>CGLIB小结</strong></h3><pre><code>动态生成了KEY、FASTCLASS、PROXYCLASS三种类型的CLASS
+
+拦截器的优先级：可织入&gt;ThreadLocal&gt;static
+
+ASM框架处理字节码+无反射调用改善了代理的效率
+
+丰富的扩展点，延伸出来的功能点很多，包括BeanMap、BeanCopy、延迟加载等相关功能。
+
+Enhancer暴露出来的功能点有：
+</code></pre><p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_9.jpg" alt="Func"></p>
+<pre><code>设置属性
+
+生成CLASS或者实例
+
+对于已经生成的CLASS反射调用注入相应的拦截器
+</code></pre><h2 id="案例分析"><a href="#案例分析" class="headerlink" title="案例分析"></a><strong>案例分析</strong></h2><h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a><strong>背景</strong></h3><p>在学习业务的时候发现了应用中关于异步加载的代码，因此停下来研究了下，作者也沉淀了相关文档：<a href="http://agapple.iteye.com/blog/918898。" target="_blank" rel="external">http://agapple.iteye.com/blog/918898。</a></p>
+<h3 id="异步并行加载"><a href="#异步并行加载" class="headerlink" title="异步并行加载"></a><strong>异步并行加载</strong></h3><h4 id="业务上下文"><a href="#业务上下文" class="headerlink" title="业务上下文"></a><strong>业务上下文</strong></h4><p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_10.jpg" alt="业务"></p>
+<h4 id="异步加载模板"><a href="#异步加载模板" class="headerlink" title="异步加载模板"></a><strong>异步加载模板</strong></h4><p>线程池无阻塞处理异步调用的逻辑</p>
+<p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_11.jpg" alt="模板"></p>
+<h4 id="CGLIB代理类的生成逻辑"><a href="#CGLIB代理类的生成逻辑" class="headerlink" title="CGLIB代理类的生成逻辑"></a><strong>CGLIB代理类的生成逻辑</strong></h4><p><img src="http://7o4zmy.com1.z0.glb.clouddn.com/shuai_12.jpg" alt="代理类生成"></p>
+<pre><code>模板是单例，因此缓存每个class，避免多余的开销
+
+局部变量不存在线程安全的问题，其实没必要设置在ThreadLocal回调函数中，但是CGLIB只提供了两种后处理方法，这也是没有办法的事情。
+
+延迟加载拦截器，带返回值的task，超时三秒。
+</code></pre><p>不得不说，线程+CGLIB+延迟加载=异步并行加载，非常巧妙！</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Java/" rel="tag">#Java</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/09/React-Native-update-rn-img/" rel="next" title="React-Native 图片热更新初探">
+                <i class="fa fa-chevron-left"></i> React-Native 图片热更新初探
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">9</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#代理"><span class="nav-number">1.</span> <span class="nav-text">代理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态代理"><span class="nav-number">1.1.</span> <span class="nav-text">静态代理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态代理"><span class="nav-number">1.2.</span> <span class="nav-text">动态代理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现方式"><span class="nav-number">2.</span> <span class="nav-text">实现方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#环境准备"><span class="nav-number">3.</span> <span class="nav-text">环境准备</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#引cglib和asm的jar包"><span class="nav-number">3.1.</span> <span class="nav-text">引cglib和asm的jar包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#target类"><span class="nav-number">3.2.</span> <span class="nav-text">target类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理类"><span class="nav-number">3.3.</span> <span class="nav-text">代理类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#client类"><span class="nav-number">3.4.</span> <span class="nav-text">client类</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JDK动态代理实现原理"><span class="nav-number">4.</span> <span class="nav-text">JDK动态代理实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反编译后源文件"><span class="nav-number">4.1.</span> <span class="nav-text">反编译后源文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理类生成原理"><span class="nav-number">4.2.</span> <span class="nav-text">代理类生成原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Proxy的newProxyInstance"><span class="nav-number">4.2.1.</span> <span class="nav-text">Proxy的newProxyInstance</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Proxy的getProxyClass"><span class="nav-number">4.2.2.</span> <span class="nav-text">Proxy的getProxyClass</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ProxyGenerator的generateProxyClass"><span class="nav-number">4.2.3.</span> <span class="nav-text">ProxyGenerator的generateProxyClass</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#横切逻辑的invoke逻辑"><span class="nav-number">4.3.</span> <span class="nav-text">横切逻辑的invoke逻辑</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#CGLIB动态代理实现原理"><span class="nav-number">5.</span> <span class="nav-text">CGLIB动态代理实现原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#反编译后的代理类"><span class="nav-number">5.1.</span> <span class="nav-text">反编译后的代理类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理类简介"><span class="nav-number">5.2.</span> <span class="nav-text">代理类简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#代理类的生成流程"><span class="nav-number">5.3.</span> <span class="nav-text">代理类的生成流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#KeyFactory"><span class="nav-number">5.4.</span> <span class="nav-text">KeyFactory</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ClassGenerator"><span class="nav-number">5.5.</span> <span class="nav-text">ClassGenerator</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GeneratorStrategy"><span class="nav-number">5.6.</span> <span class="nav-text">GeneratorStrategy</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CallBackFilter"><span class="nav-number">5.7.</span> <span class="nav-text">CallBackFilter</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MultiCallBack"><span class="nav-number">5.8.</span> <span class="nav-text">MultiCallBack</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#FastClass"><span class="nav-number">5.9.</span> <span class="nav-text">FastClass</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#前言"><span class="nav-number">5.9.1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FastClass实现原理"><span class="nav-number">5.9.2.</span> <span class="nav-text">FastClass实现原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#FastClass的初始化"><span class="nav-number">5.9.3.</span> <span class="nav-text">FastClass的初始化</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#反编译后的FastClass"><span class="nav-number">5.9.4.</span> <span class="nav-text">反编译后的FastClass</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#invoker-vs-invokerSuper"><span class="nav-number">5.9.5.</span> <span class="nav-text">invoker vs invokerSuper</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#CGLIB小结"><span class="nav-number">5.10.</span> <span class="nav-text">CGLIB小结</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#案例分析"><span class="nav-number">6.</span> <span class="nav-text">案例分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景"><span class="nav-number">6.1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#异步并行加载"><span class="nav-number">6.2.</span> <span class="nav-text">异步并行加载</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#业务上下文"><span class="nav-number">6.2.1.</span> <span class="nav-text">业务上下文</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#异步加载模板"><span class="nav-number">6.2.2.</span> <span class="nav-text">异步加载模板</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CGLIB代理类的生成逻辑"><span class="nav-number">6.2.3.</span> <span class="nav-text">CGLIB代理类的生成逻辑</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
