@@ -1,0 +1,976 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="iOS," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="最近开源了一个面向协议设计的网络请求库 MBNetwork，基于 Alamofire 和 ObjectMapper 实现，目的是简化业务层的网络请求操作。
+需要干些啥对于大部分 App 而言，业务层做一次网络请求通常关心的问题有如下几个：
+
+如何在任意位置发起网络请求。
+表单创建。包含请求地址、请求方式（GET／POST／……）、请求头等……
+加载遮罩。目的是阻塞 UI 交互，同时告知用户操作正在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="造轮子 | 如何设计一个面向协议的 iOS 网络请求库">
+<meta property="og:url" content="https://elelogistics.github.io/2017/02/09/造轮子 | 如何设计一个面向协议的 iOS 网络请求库/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="最近开源了一个面向协议设计的网络请求库 MBNetwork，基于 Alamofire 和 ObjectMapper 实现，目的是简化业务层的网络请求操作。
+需要干些啥对于大部分 App 而言，业务层做一次网络请求通常关心的问题有如下几个：
+
+如何在任意位置发起网络请求。
+表单创建。包含请求地址、请求方式（GET／POST／……）、请求头等……
+加载遮罩。目的是阻塞 UI 交互，同时告知用户操作正在">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109145516357?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109145608670?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109145921301?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109152146307?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109145842909?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109145905425?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109152204833?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109152218771?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:image" content="http://img.blog.csdn.net/20170109152233912?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2017-02-09T07:52:36.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="造轮子 | 如何设计一个面向协议的 iOS 网络请求库">
+<meta name="twitter:description" content="最近开源了一个面向协议设计的网络请求库 MBNetwork，基于 Alamofire 和 ObjectMapper 实现，目的是简化业务层的网络请求操作。
+需要干些啥对于大部分 App 而言，业务层做一次网络请求通常关心的问题有如下几个：
+
+如何在任意位置发起网络请求。
+表单创建。包含请求地址、请求方式（GET／POST／……）、请求头等……
+加载遮罩。目的是阻塞 UI 交互，同时告知用户操作正在">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20170109145516357?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2017/02/09/造轮子 | 如何设计一个面向协议的 iOS 网络请求库/"/>
+
+  <title> 造轮子 | 如何设计一个面向协议的 iOS 网络请求库 | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                造轮子 | 如何设计一个面向协议的 iOS 网络请求库
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-09T15:50:58+08:00" content="2017-02-09">
+              2017-02-09
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">郑宜东</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">iOS</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/09/造轮子 | 如何设计一个面向协议的 iOS 网络请求库/" class="leancloud_visitors" data-flag-title="造轮子 | 如何设计一个面向协议的 iOS 网络请求库">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近开源了一个面向协议设计的网络请求库 <a href="https://github.com/mmoaay/MBNetwork" target="_blank" rel="external"><code>MBNetwork</code></a>，基于 <code>Alamofire</code> 和 <code>ObjectMapper</code> 实现，目的是简化业务层的网络请求操作。</p>
+<h1 id="需要干些啥"><a href="#需要干些啥" class="headerlink" title="需要干些啥"></a>需要干些啥</h1><p>对于大部分 App 而言，业务层做一次网络请求通常关心的问题有如下几个：</p>
+<ul>
+<li>如何在任意位置发起网络请求。</li>
+<li>表单创建。包含请求地址、请求方式（GET／POST／……）、请求头等……</li>
+<li>加载遮罩。目的是阻塞 UI 交互，同时告知用户操作正在进行。比如提交表单时在提交按钮上显示 “菊花”，同时使其失效。</li>
+<li>加载进度展示。下载上传图片等资源时提示用户当前进度。</li>
+<li>断点续传。下载上传图片等资源发生错误时可以在之前已完成部分的基础上继续操作，这个 <code>Alamofire</code> 可以支持。</li>
+<li>数据解析。因为目前主流服务端和客户端数据交换采用的格式是 <code>JSON</code>，所以我们暂时先考虑 <code>JSON</code> 格式的数据解析，这个 <code>ObjectMapper</code> 可以支持。</li>
+<li>出错提示。发生业务异常时，直接显示服务端返回的异常信息。前提是服务端异常信息足够友好。</li>
+<li>成功提示。请求正常结束时提示用户。</li>
+<li>网络异常重新请求。显示网络异常界面，点击之后重新发送请求。</li>
+</ul>
+<h1 id="为什么是-POP-而不是-OOP"><a href="#为什么是-POP-而不是-OOP" class="headerlink" title="为什么是 POP 而不是 OOP"></a>为什么是 <code>POP</code> 而不是 <code>OOP</code></h1><p>关于 <code>POP</code> 和 <code>OOP</code> 这两种设计思想及其特点的文章很多，所以我就不废话了，主要说说为啥要用 <code>POP</code> 来写 <code>MBNetwork</code>。</p>
+<ul>
+<li>想尝试一下<strong>一切皆协议</strong>的设计方式。所以这个库的设计只是一次极限尝试，并不代表这就是最完美的设计方式。</li>
+<li>如果以 <code>OOP</code> 的方式实现，使用者需要通过继承的方式来获得某个类实现的功能，如果使用者还需要另外某个类实现的功能，就会很尴尬。而 <code>POP</code> 是通过对协议进行扩展来实现功能，使用者可以同时遵循多个协议，轻松解决 <code>OOP</code> 的这个硬伤。</li>
+<li><code>OOP</code> 继承的方式会使某些子类获得它们不需要的功能。</li>
+<li>如果因为业务的增多，需要对某些业务进行分离，<code>OOP</code> 的方式还是会碰到子类不能继承多个父类的问题，而 <code>POP</code> 则完全不会，分离之后，只需要遵循分离后的多个协议即可。</li>
+<li><code>OOP</code> 继承的方式入侵性比较强。</li>
+<li><code>POP</code> 可以通过扩展的方式对各个协议进行默认实现，降低使用者的学习成本。</li>
+<li>同时 <code>POP</code> 还能让使用者对协议做自定义的实现，保证其高度可配置性。</li>
+</ul>
+<h1 id="站在-Alamofire-的肩膀上"><a href="#站在-Alamofire-的肩膀上" class="headerlink" title="站在 Alamofire 的肩膀上"></a>站在 <code>Alamofire</code> 的肩膀上</h1><p>很多人都喜欢说 <code>Alamofire</code> 是 <code>Swift</code> 版本的 <code>AFNetworking</code>，但是在我看来，<code>Alamofire</code> 比 <code>AFNetworking</code> 更纯粹。这和 <code>Swift</code> 语言本身的特性也是有关系的，<code>Swift</code> 开发者们，更喜欢写一些轻量的框架。比如 <code>AFNetworking</code> 把很多 UI 相关的扩展功能都做在框架内，而 <code>Alamofire</code> 的做法则是放在另外的扩展库中。比如 <a href="https://github.com/Alamofire/AlamofireImage" target="_blank" rel="external"><code>AlamofireImage</code></a> 和 <a href="https://github.com/Alamofire/AlamofireNetworkActivityIndicator" target="_blank" rel="external"><code>AlamofireNetworkActivityIndicator</code></a></p>
+<p>而 <code>MBNetwork</code> 就可以当做是 <code>Alamofire</code> 的一个扩展库，所以，<code>MBNetwork</code> 很大程度上遵循了 <code>Alamofire</code> 接口的设计规范。一方面，降低了 <code>MBNetwork</code> 的学习成本，另一方面，从个人角度来看，<code>Alamofire</code> 确实有很多特别值得借鉴的地方。</p>
+<h2 id="POP"><a href="#POP" class="headerlink" title="POP"></a><code>POP</code></h2><p>首先当然是 <code>POP</code> 啦，<code>Alamofire</code> 大量运用了  <code>protocol</code> + <code>extension</code> 的实现方式。</p>
+<h2 id="enum"><a href="#enum" class="headerlink" title="enum"></a><code>enum</code></h2><p>做为检验写 <code>Swift</code> 姿势正确与否的重要指标，<code>Alamofire</code> 当然不会缺。</p>
+<h2 id="链式调用"><a href="#链式调用" class="headerlink" title="链式调用"></a>链式调用</h2><p>这是让 <code>Alamofire</code> 成为一个优雅的网络框架的重要原因之一。这一点 <code>MBNetwork</code> 也进行了完全的 Copy。</p>
+<h2 id="discardableResult"><a href="#discardableResult" class="headerlink" title="@discardableResult"></a><code>@discardableResult</code></h2><p>在 <code>Alamofire</code> 所有带返回值的方法前面，都会有这么一个标签，其实作用很简单，因为在 <code>Swift</code> 中，返回值如果没有被使用，Xcode 会产生告警信息。加上这个标签之后，表示这个方法的返回值就算没有被使用，也不产生告警。</p>
+<h1 id="当然还有-ObjectMapper"><a href="#当然还有-ObjectMapper" class="headerlink" title="当然还有 ObjectMapper"></a>当然还有 <code>ObjectMapper</code></h1><p>引入 <code>ObjectMapper</code> 很大一部分原因是需要做错误和成功提示。因为只有解析服务端的错误信息节点才能知道返回结果是否正确，所以我们引入  <code>ObjectMapper</code> 来做 <code>JSON</code> 解析。 而只做 <code>JSON</code> 解析的原因是目前主流的服务端客户端数据交互格式是 <code>JSON</code>。</p>
+<p>这里需要提到的就是另外一个 <code>Alamofire</code> 的扩展库 <a href="https://github.com/tristanhimmelman/AlamofireObjectMapper" target="_blank" rel="external"><code>AlamofireObjectMapper</code></a>，从名字就可以看出来，这个库就是参照 <code>Alamofire</code> 的 API 规范来做  <code>ObjectMapper</code> 做的事情。这个库的代码很少，但实现方式非常 <code>Alamofire</code>，大家可以拜读一下它的源码，基本上就知道如何基于 <code>Alamofire</code> 做自定义数据解析了。</p>
+<blockquote>
+<p>注：被 @Foolish 安利，正在接入 <code>ProtoBuf</code> 中…</p>
+</blockquote>
+<h1 id="一步一步来"><a href="#一步一步来" class="headerlink" title="一步一步来"></a>一步一步来</h1><h2 id="表单创建"><a href="#表单创建" class="headerlink" title="表单创建"></a>表单创建</h2><p><code>Alamofire</code> 的请求有三种： <code>request</code>、<code>upload</code> 和 <code>download</code>，这三种请求都有相应的参数，<code>MBNetwork</code> 把这些参数抽象成了对应的协议，具体内容参见：<a href="https://github.com/mmoaay/MBNetwork/blob/master/MBNetwork/Classes/Form/MBForm.swift" target="_blank" rel="external">MBForm.swift</a>。这种做法有几个优点：</p>
+<ol>
+<li>对于类似 <code>headers</code> 这样的参数，一般全局都是一致的，可以直接 extension 指定。</li>
+<li>通过协议的名字即可知道表单的功能，简单明确。</li>
+</ol>
+<p>下面是 <code>MBNetwork</code> 表单协议的用法举例：</p>
+<p>指定全局 <code>headers</code> 参数：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MBFormable</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">headers</span><span class="params">()</span></span> -&gt; [<span class="type">String</span>: <span class="type">String</span>] &#123;</div><div class="line">        <span class="keyword">return</span> [<span class="string">"accessToken"</span>:<span class="string">"xxx"</span>];</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>创建具体业务表单：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">struct</span> <span class="title">WeatherForm</span>: <span class="title">MBRequestFormable</span> </span>&#123;</div><div class="line">    <span class="keyword">var</span> city = <span class="string">"shanghai"</span></div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">parameters</span><span class="params">()</span></span> -&gt; [<span class="type">String</span>: <span class="type">Any</span>] &#123;</div><div class="line">        <span class="keyword">return</span> [<span class="string">"city"</span>: city]</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="keyword">var</span> url = <span class="string">"https://raw.githubusercontent.com/tristanhimmelman/AlamofireObjectMapper/2ee8f34d21e8febfdefb2b3a403f18a43818d70a/sample_keypath_json"</span></div><div class="line">    <span class="keyword">var</span> method = <span class="type">Alamofire</span>.<span class="type">HTTPMethod</span>.<span class="keyword">get</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<blockquote>
+<p>表单协议化可能有过度设计的嫌疑，有同感的仍然可以使用 <code>Alamofire</code> 对应的接口去做网络请求，不影响 <code>MBNetwork</code> 其他功能的使用。</p>
+</blockquote>
+<h2 id="基于表单请求数据"><a href="#基于表单请求数据" class="headerlink" title="基于表单请求数据"></a>基于表单请求数据</h2><p>表单已经抽象成协议，现在就可以基于表单发送网络请求了，因为之前已经说过需要在任意位置发送网络请求，而实现这一点的方法基本就这几种：</p>
+<ul>
+<li>单例。</li>
+<li>全局方法，<code>Alamofire</code> 就是这么干的。</li>
+<li>协议扩展。</li>
+</ul>
+<p><code>MBNetwork</code> 采用了最后一种方法。原因很简单，<code>MBNetwork</code> 是以<strong>一切皆协议</strong>的原则设计的，所以我们把网络请求抽象成 <code>MBRequestable</code> 协议。</p>
+<p>首先，<code>MBRequestable</code> 是一个空协议 。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">///  Network request protocol, object conforms to this protocol can make network request</span></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBRequestable</span>: <span class="title">class</span> </span>&#123;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>为什么是空协议，因为不需要遵循这个协议的对象干啥。</p>
+<p>然后对它做 <code>extension</code>，实现网络请求相关的一系列接口：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">request</span><span class="params">(<span class="number">_</span> form: MBRequestFormable)</span></span> -&gt; <span class="type">DataRequest</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">download</span><span class="params">(<span class="number">_</span> form: MBDownloadFormable)</span></span> -&gt; <span class="type">DownloadRequest</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">download</span><span class="params">(<span class="number">_</span> form: MBDownloadResumeFormable)</span></span> -&gt; <span class="type">DownloadRequest</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">upload</span><span class="params">(<span class="number">_</span> form: MBUploadDataFormable)</span></span> -&gt; <span class="type">UploadRequest</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">upload</span><span class="params">(<span class="number">_</span> form: MBUploadFileFormable)</span></span> -&gt; <span class="type">UploadRequest</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">upload</span><span class="params">(<span class="number">_</span> form: MBUploadStreamFormable)</span></span> -&gt; <span class="type">UploadRequest</span></div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">upload</span><span class="params">(<span class="number">_</span> form: MBUploadMultiFormDataFormable, completion: <span class="params">(<span class="params">(UploadRequest)</span></span></span></span> -&gt; <span class="type">Void</span>)?)</div></pre></td></tr></table></figure>
+<p>这些就是网络请求的接口，参数是各种表单协议，接口内部调用的其实是 <code>Alamofire</code> 对应的接口。注意它们都返回了类型为 <code>DataRequest</code>、<code>UploadRequest</code> 或者 <code>DownloadRequest</code> 的对象，通过返回值我们可以继续调用其他方法。</p>
+<p>到这里 <code>MBRequestable</code> 的实现就完成了，使用方法很简单，只需要设置类型遵循 <code>MBRequestable</code> 协议，就可以在该类型内发起网络请求。如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoadableViewController</span>: <span class="title">UIViewController</span>, <span class="title">MBRequestable</span> </span>&#123;</div><div class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">viewDidLoad</span><span class="params">()</span></span> &#123;</div><div class="line">        <span class="keyword">super</span>.viewDidLoad()</div><div class="line"></div><div class="line">        <span class="comment">// Do any additional setup after loading the view.</span></div><div class="line">        request(<span class="type">WeatherForm</span>())</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="加载"><a href="#加载" class="headerlink" title="加载"></a>加载</h2><p>对于加载我们关心的点有如下几个：</p>
+<ul>
+<li>加载开始需要干啥。</li>
+<li>加载结束需要干啥。</li>
+<li>是否需要显示加载遮罩。</li>
+<li>在何处显示遮罩。</li>
+<li>显示遮罩的内容。</li>
+</ul>
+<p>对于这几点，我对协议的划分是这样的：</p>
+<ul>
+<li><code>MBContainable</code> 协议。遵循该协议的对象可以做为加载的容器。</li>
+<li><code>MBMaskable</code> 协议。遵循该协议的 <code>UIView</code> 可以做为加载遮罩。</li>
+<li><code>MBLoadable</code> 协议。遵循该协议的对象可以定义加载的配置和流程。</li>
+</ul>
+<h3 id="MBContainable"><a href="#MBContainable" class="headerlink" title="MBContainable"></a><code>MBContainable</code></h3><p>遵循这个协议的对象只需要实现下面的方法即可：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">containerView</span><span class="params">()</span></span> -&gt; <span class="type">UIView</span>?</div></pre></td></tr></table></figure>
+<p>这个方法返回做为遮罩容器的 <code>UIView</code>。做为遮罩的 <code>UIView</code> 最终会被添加到 <code>containerView</code> 上。</p>
+<p>不同类型的容器的 <code>containerView</code> 是不一样的，下面是各种类型容器 <code>containerView</code> 的列表：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">容器</th>
+<th style="text-align:center"><code>containerView</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><code>UIViewController</code></td>
+<td style="text-align:center"><code>view</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>UIView</code></td>
+<td style="text-align:center"><code>self</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>UITableViewCell</code></td>
+<td style="text-align:center"><code>contentView</code></td>
+</tr>
+<tr>
+<td style="text-align:center"><code>UIScrollView</code></td>
+<td style="text-align:center">最近一个不是 <code>UIScrollView</code> 的 <code>superview</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>UIScrollView</code> 这个地方有点特殊，因为如果直接在 <code>UIScrollView</code> 上添加遮罩视图，遮罩视图的中心点是非常难控制的，所以这里用了一个技巧，递归寻找 <code>UIScrollView</code> 的 <code>superview</code>，发现不是 <code>UIScrollView</code> 类型的直接返回即可。代码如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">containerView</span><span class="params">()</span></span> -&gt; <span class="type">UIView</span>? &#123;</div><div class="line">    <span class="keyword">var</span> next = superview</div><div class="line">    <span class="keyword">while</span> <span class="literal">nil</span> != next &#123;</div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="number">_</span> = next <span class="keyword">as</span>? <span class="type">UIScrollView</span> &#123;</div><div class="line">            next = next?.superview</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="keyword">return</span> next</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> <span class="literal">nil</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>最后我们对 <code>MBContainable</code> 做 <code>extension</code>，添加一个 <code>latestMask</code> 方法，这个方法实现的功能很简单，就是返回 <code>containerView</code> 上最新添加的、而且遵循 <code>MBMaskable</code> 协议的 <code>subview</code>。</p>
+<h3 id="MBMaskable"><a href="#MBMaskable" class="headerlink" title="MBMaskable"></a><code>MBMaskable</code></h3><p>协议内部只定义了一个属性 <code>maskId</code>，作用是用来区分多种遮罩。</p>
+<p><code>MBNetwork</code> 内部实现了两个遵循 <code>MBMaskable</code> 协议的 <code>UIView</code>，分别是 <a href="https://github.com/mmoaay/MBNetwork/blob/master/MBNetwork/Classes/View/MBActivityIndicator.swift" target="_blank" rel="external"><code>MBActivityIndicator</code></a> 和 <a href="https://github.com/mmoaay/MBNetwork/blob/master/MBNetwork/Classes/View/MBMaskView.swift" target="_blank" rel="external"><code>MBMaskView</code></a>，其中 <code>MBMaskView</code> 的效果是参照 <code>MBProgressHUD</code> 实现，所以对于大部分场景来说，直接使用这两个 <code>UIView</code> 即可。</p>
+<blockquote>
+<p>注：<code>MBMaskable</code> 协议唯一的作用是与 <code>containerView</code> 上其它 <code>subview</code> 做区分。</p>
+</blockquote>
+<h3 id="MBLoadable"><a href="#MBLoadable" class="headerlink" title="MBLoadable"></a><code>MBLoadable</code></h3><p>做为加载协议的核心部分，<code>MBLoadable</code> 包含如下几个部分：</p>
+<ul>
+<li><code>func mask() -&gt; MBMaskable?</code>：遮罩视图，可选的原因是可能不需要遮罩。</li>
+<li><code>func inset() -&gt; UIEdgeInsets</code>：遮罩视图和容器视图的边距，默认值 <code>UIEdgeInsets.zero</code>。</li>
+<li><code>func maskContainer() -&gt; MBContainable?</code>：遮罩容器视图，可选的原因是可能不需要遮罩。</li>
+<li><code>func begin()</code>：加载开始回调方法。</li>
+<li><code>func end()</code>：加载结束回调方法。</li>
+</ul>
+<p>然后对协议要求实现的几个方法做默认实现：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">mask</span><span class="params">()</span></span> -&gt; <span class="type">MBMaskable</span>? &#123;</div><div class="line">    <span class="keyword">return</span> <span class="type">MBMaskView</span>() <span class="comment">// 默认显示 MBProgressHUD 效果的遮罩。</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"> <span class="function"><span class="keyword">func</span> <span class="title">inset</span><span class="params">()</span></span> -&gt; <span class="type">UIEdgeInsets</span> &#123;</div><div class="line">    <span class="keyword">return</span> <span class="type">UIEdgeInsets</span>.zero <span class="comment">// 默认边距为 0 。</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">maskContainer</span><span class="params">()</span></span> -&gt; <span class="type">MBContainable</span>? &#123;</div><div class="line">    <span class="keyword">return</span> <span class="literal">nil</span> <span class="comment">// 默认没有遮罩容器。</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">begin</span><span class="params">()</span></span> &#123;</div><div class="line">    show() <span class="comment">// 默认调用 show 方法。</span></div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">end</span><span class="params">()</span></span> &#123;</div><div class="line">    hide() <span class="comment">// 默认调用 hide 方法。</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>上述代码中的 <code>show</code> 方法和 <code>hide</code> 方法是实现加载遮罩的核心代码。</p>
+<p><code>show</code> 方法的内容如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">show</span><span class="params">()</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> mask = <span class="keyword">self</span>.mask() <span class="keyword">as</span>? <span class="type">UIView</span> &#123;</div><div class="line">        <span class="keyword">var</span> isHidden = <span class="literal">false</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> <span class="number">_</span> = <span class="keyword">self</span>.maskContainer()?.latestMask() &#123;</div><div class="line">            isHidden = <span class="literal">true</span></div><div class="line">        &#125;</div><div class="line">        <span class="keyword">self</span>.maskContainer()?.containerView()?.addMBSubView(mask, insets: <span class="keyword">self</span>.inset())</div><div class="line">        mask.isHidden = isHidden</div><div class="line"></div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> container = <span class="keyword">self</span>.maskContainer(), <span class="keyword">let</span> scrollView = container <span class="keyword">as</span>? <span class="type">UIScrollView</span> &#123;</div><div class="line">            scrollView.setContentOffset(scrollView.contentOffset, animated: <span class="literal">false</span>)</div><div class="line">            scrollView.isScrollEnabled = <span class="literal">false</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个方法做了下面几件事情：</p>
+<ul>
+<li>判断 <code>mask</code> 方法返回的是不是遵循 <code>MBMaskable</code> 协议的 <code>UIView</code>，因为如果不是 <code>UIView</code>，不能被添加到其它的 <code>UIView</code> 上。</li>
+<li>通过 <code>MBContainable</code> 协议上的 <code>latestMask</code> 方法获取最新添加的、且遵循 <code>MBMaskable</code> 协议的 <code>UIView</code>。如果有，就把新添加的这个遮罩视图隐藏起来，再添加到 <code>maskContainer</code> 的 <code>containerView</code> 上。为什么会有多个遮罩的原因是多个网络请求可能同时遮罩某一个 <code>maskContainer</code>，另外，多个遮罩不能都显示出来，因为有的遮罩可能有半透明部分，所以需要做隐藏操作。至于为什么都要添加到 <code>maskContainer</code> 上，是因为我们不知道哪个请求会最后结束，所以就采取每个请求的遮罩我们都添加，然后结束一个请求就移除一个遮罩，请求都结束的时候，遮罩也就都移除了。</li>
+<li>对 <code>maskContainer</code> 是 <code>UIScrollView</code> 的情况做特殊处理，使其不可滚动。</li>
+</ul>
+<p>然后是 <code>hide</code> 方法，内容如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">hide</span><span class="params">()</span></span> &#123;</div><div class="line">    <span class="keyword">if</span> <span class="keyword">let</span> latestMask = <span class="keyword">self</span>.maskContainer()?.latestMask() &#123;</div><div class="line">        latestMask.removeFromSuperview()</div><div class="line"></div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> container = <span class="keyword">self</span>.maskContainer(), <span class="keyword">let</span> scrollView = container <span class="keyword">as</span>? <span class="type">UIScrollView</span> &#123;</div><div class="line">            <span class="keyword">if</span> <span class="literal">false</span> == latestMask.isHidden &#123;</div><div class="line">                scrollView.isScrollEnabled = <span class="literal">true</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>相比 <code>show</code> 方法，<code>hide</code> 方法做的事情要简单一些，通过 <code>MBContainable</code> 协议上的 <code>latestMask</code> 方法获取最新添加的、且遵循 <code>MBMaskable</code> 协议的 <code>UIView</code>，然后从 <code>superview</code> 上移除。对 <code>maskContainer</code> 是 <code>UIScrollView</code> 的情况做特殊处理，当被移除的遮罩是最后一个时，使其可以再滚动。</p>
+<h3 id="MBLoadType"><a href="#MBLoadType" class="headerlink" title="MBLoadType"></a><code>MBLoadType</code></h3><p>为了降低使用成本，<code>MBNetwork</code> 提供了 <code>MBLoadType</code> 枚举类型。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">enum</span> <span class="title">MBLoadType</span> </span>&#123;</div><div class="line">    <span class="keyword">case</span> <span class="keyword">none</span></div><div class="line">    <span class="keyword">case</span> `<span class="keyword">default</span>`(container: <span class="type">MBContainable</span>)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>none</code>：表示不需要加载。<br><code>default</code>：传入遵循 <code>MBContainable</code> 协议的 <code>container</code> 附加值。</p>
+<p>然后对 <code>MBLoadType</code> 做 <code>extension</code>，使其遵循 <code>MBLoadable</code> 协议。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">MBLoadType</span>: <span class="title">MBLoadable</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">maskContainer</span><span class="params">()</span></span> -&gt; <span class="type">MBContainable</span>? &#123;</div><div class="line">        <span class="keyword">switch</span> <span class="keyword">self</span> &#123;</div><div class="line">        <span class="keyword">case</span> .<span class="keyword">default</span>(<span class="keyword">let</span> container):</div><div class="line">            <span class="keyword">return</span> container</div><div class="line">        <span class="keyword">case</span> .<span class="keyword">none</span>:</div><div class="line">            <span class="keyword">return</span> <span class="literal">nil</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这样对于不需要加载或者只需要指定 <code>maskContainer</code> 的情况（PS：比如全屏遮罩），就可以直接用 <code>MBLoadType</code> 来代替 <code>MBLoadable</code>。</p>
+<h3 id="常用控件支持"><a href="#常用控件支持" class="headerlink" title="常用控件支持"></a>常用控件支持</h3><h4 id="UIControl"><a href="#UIControl" class="headerlink" title="UIControl"></a><code>UIControl</code></h4><ul>
+<li><code>maskContainer</code> 就是本身，比如 <code>UIButton</code>，加载时直接在按钮上显示“菊花”即可。</li>
+<li><code>mask</code> 需要定制下，不能是默认的 <code>MBMaskView</code>，而应该是 <code>MBActivityIndicator</code>，然后 <code>MBActivityIndicator</code> “菊花”的颜色和背景色应该和 <code>UIControl</code> 一致。</li>
+<li>加载开始和加载全部结束时需要设置 <code>isEnabled</code>。</li>
+</ul>
+<h4 id="UIRefreshControl"><a href="#UIRefreshControl" class="headerlink" title="UIRefreshControl"></a><code>UIRefreshControl</code></h4><ul>
+<li>不需要显示加载遮罩。</li>
+<li>加载开始和加载全部结束时需要调用 <code>beginRefreshing</code> 和 <code>endRefreshing</code>。</li>
+</ul>
+<h4 id="UITableViewCell"><a href="#UITableViewCell" class="headerlink" title="UITableViewCell"></a><code>UITableViewCell</code></h4><ul>
+<li><code>maskContainer</code> 就是本身。</li>
+<li><code>mask</code> 需要定制下，不能是默认的 <code>MBMaskView</code>，而应该是 <code>MBActivityIndicator</code>，然后 <code>MBActivityIndicator</code> “菊花”的颜色和背景色应该和 <code>UIControl</code> 一致。</li>
+</ul>
+<h3 id="结合网络请求"><a href="#结合网络请求" class="headerlink" title="结合网络请求"></a>结合网络请求</h3><p>至此，加载相关协议的定义和默认实现都已经完成。现在需要做的就是把加载和网络请求结合起来，其实很简单，之前 <code>MBRequestable</code> 协议扩展的网络请求方法都返回了类型为 <code>DataRequest</code>、<code>UploadRequest</code> 或者 <code>DownloadRequest</code> 的对象，所以我们对它们做 <code>extension</code>，然后实现下面的 <code>load</code> 方法即可。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">load</span><span class="params">(load: MBLoadable = MBLoadType.<span class="keyword">none</span>)</span></span> -&gt; <span class="type">Self</span> &#123;</div><div class="line">    load.begin()</div><div class="line">    <span class="keyword">return</span> response &#123; (response: <span class="type">DefaultDataResponse</span>) <span class="keyword">in</span></div><div class="line">        load.end()</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>传入参数为遵循 <code>MBLoadable</code> 协议的 <code>load</code> 对象，默认值为 <code>MBLoadType.none</code>。请求开始时调用其 <code>begin</code> 方法，请求返回时调用其 <code>end</code> 方法。</p>
+<h3 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h3><h4 id="基础用法"><a href="#基础用法" class="headerlink" title="基础用法"></a>基础用法</h4><h5 id="在-UIViewController-上显示加载遮罩"><a href="#在-UIViewController-上显示加载遮罩" class="headerlink" title="在 UIViewController 上显示加载遮罩"></a>在 <code>UIViewController</code> 上显示加载遮罩</h5><p><img src="http://img.blog.csdn.net/20170109145516357?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">request(<span class="type">WeatherForm</span>()).load(load: <span class="type">MBLoadType</span>.<span class="keyword">default</span>(container: <span class="keyword">self</span>))</div></pre></td></tr></table></figure>
+<h5 id="在-UIButton-上显示加载遮罩"><a href="#在-UIButton-上显示加载遮罩" class="headerlink" title="在 UIButton 上显示加载遮罩"></a>在 <code>UIButton</code> 上显示加载遮罩</h5><p><img src="http://img.blog.csdn.net/20170109145608670?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">request(<span class="type">WeatherForm</span>()).load(load: button)</div></pre></td></tr></table></figure>
+<h5 id="在-UITableViewCell-上显示加载遮罩"><a href="#在-UITableViewCell-上显示加载遮罩" class="headerlink" title="在 UITableViewCell 上显示加载遮罩"></a>在 <code>UITableViewCell</code> 上显示加载遮罩</h5><p><img src="http://img.blog.csdn.net/20170109145921301?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">override</span> <span class="function"><span class="keyword">func</span> <span class="title">tableView</span><span class="params">(<span class="number">_</span> tableView: UITableView, didSelectRowAt indexPath: IndexPath)</span></span> &#123;</div><div class="line">    tableView .deselectRow(at: indexPath, animated: <span class="literal">false</span>)</div><div class="line">    <span class="keyword">let</span> cell = tableView.cellForRow(at: indexPath)</div><div class="line">    request(<span class="type">WeatherForm</span>()).load(load: cell!)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h5 id="UIRefreshControl-1"><a href="#UIRefreshControl-1" class="headerlink" title="UIRefreshControl"></a><code>UIRefreshControl</code></h5><p><img src="http://img.blog.csdn.net/20170109152146307?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">refresh.attributedTitle = <span class="type">NSAttributedString</span>(string: <span class="string">"Loadable UIRefreshControl"</span>)</div><div class="line">refresh.addTarget(<span class="keyword">self</span>, action: #selector(<span class="type">LoadableTableViewController</span>.refresh(refresh:)), <span class="keyword">for</span>: .valueChanged)</div><div class="line">tableView.addSubview(refresh)</div><div class="line">     </div><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">refresh</span><span class="params">(refresh: UIRefreshControl)</span></span> &#123;</div><div class="line">    request(<span class="type">WeatherForm</span>()).load(load: refresh)</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="进阶"><a href="#进阶" class="headerlink" title="进阶"></a>进阶</h4><p>除了基本的用法，<code>MBNetwork</code> 还支持对加载进行完全的自定义，做法如下：</p>
+<p><img src="http://img.blog.csdn.net/20170109145842909?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<p>首先，我们创建一个遵循 <code>MBLoadable</code> 协议的类型 <code>LoadConfig</code>。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">LoadConfig</span>: <span class="title">MBLoadable</span> </span>&#123;</div><div class="line">    <span class="keyword">init</span>(container: <span class="type">MBContainable</span>? = <span class="literal">nil</span>, mask: <span class="type">MBMaskable</span>? = <span class="type">MBMaskView</span>(), inset: <span class="type">UIEdgeInsets</span> = <span class="type">UIEdgeInsets</span>.zero) &#123;</div><div class="line">        insetMine = inset</div><div class="line">        maskMine = mask</div><div class="line">        containerMine = container</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">mask</span><span class="params">()</span></span> -&gt; <span class="type">MBMaskable</span>? &#123;</div><div class="line">        <span class="keyword">return</span> maskMine</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">inset</span><span class="params">()</span></span> -&gt; <span class="type">UIEdgeInsets</span> &#123;</div><div class="line">        <span class="keyword">return</span> insetMine</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">maskContainer</span><span class="params">()</span></span> -&gt; <span class="type">MBContainable</span>? &#123;</div><div class="line">        <span class="keyword">return</span> containerMine</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">begin</span><span class="params">()</span></span> &#123;</div><div class="line">        show()</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">end</span><span class="params">()</span></span> &#123;</div><div class="line">        hide()</div><div class="line">    &#125;</div><div class="line">    </div><div class="line">    <span class="keyword">var</span> insetMine: <span class="type">UIEdgeInsets</span></div><div class="line">    <span class="keyword">var</span> maskMine: <span class="type">MBMaskable</span>?</div><div class="line">    <span class="keyword">var</span> containerMine: <span class="type">MBContainable</span>?</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们就可以这样使用它了。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> load = <span class="type">LoadConfig</span>(container: view, mask:<span class="type">MBEyeLoading</span>(), inset: <span class="type">UIEdgeInsetsMake</span>(<span class="number">30</span>+<span class="number">64</span>, <span class="number">15</span>, <span class="type">UIScreen</span>.main.bounds.height-<span class="number">64</span>-(<span class="number">44</span>*<span class="number">4</span>+<span class="number">30</span>+<span class="number">15</span>*<span class="number">3</span>), <span class="number">15</span>))</div><div class="line">request(<span class="type">WeatherForm</span>()).load(load: load)</div></pre></td></tr></table></figure>
+<p>你会发现所有的东西都是可以自定义的，而且使用起来仍然很简单。</p>
+<p>下面是利用 <code>LoadConfig</code> 在 <code>UITableView</code> 上显示自定义加载遮罩的的例子。</p>
+<p><img src="http://img.blog.csdn.net/20170109145905425?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">let load = LoadConfig(container:self.tableView, mask: MBActivityIndicator(), inset: UIEdgeInsetsMake(UIScreen.main.bounds.width - self.tableView.contentOffset.y &gt; 0 ? UIScreen.main.bounds.width - self.tableView.contentOffset.y : 0, 0, 0, 0))</div><div class="line">request(WeatherForm()).load(load: load)</div></pre></td></tr></table></figure>
+<h2 id="加载进度展示"><a href="#加载进度展示" class="headerlink" title="加载进度展示"></a>加载进度展示</h2><p>进度的展示比较简单，只需要有方法实时更新进度即可，所以我们先定义 <code>MBProgressable</code> 协议，内容如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBProgressable</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">progress</span><span class="params">(<span class="number">_</span> progress: Progress)</span></span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>因为一般只有上传和下载大文件才需要进度展示，所以我们只对 <code>UploadRequest</code> 和 <code>DownloadRequest</code> 做 <code>extension</code>，添加 <code>progress</code> 方法，参数为遵循 <code>MBProgressable</code> 协议的 <code>progress</code> 对象 ：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">progress</span><span class="params">(progress: MBProgressable)</span></span> -&gt; <span class="type">Self</span> &#123;</div><div class="line">    <span class="keyword">return</span> uploadProgress &#123; (prog: <span class="type">Progress</span>) <span class="keyword">in</span></div><div class="line">        progress.progress(prog)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="常用控件支持-1"><a href="#常用控件支持-1" class="headerlink" title="常用控件支持"></a>常用控件支持</h3><p>既然是进度展示，当然得让 <code>UIProgressView</code> 遵循 <code>MBProgressable</code> 协议，实现如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// MARK: - Making `UIProgressView` conforms to `MBLoadProgressable`</span></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">UIProgressView</span>: <span class="title">MBProgressable</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">/// Updating progress</span></div><div class="line">    <span class="comment">///</span></div><div class="line">    <span class="comment">/// - Parameter progress: Progress object generated by network request</span></div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">progress</span><span class="params">(<span class="number">_</span> progress: Progress)</span></span> &#123;</div><div class="line">        <span class="keyword">self</span>.setProgress(<span class="type">Float</span>(progress.completedUnitCount).divided(by: <span class="type">Float</span>(progress.totalUnitCount)), animated: <span class="literal">true</span>)</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>然后我们就可以直接把 <code>UIProgressView</code> 对象当做 <code>progress</code> 方法的参数了。</p>
+<p><img src="http://img.blog.csdn.net/20170109152204833?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt=""></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">download(<span class="type">ImageDownloadForm</span>()).progress(progress: progress)</div></pre></td></tr></table></figure>
+<h2 id="信息提示"><a href="#信息提示" class="headerlink" title="信息提示"></a>信息提示</h2><p>信息提示包括两个部分，出错提示和成功提示。所以我们先抽象了一个 <code>MBMessageable</code> 协议，协议的内容仅仅包含了显示消息的容器。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBMessageable</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">messageContainer</span><span class="params">()</span></span> -&gt; <span class="type">MBContainable</span>?</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>毫无疑问，返回的容器当然也是遵循 <code>MBContainable</code> 协议的，这个容器将被用来展示出错和成功提示。</p>
+<h3 id="出错提示"><a href="#出错提示" class="headerlink" title="出错提示"></a>出错提示</h3><p>出错提示需要做的事情有两步：</p>
+<ol>
+<li>解析错误信息</li>
+<li>展示错误信息</li>
+</ol>
+<p>首先我们来完成第一步，解析错误信息。这里我们把错误信息抽象成协议 <code>MBErrorable</code>，其内容如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBErrorable</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">/// Using this set with code to distinguish successful code from error code</span></div><div class="line">    <span class="keyword">var</span> successCodes: [<span class="type">String</span>] &#123; <span class="keyword">get</span> &#125;</div><div class="line"></div><div class="line">    <span class="comment">/// Using this code with successCodes set to distinguish successful code from error code</span></div><div class="line">    <span class="keyword">var</span> code: <span class="type">String</span>? &#123; <span class="keyword">get</span> &#125;</div><div class="line"></div><div class="line">    <span class="comment">/// Corresponding message</span></div><div class="line">    <span class="keyword">var</span> message: <span class="type">String</span>? &#123; <span class="keyword">get</span> &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>其中 <code>successCodes</code> 用来定义哪些错误码是正常的； <code>code</code> 表示当前错误码；<code>message</code> 定义了展示给用户的信息。</p>
+<p>具体怎么使用这个协议后面再说，我们接着看 JSON 错误解析协议 <code>MBJSONErrorable</code>。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBJSONErrorable</span>: <span class="title">MBErrorable</span>, <span class="title">Mappable</span> </span>&#123;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>注意这里的 <code>Mappable</code> 协议来自 <code>ObjectMapper</code>，目的是让遵循这个协议的对象实现 <code>Mappable</code> 协议中的 <code>func mapping(map: Map)</code> 方法，这个方法定义了 JSON 数据中错误信息到 <code>MBErrorable</code> 协议中 <code>code</code> 和 <code>message</code> 属性的映射关系。</p>
+<p>假设服务端返回的 JSON 内容如下:</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&#123;</div><div class="line">    <span class="string">"data"</span>: &#123;</div><div class="line">        <span class="string">"code"</span>: <span class="string">"200"</span>,    </div><div class="line">        <span class="string">"message"</span>: <span class="string">"请求成功"</span></div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>那我们的错误信息对象就可以定义成下面的样子。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">WeatherError</span>: <span class="title">MBJSONErrorable</span> </span>&#123;</div><div class="line">    <span class="keyword">var</span> successCodes: [<span class="type">String</span>] = [<span class="string">"200"</span>]</div><div class="line"></div><div class="line">    <span class="keyword">var</span> code: <span class="type">String</span>?</div><div class="line">    <span class="keyword">var</span> message: <span class="type">String</span>?</div><div class="line"></div><div class="line">    <span class="keyword">init</span>() &#123; &#125;</div><div class="line"></div><div class="line">    <span class="keyword">required</span> <span class="keyword">init</span>?(<span class="built_in">map</span>: <span class="type">Map</span>) &#123; &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">mapping</span><span class="params">(<span class="built_in">map</span>: Map)</span></span> &#123;</div><div class="line">        code &lt;- <span class="built_in">map</span>[<span class="string">"data.code"</span>]</div><div class="line">        message &lt;- <span class="built_in">map</span>[<span class="string">"data.message"</span>]</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p><code>ObjectMapper</code> 会把 <code>data.code</code> 和 <code>data.message</code> 的值映射到 <code>code</code> 和 <code>message</code> 属性上。至此，错误信息的解析就完成了。</p>
+<p>然后是第二步，错误信息展示。定义 <code>MBWarnable</code> 协议：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBWarnable</span>: <span class="title">MBMessageable</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">show</span><span class="params">(error: MBErrorable?)</span></span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个协议遵循 <code>MBMessageable</code> 协议。遵循这个协议的对象除了要实现 <code>MBMessageable</code> 协议的 <code>messageContainer</code> 方法，还需要实现 <code>show</code> 方法，这个方法只有一个参数，通过这个参数我们传入遵循错误信息协议的对象。</p>
+<p>现在我们就可以使用 <code>MBErrorable</code> 和 <code>MBWarnable</code> 协议来进行出错提示了。和之前一样我们还是对 <code>DataRequest</code> 做 extension。添加 <code>warn</code> 方法。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">warn</span>&lt;T: MBJSONErrorable&gt;<span class="params">(</span></span></div><div class="line">        error: T,</div><div class="line">        warn: MBWarnable,</div><div class="line">        completionHandler: <span class="params">(<span class="params">(MBJSONErrorable)</span></span> -&gt; <span class="type">Void</span>)? = <span class="literal">nil</span></div><div class="line">        ) -&gt; <span class="type">Self</span> &#123;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> response(completionHandler: &#123; (response: <span class="type">DefaultDataResponse</span>) <span class="keyword">in</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> err = response.error &#123;</div><div class="line">            warn.show(error: err.localizedDescription)</div><div class="line">        &#125;</div><div class="line">    &#125;).responseObject(queue: <span class="literal">nil</span>, keyPath: <span class="literal">nil</span>, mapToObject: <span class="literal">nil</span>, context: <span class="literal">nil</span>) &#123; (response: <span class="type">DataResponse</span>&lt;<span class="type">T</span>&gt;) <span class="keyword">in</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> err = response.result.value &#123;</div><div class="line">            <span class="keyword">if</span> <span class="keyword">let</span> code = err.code &#123;</div><div class="line">                <span class="keyword">if</span> <span class="literal">true</span> == error.successCodes.<span class="built_in">contains</span>(code) &#123;</div><div class="line">                    completionHandler?(err)</div><div class="line">                &#125; <span class="keyword">else</span> &#123;</div><div class="line">                    warn.show(error: err)</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这个方法包括三个参数：</p>
+<ul>
+<li><code>error</code>：遵循 <code>MBJSONErrorable</code> 协议的泛型错误解析对象。传入这个对象到 <code>AlamofireObjectMapper</code> 的 <code>responseObject</code> 方法中即可获得服务端返回的错误信息。</li>
+<li><code>warn</code>：遵循 <code>MBWarnable</code> 协议的错误展示对象。 </li>
+<li><code>completionHandler</code>：返回结果正确时调用的闭包。业务层一般通过这个闭包来做特殊错误码处理。</li>
+</ul>
+<p>做了如下的事情：</p>
+<ul>
+<li><p>通过 <code>Alamofire</code> 的 <code>response</code> 方法获取非业务错误信息，如果存在，则调用 <code>warn</code> 的 <code>show</code> 方法展示错误信息，这里大家可能会有点疑惑：为什么可以把 <code>String</code> 当做 <code>MBErrorable</code> 传入到 <code>show</code> 方法中？这是因为我们做了下面的事情：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">String</span>: <span class="title">MBErrorable</span> </span>&#123;</div><div class="line">      <span class="keyword">public</span> <span class="keyword">var</span> message: <span class="type">String</span>? &#123;</div><div class="line">          <span class="keyword">return</span> <span class="keyword">self</span></div><div class="line">      &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+<li><p>通过 <code>AlamofireObjectMapper</code> 的 <code>responseObject</code> 方法获取到服务端返回的错误信息，判断返回的错误码是否包含在 <code>successCodes</code> 中，如果是，则交给业务层处理；（PS：对于某些需要特殊处理的错误码，也可以定义在 <code>successCodes</code> 中，然后在业务层单独处理。）否则，直接调用 <code>warn</code> 的 <code>show</code> 方法展示错误信息。 </p>
+</li>
+</ul>
+<h3 id="成功提示"><a href="#成功提示" class="headerlink" title="成功提示"></a>成功提示</h3><p>相比错误提示，成功提示会简单一些，因为成功提示信息一般都是在本地定义的，不需要从服务端获取，所以成功提示协议的内容如下：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">protocol</span> <span class="title">MBInformable</span>: <span class="title">MBMessageable</span> </span>&#123;</div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">show</span><span class="params">()</span></span></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">func</span> <span class="title">message</span><span class="params">()</span></span> -&gt; <span class="type">String</span></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>包含两个方法， <code>show</code> 方法用于展示信息；<code>message</code> 方法定义展示的信息。</p>
+<p>然后对 <code>DataRequest</code> 做扩展，添加 <code>inform</code> 方法：</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">func</span> <span class="title">inform</span>&lt;T: MBJSONErrorable&gt;<span class="params">(error: T, inform: MBInformable)</span></span> -&gt; <span class="type">Self</span> &#123;</div><div class="line"></div><div class="line">    <span class="keyword">return</span> responseObject(queue: <span class="literal">nil</span>, keyPath: <span class="literal">nil</span>, mapToObject: <span class="literal">nil</span>, context: <span class="literal">nil</span>) &#123; (response: <span class="type">DataResponse</span>&lt;<span class="type">T</span>&gt;) <span class="keyword">in</span></div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> err = response.result.value &#123;</div><div class="line">            <span class="keyword">if</span> <span class="keyword">let</span> code = err.code &#123;</div><div class="line">                <span class="keyword">if</span> <span class="literal">true</span> == error.successCodes.<span class="built_in">contains</span>(code) &#123;</div><div class="line">                    inform.show()</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这里同样也传入遵循 <code>MBJSONErrorable</code> 协议的泛型错误解析对象，因为如果服务端的返回结果是错的，则不应该提示成功。还是通过 <code>AlamofireObjectMapper</code> 的 <code>responseObject</code> 方法获取到服务端返回的错误信息，判断返回的错误码是否包含在 <code>successCodes</code> 中，如果是，则通过 <code>inform</code> 对象 的 <code>show</code> 方法展示成功信息。</p>
+<h3 id="常用控件支持-2"><a href="#常用控件支持-2" class="headerlink" title="常用控件支持"></a>常用控件支持</h3><p>观察目前主流 App，信息提示一般是通过 <code>UIAlertController</code> 来展示的，所以我们通过 extension 的方式让 <code>UIAlertController</code> 遵循 <code>MBWarnable</code> 和 <code>MBInformable</code> 协议。</p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">UIAlertController</span>: <span class="title">MBInformable</span> </span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">show</span><span class="params">()</span></span> &#123;</div><div class="line">        <span class="type">UIApplication</span>.shared.keyWindow?.rootViewController?.present(<span class="keyword">self</span>, animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</div><div class="line">    &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">extension</span> <span class="title">UIAlertController</span>: <span class="title">MBWarnable</span></span>&#123;</div><div class="line">    <span class="keyword">public</span> <span class="function"><span class="keyword">func</span> <span class="title">show</span><span class="params">(error: MBErrorable?)</span></span> &#123;</div><div class="line">        <span class="keyword">if</span> <span class="keyword">let</span> err = error &#123;</div><div class="line">            <span class="keyword">if</span> <span class="string">""</span> != err.message &#123;</div><div class="line">                message = err.message</div><div class="line">                </div><div class="line">                <span class="type">UIApplication</span>.shared.keyWindow?.rootViewController?.present(<span class="keyword">self</span>, animated: <span class="literal">true</span>, completion: <span class="literal">nil</span>)</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>发现这里我们没有用到 <code>messageContainer</code>，这是因为对于 <code>UIAlertController</code> 来说，它的容器是固定的，使用 <code>UIApplication.shared.keyWindow?.rootViewController?</code> 即可。注意对于<code>MBInformable</code>，直接展示 <code>UIAlertController</code>， 而对于 <code>MBWarnable</code>，则是展示 <code>error</code> 中的 <code>message</code>。</p>
+<p>下面是使用的两个例子：</p>
+<p><img src="http://img.blog.csdn.net/20170109152218771?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<p><img src="http://img.blog.csdn.net/20170109152233912?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvbW1vYWF5/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="这里写图片描述"></p>
+<figure class="highlight swift"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">let</span> alert = <span class="type">UIAlertController</span>(title: <span class="string">"Warning"</span>, message: <span class="string">"Network unavailable"</span>, preferredStyle: .alert)</div><div class="line">alert.addAction(<span class="type">UIAlertAction</span>(title: <span class="string">"Ok"</span>, style: <span class="type">UIAlertActionStyle</span>.cancel, handler: <span class="literal">nil</span>))</div><div class="line">        </div><div class="line">request(<span class="type">WeatherForm</span>()).warn(</div><div class="line">    error: <span class="type">WeatherError</span>(),</div><div class="line">    warn: alert</div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">let</span> alert = <span class="type">UIAlertController</span>(title: <span class="string">"Notice"</span>, message: <span class="string">"Load successfully"</span>, preferredStyle: .alert)</div><div class="line">alert.addAction(<span class="type">UIAlertAction</span>(title: <span class="string">"Ok"</span>, style: <span class="type">UIAlertActionStyle</span>.cancel, handler: <span class="literal">nil</span>))</div><div class="line">request(<span class="type">WeatherForm</span>()).inform(</div><div class="line">    error: <span class="type">WeatherInformError</span>(),</div><div class="line">    inform: alert</div><div class="line">)</div></pre></td></tr></table></figure>
+<p>这样就达到了业务层定义展示信息，<code>MBNetwork</code> 自动展示的效果，是不是简单很多？至于扩展性，我们还是可以参照 <code>UIAlertController</code> 的实现添加对其它第三方提示库的支持。</p>
+<h2 id="重新请求"><a href="#重新请求" class="headerlink" title="重新请求"></a>重新请求</h2><p>开发中……敬请期待</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag">#iOS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/01/09/dynamic_proxy/" rel="next" title="动态代理的实现与案例">
+                <i class="fa fa-chevron-left"></i> 动态代理的实现与案例
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">10</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#需要干些啥"><span class="nav-number">1.</span> <span class="nav-text">需要干些啥</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么是-POP-而不是-OOP"><span class="nav-number">2.</span> <span class="nav-text">为什么是 POP 而不是 OOP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#站在-Alamofire-的肩膀上"><span class="nav-number">3.</span> <span class="nav-text">站在 Alamofire 的肩膀上</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#POP"><span class="nav-number">3.1.</span> <span class="nav-text">POP</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#enum"><span class="nav-number">3.2.</span> <span class="nav-text">enum</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#链式调用"><span class="nav-number">3.3.</span> <span class="nav-text">链式调用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#discardableResult"><span class="nav-number">3.4.</span> <span class="nav-text">@discardableResult</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#当然还有-ObjectMapper"><span class="nav-number">4.</span> <span class="nav-text">当然还有 ObjectMapper</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一步一步来"><span class="nav-number">5.</span> <span class="nav-text">一步一步来</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#表单创建"><span class="nav-number">5.1.</span> <span class="nav-text">表单创建</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#基于表单请求数据"><span class="nav-number">5.2.</span> <span class="nav-text">基于表单请求数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载"><span class="nav-number">5.3.</span> <span class="nav-text">加载</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#MBContainable"><span class="nav-number">5.3.1.</span> <span class="nav-text">MBContainable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MBMaskable"><span class="nav-number">5.3.2.</span> <span class="nav-text">MBMaskable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MBLoadable"><span class="nav-number">5.3.3.</span> <span class="nav-text">MBLoadable</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MBLoadType"><span class="nav-number">5.3.4.</span> <span class="nav-text">MBLoadType</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用控件支持"><span class="nav-number">5.3.5.</span> <span class="nav-text">常用控件支持</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#UIControl"><span class="nav-number">5.3.5.1.</span> <span class="nav-text">UIControl</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UIRefreshControl"><span class="nav-number">5.3.5.2.</span> <span class="nav-text">UIRefreshControl</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#UITableViewCell"><span class="nav-number">5.3.5.3.</span> <span class="nav-text">UITableViewCell</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#结合网络请求"><span class="nav-number">5.3.6.</span> <span class="nav-text">结合网络请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用方法"><span class="nav-number">5.3.7.</span> <span class="nav-text">使用方法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#基础用法"><span class="nav-number">5.3.7.1.</span> <span class="nav-text">基础用法</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#在-UIViewController-上显示加载遮罩"><span class="nav-number">5.3.7.1.1.</span> <span class="nav-text">在 UIViewController 上显示加载遮罩</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在-UIButton-上显示加载遮罩"><span class="nav-number">5.3.7.1.2.</span> <span class="nav-text">在 UIButton 上显示加载遮罩</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#在-UITableViewCell-上显示加载遮罩"><span class="nav-number">5.3.7.1.3.</span> <span class="nav-text">在 UITableViewCell 上显示加载遮罩</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#UIRefreshControl-1"><span class="nav-number">5.3.7.1.4.</span> <span class="nav-text">UIRefreshControl</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#进阶"><span class="nav-number">5.3.7.2.</span> <span class="nav-text">进阶</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#加载进度展示"><span class="nav-number">5.4.</span> <span class="nav-text">加载进度展示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#常用控件支持-1"><span class="nav-number">5.4.1.</span> <span class="nav-text">常用控件支持</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#信息提示"><span class="nav-number">5.5.</span> <span class="nav-text">信息提示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#出错提示"><span class="nav-number">5.5.1.</span> <span class="nav-text">出错提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#成功提示"><span class="nav-number">5.5.2.</span> <span class="nav-text">成功提示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#常用控件支持-2"><span class="nav-number">5.5.3.</span> <span class="nav-text">常用控件支持</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#重新请求"><span class="nav-number">5.6.</span> <span class="nav-text">重新请求</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
