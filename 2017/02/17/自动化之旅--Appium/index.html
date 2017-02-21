@@ -1,0 +1,874 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="自动化测试," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="为了避免每次上线前重复的人工回归测试,保证每次上线的版本不会引起核心业务的不稳定,所以急需自动化测试来保证业务的稳定性.经过调研我尝试使用Appium进行自动化测试,原因是功能强大,跨平台而且社区也很活跃.
+主流框架对比
+Appium优点
+开源
+跨架构:Native App、Hybird App、Web App
+跨设备:Android、iOS、Firefox OS
+不依赖源码
+使用任何 WebDr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自动化之旅--Appium">
+<meta property="og:url" content="https://elelogistics.github.io/2017/02/17/自动化之旅--Appium/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="为了避免每次上线前重复的人工回归测试,保证每次上线的版本不会引起核心业务的不稳定,所以急需自动化测试来保证业务的稳定性.经过调研我尝试使用Appium进行自动化测试,原因是功能强大,跨平台而且社区也很活跃.
+主流框架对比
+Appium优点
+开源
+跨架构:Native App、Hybird App、Web App
+跨设备:Android、iOS、Firefox OS
+不依赖源码
+使用任何 WebDr">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14869609987714.jpg?imageView2/1/w/900/h/440|imageMogr2">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14869635664446.jpg?imageView2/1/w/900/h/440|imageMogr2">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14872240688085.jpg">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14872367178116.jpg?imageView2/1/w/900/h/440|imageMogr2">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14872464979722.jpg">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14872471690847.jpg">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14869709464700.jpg?imageView2/1/w/900/h/440|imageMogr2">
+<meta property="og:image" content="http://mio4kon.qiniudn.com/14869768987854.jpg?imageView2/1/w/900/h/440|imageMogr2">
+<meta property="og:updated_time" content="2017-02-21T03:45:21.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自动化之旅--Appium">
+<meta name="twitter:description" content="为了避免每次上线前重复的人工回归测试,保证每次上线的版本不会引起核心业务的不稳定,所以急需自动化测试来保证业务的稳定性.经过调研我尝试使用Appium进行自动化测试,原因是功能强大,跨平台而且社区也很活跃.
+主流框架对比
+Appium优点
+开源
+跨架构:Native App、Hybird App、Web App
+跨设备:Android、iOS、Firefox OS
+不依赖源码
+使用任何 WebDr">
+<meta name="twitter:image" content="http://mio4kon.qiniudn.com/14869609987714.jpg?imageView2/1/w/900/h/440|imageMogr2">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2017/02/17/自动化之旅--Appium/"/>
+
+  <title> 自动化之旅--Appium | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                自动化之旅--Appium
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-02-17T15:50:58+08:00" content="2017-02-17">
+              2017-02-17
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">Mio4kon</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">自动化测试</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/02/17/自动化之旅--Appium/" class="leancloud_visitors" data-flag-title="自动化之旅--Appium">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>为了避免每次上线前重复的人工回归测试,保证每次上线的版本不会引起核心业务的不稳定,所以急需自动化测试来保证业务的稳定性.经过调研我尝试使用Appium进行自动化测试,原因是功能强大,跨平台而且社区也很活跃.</p>
+<h1 id="主流框架对比"><a href="#主流框架对比" class="headerlink" title="主流框架对比"></a>主流框架对比</h1><p><img src="http://mio4kon.qiniudn.com/14869609987714.jpg?imageView2/1/w/900/h/440|imageMogr2" alt="-w682"></p>
+<h1 id="Appium优点"><a href="#Appium优点" class="headerlink" title="Appium优点"></a>Appium优点</h1><ul>
+<li>开源</li>
+<li>跨架构:Native App、Hybird App、Web App</li>
+<li>跨设备:Android、iOS、Firefox OS</li>
+<li>不依赖源码</li>
+<li>使用任何 WebDriver 兼容的语言来编写测试用例。比如 Java， Objective-C， JavaScript with Node.js (in both callback and yield-based flavours)， PHP， Python， Ruby， C#， Clojure， 或者 Perl.</li>
+<li>不需要重新编译APP</li>
+</ul>
+<p>如果有不清楚WebDriver的小伙伴马上在Appium架构介绍中会有说明.</p>
+<h1 id="Appium理念"><a href="#Appium理念" class="headerlink" title="Appium理念"></a>Appium理念</h1><ol>
+<li>你无需为了自动化，而重新编译或者修改你的应用。</li>
+<li>你不必局限于某种语言或者框架来写和运行测试脚本。</li>
+<li>一个移动自动化的框架不应该在接口上重复造轮子。（移动自动化的接口应该统一）</li>
+<li>无论是精神上，还是名义上，都必须开源。</li>
+</ol>
+<h1 id="Appium架构"><a href="#Appium架构" class="headerlink" title="Appium架构"></a>Appium架构</h1><p><img src="http://mio4kon.qiniudn.com/14869635664446.jpg?imageView2/1/w/900/h/440|imageMogr2" alt="-w664"></p>
+<p><strong>iOS:</strong> 苹果的UIAutomation<br><strong>Android 4.2+:</strong> Google的UiAutomator<br><strong>Android 2.3+:</strong> Google’s Instrumentation. (由单独的项目Selendroid提供支持 )   </p>
+<p><strong>Appium 1.6版本以上增加了<code>UiAutomator2</code></strong></p>
+<p>为了满足上面跨平台,把这些三方框架封装成一套API —— WebDriver Api(客户端到服务端的协议)</p>
+<p>事实上 WebDriver 已经成为 web 浏览器自动化的标准，也成了 W3C 的标准 —— <a href="https://w3c.github.io/webdriver/webdriver-spec.html" target="_blank" rel="external">W3C Working Draft</a>,所以Appium在原有基础上扩充了移动自动化相关的API.</p>
+<p>投资 WebDriver 意味着你可以押宝在一个已经成为标准的独立，自由和开放的协议。你不会被任何专利限制。</p>
+<p><strong>核心架构</strong>: Appium使用C/S架构,运行时候Service端会监听Client端发送的命令,接着在移动设备上执行这些命令，然后将执行结果放在 HTTP 响应中返还给客户端.</p>
+<p>基于这架构可以做什么? </p>
+<ul>
+<li>可以用任何实现了该客户端的语言来写测试代码</li>
+<li>可以把服务端放在不同的机器上</li>
+<li>可以只写测试代码,然后利用类似 <a href="https://saucelabs.com/" target="_blank" rel="external">saucelabs</a> 云服务来解释命令.</li>
+</ul>
+<p>下图解释了云服务的具体作用:</p>
+<p><img src="http://mio4kon.qiniudn.com/14872240688085.jpg" alt=""></p>
+<h1 id="Appium-使用"><a href="#Appium-使用" class="headerlink" title="Appium 使用"></a>Appium 使用</h1><h2 id="服务端"><a href="#服务端" class="headerlink" title="服务端"></a>服务端</h2><ul>
+<li><p>安装Appium服务器 </p>
+<pre><code>npm install -g appium
+npm install -g appium-doctor
+appium-doctor
+</code></pre></li>
+</ul>
+<p>其中<code>appium-doctor</code>用来检查电脑是否缺少相关依赖.当所有都是对勾表示Appium环境配置完毕,如下:</p>
+<p><img src="http://mio4kon.qiniudn.com/14872367178116.jpg?imageView2/1/w/900/h/440|imageMogr2" alt=""></p>
+<ul>
+<li><p>开启appium服务器:</p>
+<pre><code>appium --address 127.0.0.1 --port 4723 --log &quot;/Users/mio4kon/Desktop/
+appium.log&quot; --log-timestamp --local-timezone --session-override
+</code></pre></li>
+</ul>
+<h2 id="客户端"><a href="#客户端" class="headerlink" title="客户端"></a>客户端</h2><p>再次强调 <code>Appium</code> 支持各种语言,这里我选择JAVA.如果觉得JAVA语法不够简洁或者不熟悉,可以使用你所熟悉的语言.</p>
+<h3 id="创建-MAVEN-Gradle-工程"><a href="#创建-MAVEN-Gradle-工程" class="headerlink" title="创建 MAVEN/Gradle 工程:"></a>创建 MAVEN/Gradle 工程:</h3><p>创建工程,并加入下面依赖:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.appium<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>java-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.0.0-BETA2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">exclusions</span>&gt;</span></div><div class="line">        <span class="tag">&lt;<span class="name">exclusion</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.seleniumhq.selenium<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>selenium-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">        <span class="tag">&lt;/<span class="name">exclusion</span>&gt;</span></div><div class="line">    <span class="tag">&lt;/<span class="name">exclusions</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div><div class="line"></div><div class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.seleniumhq.selenium<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>selenium-java<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></div><div class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></div><div class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>这样Appium 客户端的依赖就引入成功了.</p>
+<h3 id="Capabiltiy配置"><a href="#Capabiltiy配置" class="headerlink" title="Capabiltiy配置:"></a>Capabiltiy配置:</h3><p>每个Test的基类中定义<code>setUp</code>方法,并设置<code>Capabiltiy</code>以前其他的初始化操作:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">DesiredCapabilities capabilities = <span class="keyword">new</span> DesiredCapabilities ();</div><div class="line">capabilities.setCapability (MobileCapabilityType.DEVICE_NAME, deviceName);</div><div class="line">capabilities.setCapability (MobileCapabilityType.PLATFORM_NAME, platformName);</div><div class="line">capabilities.setCapability (MobileCapabilityType.PLATFORM_VERSION, platformVersion);</div><div class="line">capabilities.setCapability (MobileCapabilityType.APP, apkPath);</div><div class="line">capabilities.setCapability (AndroidMobileCapabilityType.APP_PACKAGE, appPackage);</div><div class="line">capabilities.setCapability (AndroidMobileCapabilityType.APP_ACTIVITY, appActivity);</div><div class="line">capabilities.setCapability (MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);</div></pre></td></tr></table></figure>
+<p>这里我使用的是 <a href="http://testng.org/doc/index.html" target="_blank" rel="external">TestNG</a> 中的<code>Parameters</code>注释来配置参数.</p>
+<p><img src="http://mio4kon.qiniudn.com/14872464979722.jpg" alt=""></p>
+<p>TestNG 又是什么鬼? 简单来说TestNG是java的一个测试框架,类似JUnit但功能更加强大,使用也方便.</p>
+<h3 id="TestNG"><a href="#TestNG" class="headerlink" title="TestNG"></a>TestNG</h3><p>利用TestNg的一些注释,做准备化和收尾操作.</p>
+<p><img src="http://mio4kon.qiniudn.com/14872471690847.jpg" alt=""></p>
+<p>上面的<code>setUp</code>方法我就使用了<code>BeforeClass</code>和<code>Parameters</code>这两种注释.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@BeforeClass</span></div><div class="line"><span class="meta">@Parameters</span>(&#123;<span class="string">"driverName"</span>, <span class="string">"url"</span>, <span class="string">"deviceName"</span>, <span class="string">"platformName"</span>, <span class="string">"platformVersion"</span>, <span class="string">"apkPath"</span>, <span class="string">"appPackage"</span>, <span class="string">"appActivity"</span>&#125;)</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUp</span><span class="params">(String driverName, String url, String deviceName,</span></span></div><div class="line">                  String platformName, String platformVersion, String apkPath,</div><div class="line">                  String appPackage, String appActivity) <span class="keyword">throws</span> Exception &#123;</div><div class="line">    log.i (TAG, <span class="string">"BeforeClass"</span>);</div><div class="line">    driver = setRemoteDriver (driverName, url, deviceName, platformName, platformVersion, apkPath, appPackage, appActivity);</div><div class="line">    actions = ElementActions.getInstance ().init (driver);</div><div class="line">    assertActions = actions.getAssertActions ();</div><div class="line">    Screenshot.getInstance ().init (driver);</div><div class="line">    prepare ();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>同样在在<code>AfterClass</code>后,进行了<code>driver</code>的退出.</p>
+<p>正常情况下我们写测试用例是下面这种情况:</p>
+<p>一个<code>TestClass</code>中包含多个<code>TestMethod</code>.如果每个<code>TestMethod</code>都相互独立,需要重新运行APP显然非常耗时,所以这里我将每一个<code>TestClass</code>相互独立,而其中的<code>TestMethod</code>又相互依赖,执行顺序通过<code>TestNG</code>的XML来控制.如下:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">test</span> <span class="attr">name</span>=<span class="string">"XX测试"</span>&gt;</span></div><div class="line">     <span class="tag">&lt;<span class="name">classes</span>&gt;</span></div><div class="line">         <span class="tag">&lt;<span class="name">class</span> <span class="attr">name</span>=<span class="string">"XXTest"</span>&gt;</span></div><div class="line">             <span class="tag">&lt;<span class="name">methods</span>&gt;</span></div><div class="line">                 <span class="tag">&lt;<span class="name">include</span> <span class="attr">name</span>=<span class="string">"testAAA"</span>/&gt;</span></div><div class="line">                 <span class="tag">&lt;<span class="name">include</span> <span class="attr">name</span>=<span class="string">"testBBB"</span>/&gt;</span></div><div class="line">                 <span class="tag">&lt;<span class="name">include</span> <span class="attr">name</span>=<span class="string">"testCCC"</span>/&gt;</span></div><div class="line">             <span class="tag">&lt;/<span class="name">methods</span>&gt;</span></div><div class="line">         <span class="tag">&lt;/<span class="name">class</span>&gt;</span></div><div class="line">     <span class="tag">&lt;/<span class="name">classes</span>&gt;</span></div><div class="line"> <span class="tag">&lt;/<span class="name">test</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>但是有些情况如果需要<code>TestMethod</code>也相互独立的话,可以利用<code>AfterMethod</code>注释.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="meta">@AfterMethod</span></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">afterMethod</span><span class="params">()</span> </span>&#123;</div><div class="line">    driver.resetApp ();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h1 id="编写用例"><a href="#编写用例" class="headerlink" title="编写用例"></a>编写用例</h1><h2 id="查找元素"><a href="#查找元素" class="headerlink" title="查找元素"></a>查找元素</h2><h3 id="定位方式"><a href="#定位方式" class="headerlink" title="定位方式"></a>定位方式</h3><p>查找元素可以通过很多方法(可以通过<code>UIAutomatorViewer</code>获取页面的id,name等信息):</p>
+<ul>
+<li>id</li>
+<li>name</li>
+<li>className </li>
+<li>xpath</li>
+<li>uiautomator</li>
+</ul>
+<h3 id="高级定位"><a href="#高级定位" class="headerlink" title="高级定位"></a>高级定位</h3><ul>
+<li><p>用 <code>xpath</code>查找登录按钮: </p>
+<pre><code>by.xpath (&quot;//button[@name=&apos;login&apos;]&quot;)
+</code></pre></li>
+</ul>
+<p><a href="http://www.zvon.org/comp/r/tut-XPath_1.html#Pages~XPath_as_filesystem_addressing" target="_blank" rel="external">xpath实例教程</a></p>
+<ul>
+<li>用<code>uiautomator</code>的API滚动查找:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">String rule = <span class="string">"new UiScrollable(new UiSelector().scrollable(true)).scrollIntoView(new UiSelector().textContains(\""</span> + locator.value + <span class="string">"\"))"</span></div><div class="line">WebElement cl = driver.findElementByAndroidUIAutomator(rule));</div></pre></td></tr></table></figure>
+<p> 其实就是用如果用uiautomator来写:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">new</span> UiScrollable(<span class="keyword">new</span> UiSelector().scrollable(<span class="keyword">true</span>)).scrollIntoView(<span class="keyword">new</span> UiSelector().textContains(value));</div></pre></td></tr></table></figure>
+<p><a href="https://developer.android.com/reference/android/support/test/uiautomator/package-summary.html" target="_blank" rel="external">uiautomator API</a></p>
+<pre><code>### 元素管理
+</code></pre><p>为了让测试用例能够方便复用,简化写用例的时间,必要的封装是不可少的.<br>利用 <strong>Page Object</strong> 模式将页面上的元素进行封装.这样所有 Test 只需要简单的控制页面元素即可.</p>
+<ul>
+<li>可以使用yaml文件进行管理页面元素:</li>
+</ul>
+<p><img src="http://mio4kon.qiniudn.com/14869709464700.jpg?imageView2/1/w/900/h/440|imageMogr2" alt=""></p>
+<p>然后在BasePage中将yaml解析封装成<code>Locator</code>对象.并保存到集合.<br>这样所有的PageObject都可以通过下面方法来定位元素.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">protected</span> Locator <span class="title">getLocator</span><span class="params">(String locatorName)</span> </span>&#123;</div><div class="line">        checkNotNull (locatorName);</div><div class="line">        Page page = getPage ();</div><div class="line">        List&lt;Locator&gt; locators = page.locators;</div><div class="line">        <span class="keyword">for</span>(Locator locator : locators) &#123;</div><div class="line">            <span class="keyword">if</span> (locatorName.equals (locator.name)) &#123;</div><div class="line">                <span class="keyword">return</span> locator;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">    &#125;</div><div class="line">    </div><div class="line"><span class="keyword">public</span> Locator 请输入手机号 = getLocator (<span class="string">"请输入手机号"</span>);</div><div class="line"><span class="keyword">public</span> Locator 请输入验证码 = getLocator (<span class="string">"请输入验证码"</span>);</div><div class="line"><span class="keyword">public</span> Locator 发送验证码 = getLocator (<span class="string">"发送验证码"</span>);</div></pre></td></tr></table></figure>
+<p><del>TODO: 用工具生成对应page类</del><br>之所这么做是可以在用的时候直接通过IDE提示有哪些控件,但是写上述代码缺都是无聊的操作,所有我用了 <a href="http://freemarker.org/" target="_blank" rel="external">freemarker</a> 自动解析yaml来生成对应Page类,如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line">Map&lt;String, Object&gt; input = <span class="keyword">new</span> HashMap&lt;String, Object&gt; ();</div><div class="line">   input.put (<span class="string">"pageName"</span>, page.pageName);</div><div class="line">   List&lt;LocatorObject&gt; genLocators = <span class="keyword">new</span> ArrayList&lt;&gt; ();</div><div class="line">   List&lt;Locator&gt; locators = page.locators;</div><div class="line">   <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; locators.size (); i++) &#123;</div><div class="line">       System.out.println (<span class="string">"生成Locator:"</span> + locators.get (i).name);</div><div class="line">       genLocators.add (<span class="keyword">new</span> LocatorObject (locators.get (i).name, locators.get (i).name));</div><div class="line">   &#125;</div><div class="line">   input.put (<span class="string">"locators"</span>, genLocators);</div><div class="line"></div><div class="line">   Template template = cfg.getTemplate (<span class="string">"page-temp.ftl"</span>);</div><div class="line"></div><div class="line">   Writer fileWriter = <span class="keyword">new</span> FileWriter (<span class="keyword">new</span> File (path, page.pageName + <span class="string">".java"</span>));</div><div class="line">   <span class="keyword">try</span> &#123;</div><div class="line">       template.process (input, fileWriter);</div><div class="line">   &#125; <span class="keyword">finally</span> &#123;</div><div class="line">       fileWriter.close ();</div><div class="line">   &#125;</div></pre></td></tr></table></figure>
+<p>如果不会用 <code>freemarker</code>的可以搜索下相关资料.</p>
+<h2 id="元素交互"><a href="#元素交互" class="headerlink" title="元素交互"></a>元素交互</h2><p>将交互事件,封装在<code>ElementActions</code>中.使用起来非常简单:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">actions.text (loginPage.请输入手机号, phone);</div><div class="line">actions.click (loginPage.发送验证码);</div><div class="line">actions.text (loginPage.请输入验证码, pwd);</div><div class="line">actions.click (loginPage.登录);</div></pre></td></tr></table></figure>
+<p>常用的交互事件:单击,连击,上下左右滑动,后退,输入文本等等.</p>
+<p>上面元素定位其实只是封装Locator,并没有真正的查找元素,查找元素实际上是在<code>ElementActions</code>中处理的.由于应用经常处理网络请求,控件有时候需要过段时间才可见,所以在查找控件时候需要给予一定的时间.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">WebElement element;</div><div class="line"><span class="keyword">try</span> &#123;</div><div class="line">    element = (<span class="keyword">new</span> WebDriverWait (mDriver, locator.timeOutInSeconds)).until (</div><div class="line">            <span class="keyword">new</span> ExpectedCondition&lt;WebElement&gt; () &#123;</div><div class="line"></div><div class="line">                <span class="meta">@Override</span></div><div class="line">                <span class="function"><span class="keyword">public</span> WebElement <span class="title">apply</span><span class="params">(WebDriver driver)</span> </span>&#123;</div><div class="line">                    List&lt;WebElement&gt; elements = getElement (locator);</div><div class="line">                    <span class="keyword">if</span> (elements.size () != <span class="number">0</span>) &#123;</div><div class="line">                        <span class="keyword">return</span> elements.get (<span class="number">0</span>);</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">return</span> <span class="keyword">null</span>;</div><div class="line">                &#125;</div><div class="line">            &#125;);</div><div class="line"></div><div class="line">&#125; <span class="keyword">catch</span> (NoSuchElementException | TimeoutException e) &#123;</div><div class="line">    log.e (TAG, <span class="string">"超时[%4$d秒],找不到元素:[%1$s] , [By.%2$s : %3$s]"</span>, locator.name, locator.type, locator.value, locator.timeOutInSeconds);</div><div class="line">    <span class="keyword">throw</span> e;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h2><p>同样为了使用方便讲常用的断言封装,如Toast验证等.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">validatesToast</span><span class="params">(<span class="keyword">final</span> String msg)</span> </span>&#123;</div><div class="line">    checkNotNull (msg);</div><div class="line">    <span class="keyword">final</span> WebDriverWait wait = <span class="keyword">new</span> WebDriverWait (mDriver, <span class="number">10</span>);</div><div class="line">    assertNotNull (wait.until (ExpectedConditions</div><div class="line">                                       .presenceOfElementLocated (By.xpath (String.format (<span class="string">"//*[@text=\'%s\']"</span>, msg)))));</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h2 id="测试报告"><a href="#测试报告" class="headerlink" title="测试报告"></a>测试报告</h2><p>测试报告可以直观的展示测试的成功率,截图等信息.这里选择<a href="http://extentreports.com/" target="_blank" rel="external">extentreports</a>做为测试报告的框架.</p>
+<p>最终效果:</p>
+<p><img src="http://mio4kon.qiniudn.com/14869768987854.jpg?imageView2/1/w/900/h/440|imageMogr2" alt="-w1083"></p>
+<h2 id="踩坑"><a href="#踩坑" class="headerlink" title="踩坑"></a>踩坑</h2><ul>
+<li><code>findElementByName</code>无效.</li>
+</ul>
+<blockquote>
+<p>Searching by name was deprecated over a year ago and removed from 1.5. In general, searching by accessibility id is better for a variety of reasons.</p>
+</blockquote>
+<p>如上<code>findElementByName</code>这个方法从<code>Appium 1.5</code>之后删除了,但是API不经能找到并且也没提示过时.这不坑爹嘛.后来使用下面的代码才解决用name查找元素的方法.</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">String query = <span class="string">"new UiSelector().textContains"</span> + <span class="string">"(\""</span> + locator.value + <span class="string">"\")"</span>;</div><div class="line">webElements = mDriver.findElementsByAndroidUIAutomator (query);</div></pre></td></tr></table></figure>
+<ul>
+<li>据说<code>Appium 1.6.3</code>可以查找 Toast 的信息了.然后屁颠屁颠的跑去试了下网上的例子发现不好使啊.一度以为是Client版本的问题.搞了半天才发现需要加下面的代码:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">capabilities.setCapability (MobileCapabilityType.AUTOMATION_NAME, AutomationName.ANDROID_UIAUTOMATOR2);</div></pre></td></tr></table></figure>
+<p>(感觉现在的Appium文档不全而且有点乱</p>
+<ul>
+<li>无意中发现测试的时候高德地图弹Toast报错.然后直接编译安装却不保存.猜测是不是在安装过程中Appium改了啥.看了下Service日志,竟然在安装的时候重新签名…</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">App not signed with debug cert.</div><div class="line">2017-02-13 18:17:19:848 - info: [debug] [ADB] Resigning apk.</div><div class="line">2017-02-13 18:17:23:938 - info: [debug] [ADB] Zip-aligning &apos;app-debug.apk&apos;</div><div class="line">2017-02-13 18:17:23:958 - info: [ADB] Checking whether zipalign is present</div><div class="line">2017-02-13 18:17:23:964 - info: [ADB] Using zipalign from /Users/mio4kon/Library/Android/sdk/build-tools/25.0.2/zipalign</div><div class="line">2017-02-13 18:17:23:968 - info: [debug] [ADB] Zip-aligning apk.</div><div class="line">2017-02-13 18:17:24:104 - info: [AndroidDriver] Remote apk path is /data/local/tmp/463eb03788048b4a1dacfe28545ee76e.apk</div></pre></td></tr></table></figure>
+<p>解决方法:  </p>
+<p><code>capabilities.setCapability (AndroidMobileCapabilityType.NO_SIGN, true);</code></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/自动化测试/" rel="tag">#自动化测试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/09/造轮子 | 如何设计一个面向协议的 iOS 网络请求库/" rel="next" title="造轮子 | 如何设计一个面向协议的 iOS 网络请求库">
+                <i class="fa fa-chevron-left"></i> 造轮子 | 如何设计一个面向协议的 iOS 网络请求库
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/20/ReactiveCocoa 中 奇妙无比的“宏”魔法/" rel="prev" title="ReactiveCocoa 中 奇妙无比的“宏”魔法">
+                ReactiveCocoa 中 奇妙无比的“宏”魔法 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">12</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#主流框架对比"><span class="nav-number">1.</span> <span class="nav-text">主流框架对比</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Appium优点"><span class="nav-number">2.</span> <span class="nav-text">Appium优点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Appium理念"><span class="nav-number">3.</span> <span class="nav-text">Appium理念</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Appium架构"><span class="nav-number">4.</span> <span class="nav-text">Appium架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Appium-使用"><span class="nav-number">5.</span> <span class="nav-text">Appium 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#服务端"><span class="nav-number">5.1.</span> <span class="nav-text">服务端</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#客户端"><span class="nav-number">5.2.</span> <span class="nav-text">客户端</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#创建-MAVEN-Gradle-工程"><span class="nav-number">5.2.1.</span> <span class="nav-text">创建 MAVEN/Gradle 工程:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Capabiltiy配置"><span class="nav-number">5.2.2.</span> <span class="nav-text">Capabiltiy配置:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#TestNG"><span class="nav-number">5.2.3.</span> <span class="nav-text">TestNG</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#编写用例"><span class="nav-number">6.</span> <span class="nav-text">编写用例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#查找元素"><span class="nav-number">6.1.</span> <span class="nav-text">查找元素</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#定位方式"><span class="nav-number">6.1.1.</span> <span class="nav-text">定位方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高级定位"><span class="nav-number">6.1.2.</span> <span class="nav-text">高级定位</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#元素交互"><span class="nav-number">6.2.</span> <span class="nav-text">元素交互</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#断言"><span class="nav-number">6.3.</span> <span class="nav-text">断言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试报告"><span class="nav-number">6.4.</span> <span class="nav-text">测试报告</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#踩坑"><span class="nav-number">6.5.</span> <span class="nav-text">踩坑</span></a></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
