@@ -1,7 +1,7 @@
 ---
 title: ReactiveCocoa 中 奇妙无比的“宏”魔法
 date: 2017-02-20 15:50:58
-author : 韦忠丹
+author : 于德志
 tags: iOS
 ---
 
