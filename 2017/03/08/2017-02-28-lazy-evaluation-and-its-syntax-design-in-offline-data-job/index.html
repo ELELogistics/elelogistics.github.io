@@ -1,0 +1,866 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="离线数据," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="概要: 对惰性求值在离线数据任务中的好处做了定义和如何实现的分析，并从有向无环图中偷师如何解耦复杂计算中的数据逻辑依赖，然后分别从       Python, Java, Scala, Ruby 这四个语言如何表达惰性求值中去考察 这几个编程语言的特点，最后做了表格对比分析和总结。
+
+在处理离线数据相关任务时，项目的主要目的是为了解决某个数据需求，然而其本质也是一个软件工程问题。所以也和通常的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="离线数据任务中的惰性求值语法设计">
+<meta property="og:url" content="https://elelogistics.github.io/2017/03/08/2017-02-28-lazy-evaluation-and-its-syntax-design-in-offline-data-job/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="概要: 对惰性求值在离线数据任务中的好处做了定义和如何实现的分析，并从有向无环图中偷师如何解耦复杂计算中的数据逻辑依赖，然后分别从       Python, Java, Scala, Ruby 这四个语言如何表达惰性求值中去考察 这几个编程语言的特点，最后做了表格对比分析和总结。
+
+在处理离线数据相关任务时，项目的主要目的是为了解决某个数据需求，然而其本质也是一个软件工程问题。所以也和通常的">
+<meta property="og:updated_time" content="2017-03-08T09:55:12.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="离线数据任务中的惰性求值语法设计">
+<meta name="twitter:description" content="概要: 对惰性求值在离线数据任务中的好处做了定义和如何实现的分析，并从有向无环图中偷师如何解耦复杂计算中的数据逻辑依赖，然后分别从       Python, Java, Scala, Ruby 这四个语言如何表达惰性求值中去考察 这几个编程语言的特点，最后做了表格对比分析和总结。
+
+在处理离线数据相关任务时，项目的主要目的是为了解决某个数据需求，然而其本质也是一个软件工程问题。所以也和通常的">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2017/03/08/2017-02-28-lazy-evaluation-and-its-syntax-design-in-offline-data-job/"/>
+
+  <title> 离线数据任务中的惰性求值语法设计 | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                离线数据任务中的惰性求值语法设计
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-08T15:50:58+08:00" content="2017-03-08">
+              2017-03-08
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">陈大伟</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">离线数据</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/08/2017-02-28-lazy-evaluation-and-its-syntax-design-in-offline-data-job/" class="leancloud_visitors" data-flag-title="离线数据任务中的惰性求值语法设计">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p> 概要: 对惰性求值在离线数据任务中的好处做了定义和如何实现的分析，并从有向无环图中偷师如何解耦复杂计算中的数据逻辑依赖，然后分别从<br>       Python, Java, Scala, Ruby 这四个语言如何表达惰性求值中去考察 这几个编程语言的特点，最后做了表格对比分析和总结。</p>
+</blockquote>
+<p>在处理离线数据相关任务时，项目的主要目的是为了解决某个数据需求，然而其本质也是一个<br>软件工程问题。所以也和通常的软件开发一样，都需要遵循 <a href="https://en.wikipedia.org/wiki/Don%27t_repeat_yourself" target="_blank" rel="external">DRY(Don’t repeat yourself)</a>,<br><a href="https://en.wikipedia.org/wiki/SOLID_(object-oriented_design)" target="_blank" rel="external">SOLID</a> 和 <a href="https://en.wikipedia.org/wiki/KISS_principle" target="_blank" rel="external">KISS principle(Keep it simple, stupid)</a> 等黄金原则。<br>而和一般软件开发不太一样的地方在于，离线数据处理的重点在于数据，一个是数据量大，另一个是数据逻辑复杂。</p>
+<p>本文不探讨用具体某种算法或数据结构去优化这些数据任务，就单单从编程语言这一层面来看<br>也许哪些地方我们还可以做得更好，一个是做到 简单易懂好维护，另一个是做到 程序优雅。<br>考察的编程语言主要是我个人用过的 Scala, Python, Java 和 Ruby。</p>
+<h3 id="惰性求值"><a href="#惰性求值" class="headerlink" title="惰性求值"></a>惰性求值</h3><p><a href="https://en.wikipedia.org/wiki/Lazy_evaluation" target="_blank" rel="external">Lazy Evaluation</a> 是指 定义了一个变量和其对应的计算表达式，<br>等到实际需要去访问这个值时，才对该表达式进行求值。这种方式会带来以下两个好处:</p>
+<ol>
+<li><p>加快程序处理速度。在进行某个操作时，通常我们需要先预备好相关的资源，<br>不管最后用不用得上，根据主流编程语言的及早求值(<a href="https://en.wikipedia.org/wiki/Eager_evaluation" target="_blank" rel="external">Eager evaluation</a>)<br>策略，这些资源都是需要被马上载入的，那这就在一定程度上使程序响应时间变慢了。<br>所以一般都是程序员得小心翼翼地用 IF-ELSE 维护好每一处逻辑。</p>
+</li>
+<li><p>一次计算，多次使用。既然是惰性求值了，那就意味着不被求值时，变量被随意多次引用<br>也不会引起耗时计算或空间浪费。而如果被求值了，那该值也会以某种形式(比如<br>Memoization) 被保存下来，以避免重复计算。</p>
+</li>
+</ol>
+<p>而如何 <strong>表达</strong> 惰性计算呢？根据上面的定义，惰性计算需要满足以下三个部件:</p>
+<ol>
+<li>变量的声明。</li>
+<li>表达式的声明。</li>
+<li>变量和表达式如何绑定。</li>
+</ol>
+<p>所以我们应该是需要:</p>
+<ol>
+<li>创造之。声明一个惰性的对象，并直接把表达式和它绑定。</li>
+<li>使用之。在我们需要访问其值的时候，就根据表达式计算出来结果，并把结果保存下来，不再更改，以备下次访问时不再重复计算，直接快速地返回该结果值。</li>
+</ol>
+<p>这两个操作，应该最好是一体的，可以写在 <strong>一处地方</strong>，方便理解和修改。所以关键点在于如何把 一个变量 和 一个表达式 糅合到一起变成一个惰性求值。</p>
+<p>而通常一般的编程语言里对属性和方法（函数）的访问形式有括号和没括号的区别，比如 object.attribute 和 object.method() ，那两者就统一不到一块了。</p>
+<p>我们先不急着看各个编程语言如何表达惰性求值，而是先从我们要解决的离线数据任务看起。</p>
+<h3 id="离线数据任务-的宏观和微观"><a href="#离线数据任务-的宏观和微观" class="headerlink" title="离线数据任务 的宏观和微观"></a>离线数据任务 的宏观和微观</h3><p>从宏观上来说，离线数据任务，尤其是算法模型，往往由多个任务组成。最简单的都有三个流程:</p>
+<ol>
+<li>数据采集</li>
+<li>数据模型（包括 预处理 + 训练 + 测试验证 等）</li>
+<li>数据推送</li>
+</ol>
+<p>这些任务都会有它们各自的输入输出和运算逻辑，而且它们之间有执行上的前后依赖关系，那这就<br>形成了一个有向无环图，简称 DAG (<a href="https://en.wikipedia.org/wiki/Directed_acyclic_graph" target="_blank" rel="external">Directed acyclic graph</a>)。<br>在任务调度的解决方案里，像 Python 社区里主要有 <a href="https://github.com/spotify/luigi" target="_blank" rel="external">Luigi</a> 和 <a href="https://github.com/apache/incubator-airflow" target="_blank" rel="external">Airflow</a> 两大解决方案，限于主题原因这里就不具体展开了。</p>
+<p>DAG 任务调度 在实际的数据工作中时间占比极大，可以说团队中的数据合作都是依靠它才能顺利运作。</p>
+<p>DAG 的设计标准 在本质上也是现实企业中其项目任务分解在软件架构上的映射:</p>
+<ol>
+<li>清晰的树结构。是近似于树形的有向无环图，确保分解的任务都有专业的人去执行，并可以有条不紊地收集执行结果。</li>
+<li>易懂的平铺性。得益于树结构，所有拓扑关系完全可以在一个二维视野里表达，而不会发生意大利面条式缠绕难解的现象。</li>
+<li>可替换性。每个节点的职能都是定义好了的，只需要能执行出符合需求规范的结果即可，所以每个节点都是可以被替换的，</li>
+</ol>
+<p>那这就是说 DAG 具有对应于软件工程上解耦的特点，给软件和数据维护带来了极大的便利。</p>
+<p>所以我们能否在微观层面，也即是在具体某个软件模块编写的层面上，是否也能引入 解耦和易懂的 DAG 呢？答案是可以的。</p>
+<h3 id="DAG-结构-和-惰性求值-的显性关系"><a href="#DAG-结构-和-惰性求值-的显性关系" class="headerlink" title="DAG 结构 和 惰性求值 的显性关系"></a>DAG 结构 和 惰性求值 的显性关系</h3><p>要形成 数据任务调度的 DAG，必须有如下三个要素:</p>
+<ol>
+<li>数据结构固定。输入输出的数据 schema 必须是固定的，或者说上下游的节点必须是能自动处理该 schema 的。</li>
+<li>重复性。这个重复性通常是时间属性，比如按天粒度运行的任务。</li>
+<li>具体实现可变。只要满足上下游节点接受的数据结构，那么该节点的数据内容，算法，软件库，编程语言 等其实都是可以变换或自由选择的。</li>
+</ol>
+<p>而这三个要素，在经典的面向对象软件设计里，完全是直接映射过来的。这里拿 类(class) 来举例子:</p>
+<ol>
+<li>数据结构固定。不管静态或动态类型，一个类里的不同方法接受的参数总是某一个指定类型（或某个模式）的，否则就会提示异常。</li>
+<li>重复性。既然抽象成类了，那么应该是会被多次初始化，以来处理多个相同类型的数据对象需求的。</li>
+<li>具体实现可变。这是软件开发最大的好处，内部对外部来说应该都是透明的，只要保持接口不变就好。</li>
+</ol>
+<p>再进一步想，类其实是编程语言里的基本元素，而且一个类里也会调用其他类的实例(instance)，所以我们整个程序设计都是可以遵照<br>DAG 结构来设计得更解耦和易懂。</p>
+<p>可能有些读者会发出这样的疑问，那么 DAG 和 惰性求值 有什么关系呢？</p>
+<p>如果一个类只有一个地方使用到了惰性求值，那么确实关系不大。而如果一个类里使用了多个惰性求值（我相信需求总是复杂的:P)，然后这几个惰性求值之间有一些引用依赖，<br>那么其实就相当于隐式声明了 DAG 依赖图，它们是通过直接呼叫对方变量名实现的。相当于在执行一个惰性求值的时候，如果这个惰性求值也调用了其他惰性求值，并以此类推，<br>那么它们就会形成一个 <strong>自动的调用链</strong>，其实这就形成了一个有向无环图 DAG。</p>
+<p>与原来的在类似于在 main 函数里去写几行到十几行关于各种变量的赋值，并注意执行顺序上的前后依赖。<br>现在使用惰性求值后，我们只需要直接呼叫 <strong>最终</strong> 要的那个变量名(以惰性求值形式)就可以了，它依赖的所有其他值都会以<br>DAG 的形式被自动调用起来。</p>
+<p>最后对参数做一个说明，既然是惰性求值了，那就意味着这个属性是不能带参数了，参数只能以上下文的形式绑定，比如 instance attribute/variable/member 。<br>如果一个数据真的需要参数，那就说明还需要对这个类做进一步拆解成更小的粒度。</p>
+<h3 id="举一个常见的例子"><a href="#举一个常见的例子" class="headerlink" title="举一个常见的例子"></a>举一个常见的例子</h3><p>来看一个很简单和正常的程序设计，我们设计了一个入口 Project，它会调用 Task 来处理一些事情。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Project</span>:</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">    self.task = Task()</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(self, request)</span>:</span></div><div class="line">    params = extract_from(request)</div><div class="line">    <span class="keyword">return</span> self.task.compute(params)</div><div class="line"></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Task</span>:</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">__init__</span><span class="params">(self)</span>:</span></div><div class="line">    self.data = self.load_complex_data()</div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">compute</span><span class="params">(self, params)</span>:</span></div><div class="line">    <span class="keyword">return</span> func(params, self.data)</div></pre></td></tr></table></figure>
+<p>粗看一下好像并没有什么问题，但是这个程序的启动时间其实是可以加快的，因为在<br>初始化 Project 的时候，同时也跟着初始化了 Task，而 Task 里的有一个 data 属性是需要花长时间来载入的。<br>如果我们想赶快进入调试，那么必须得把 Task 的 data 延迟加载。那么很多人都会接着这么设计的:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Task</span>:</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">compute</span><span class="params">(self, params)</span>:</span></div><div class="line">    <span class="keyword">if</span> self.data <span class="keyword">is</span> <span class="keyword">None</span>:</div><div class="line">      self.data = self.load_complex_data()</div><div class="line">    <span class="keyword">return</span> func(params, self.data)</div></pre></td></tr></table></figure>
+<p>然后如果程序里有很多地方都需要延迟加载，那就会出现很多个 IF 判断，程序的可读性因此大大降低。</p>
+<h3 id="Python-的正确解法"><a href="#Python-的正确解法" class="headerlink" title="Python 的正确解法"></a>Python 的正确解法</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">from</span> cached_property <span class="keyword">import</span> cached_property</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Project</span>:</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(self, request)</span>:</span></div><div class="line">    params = extract_from(request)</div><div class="line">    <span class="keyword">return</span> self.task.compute(params)</div><div class="line"></div><div class="line"><span class="meta">  @cached_property</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">task</span><span class="params">(self)</span>:</span></div><div class="line">    <span class="keyword">return</span> Task()</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Task</span>:</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">compute</span><span class="params">(self, params)</span>:</span></div><div class="line">    <span class="keyword">return</span> func(params, self.data)</div><div class="line"></div><div class="line"><span class="meta">  @cached_property</span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">data</span><span class="params">(self)</span>:</span></div><div class="line">    // load complex data</div></pre></td></tr></table></figure>
+<p>这个写法比上面好的地方在于:</p>
+<ol>
+<li>对于定义方来说，直接把 变量名 data 和 load_complex_data 函数 统一为<br><strong>同一个</strong> instance method 的名字和内容了，只需要在头部加上一个<br>@cached_property 装饰器即可。</li>
+<li>对于调用方来说，只需要像访问一个属性一样去访问就好了，而不需要加额外的括号来显式执行它。</li>
+<li>对于两者来说，定义方的参数和执行过程无论怎样改变，对于调用方来说，只需要知道名字就可以了，什么都不需要修改。</li>
+</ol>
+<p>而 Python 是如何做到这些的呢? 是因为在 Python 的对象系统里有两个特性:</p>
+<ol>
+<li><code>__get__</code> 。如果一个属性使用 <a href="https://docs.python.org/2/library/functions.html#property" target="_blank" rel="external">property</a> 包装了 getter (可选的还有 setter 和 deleter)，<br>那么就可以直接以属性形式(不加括号)访问了。但是注意, 这个 property 是没有缓存功能的。</li>
+<li><code>__dict__</code> 。这个属性是继承了 Python object 根类就会有的，其作用可以用来存放当前对象的各种缓存。在我们上面用的<br><a href="https://github.com/pydanny/cached-property" target="_blank" rel="external">cached_property</a> 里有具体的<a href="https://github.com/pydanny/cached-property/blob/master/cached_property.py#L12" target="_blank" rel="external">实现</a>，它弥补了 Python 内置 property<br>不支持缓存的现状，是一个接近完美的解决方案，可惜不是 Python 内置的。</li>
+</ol>
+<p>另外还有一个原因就是 Python 是一个动态类型语言，所以我们这里一个 class 里面的同名 method 可以在运行时被动态的替换成<br>property 类型。同时因为 Python 的 method 是必须显式声明至少一个参数，即是 self 当前 instance 自身，<br>所以就可以保证在替换的 property 里还可以继续保持对 当前对象的引用，然后可以利用这个上下文来做对当前对象的各种访问。</p>
+<p>这种惰性求值 property 在 Python 这个动态语言里还有另一个好处，就是用于测试时 mock 数据。<br>实际运行时用函数去调用各种真实的资源来计算结果，而测试时，只需要把这个 property 替换成一个静态值就可以很方便测试了，比如 JSON 或列表之类的。</p>
+<p>最后总结一下, @cached_property 在使用上是简单和没有歧义的，但是理解它的实现还是有点复杂的，主要是因为<br>Python 自身语法的简单性，和需要去协调函数对象和类系统之间的统一。</p>
+<h3 id="Java-的解决方案"><a href="#Java-的解决方案" class="headerlink" title="Java 的解决方案"></a>Java 的解决方案</h3><p>Java 作为静态语言，它是没有那些支持动态函数的东西可以灵活地去实现 名字和表达式的统一 这种高级特性。<br>但是它有一个 Annotation (注解) 功能可以实现和 Python 装饰器 类似的功能。</p>
+<p>Lombok 是 Java 社区常用的库（虽然我个人没有用过。。。），它的其中一个<br>Annotation @Getter(lazy=true) 就是专门用来惰性求值的，我从它 <a href="https://projectlombok.org/features/GetterLazy.html" target="_blank" rel="external">官网</a> 的例子拷贝如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">import</span> lombok.Getter;</div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">GetterLazyExample</span> </span>&#123;</div><div class="line">  <span class="meta">@Getter</span>(lazy=<span class="keyword">true</span>) <span class="keyword">private</span> <span class="keyword">final</span> <span class="keyword">double</span>[] cached = expensive();</div><div class="line"></div><div class="line">  <span class="keyword">private</span> <span class="keyword">double</span>[] expensive() &#123;</div><div class="line">    <span class="keyword">double</span>[] result = <span class="keyword">new</span> <span class="keyword">double</span>[<span class="number">1000000</span>];</div><div class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; result.length; i++) &#123;</div><div class="line">      result[i] = Math.asin(i);</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> result;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>而它的访问方式就是 Java 一般约定的访问属性方式，即执行 <code>getCached()</code> ，来返回 double[] 类型的结果。<br>所以可以看出，表达语法是简单和易懂的，但是属性名和访问名字不能统一，不过这也不算大碍。</p>
+<h3 id="Scala-的语言级别解法"><a href="#Scala-的语言级别解法" class="headerlink" title="Scala 的语言级别解法"></a>Scala 的语言级别解法</h3><figure class="highlight scala"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Project</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">process</span></span>(request: <span class="type">Request</span>) = &#123;</div><div class="line">    <span class="keyword">val</span> params = extract_from(request)</div><div class="line">    task.compute(params)</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> task = &#123;</div><div class="line">    <span class="keyword">new</span> <span class="type">Task</span>()</div><div class="line">  &#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Task</span> </span>&#123;</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">compute</span></span>(params: <span class="type">Params</span>) = &#123;</div><div class="line">    ... compute params <span class="keyword">with</span> data</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="keyword">lazy</span> <span class="keyword">val</span> data = &#123;</div><div class="line">    .. load complex data</div><div class="line">  &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>Scala 作为 JVM 语言，其都会编译生成对应的 Java 代码，所以可想而知其代码逻辑应该是相仿的。<br>但是它的书写方式却是异常简洁，完爆 Python 和 Java，直接把一个表达式赋予给一个 lazy val 就可以了。</p>
+<h3 id="Ruby-的解决方案"><a href="#Ruby-的解决方案" class="headerlink" title="Ruby 的解决方案"></a>Ruby 的解决方案</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Project</span></span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">process</span><span class="params">(request)</span></span></div><div class="line">    params = extract_from(request)</div><div class="line">    task.compute(params)</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">task</span></span></div><div class="line">    @_task <span class="params">||</span>= new Task()</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Task</span></span></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">compute</span><span class="params">(params)</span></span></div><div class="line">    ... compute params with data</div><div class="line">  <span class="keyword">end</span></div><div class="line"></div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">data</span></span></div><div class="line">    @_data <span class="params">||</span>= .. load complex data</div><div class="line">  <span class="keyword">end</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>Ruby 的解法也是内置的，</p>
+<ol>
+<li>无参数的方法访问是可以不加括号就可以调用的。这点和 Scala 是一样的。因此可以完成属性和方法调用的无缝转换。</li>
+<li>相比其他语言需要先初始化一个空变量，然后再判断赋予真实值。在 Ruby 里<br>只要简单的 <code>||=</code> 就可以把一个 instance attribute 初始化和赋值直接搞定。</li>
+</ol>
+<p>缺点是 <code>@_data</code> 不兼容 false，导致 <code>||=</code> 就会再次进行计算。不过这个可以通过一个第三方库 <a href="https://github.com/dkubb/memoizable" target="_blank" rel="external">memoizable</a> 来解决。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">require</span> <span class="string">'memoizable'</span></div><div class="line"></div><div class="line"><span class="class"><span class="keyword">class</span> <span class="title">Planet</span></span></div><div class="line">  <span class="keyword">include</span> Memoizable</div><div class="line">  <span class="function"><span class="keyword">def</span> <span class="title">spherical?</span></span></div><div class="line">    <span class="number">4</span> * Math::PI * radius ** <span class="number">2</span> == area</div><div class="line">  <span class="keyword">end</span></div><div class="line">  memoize <span class="symbol">:spherical?</span></div><div class="line"><span class="keyword">end</span></div></pre></td></tr></table></figure>
+<p>memoizable 的原理是用一个 字典 去代理缓存，和 Python 里 cached_property 的解法是一样的，这样就兼容了 false 值的情况。<br>从书写上来说，和 Java 的 @Getter(lazy=true) 复杂度相当。都需要引入一个第三方库，用一个专门的声明去表示这是一个惰性求值。</p>
+<p>另外，Ruby 里还可以根据其对象系统里的 <a href="http://ruby-doc.org/core-2.1.0/BasicObject.html#method-i-method_missing" target="_blank" rel="external">method_missing</a> 特性来做一个<br><a href="http://greyblake.com/blog/2014/10/05/lazy-object-pattern-in-ruby/" target="_blank" rel="external">代理的惰性求值</a>。主要是这其实是一个相当于 mock 的做法，而不是返回一个真实的值。</p>
+<h3 id="最后的总结比较"><a href="#最后的总结比较" class="headerlink" title="最后的总结比较"></a>最后的总结比较</h3><p>最后我们来做一个表格来对比分析惰性求值在四个编程语言里使用上各种优劣，其中以 ABC 来表示从高到低的不同支持级别。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">惰性求值</th>
+<th style="text-align:center">不需要括号</th>
+<th style="text-align:center">定义在同一个地方</th>
+<th style="text-align:center">属性名字和表达式名字相同</th>
+<th style="text-align:center">语言内置</th>
+<th style="text-align:center">线程安全</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">Scala</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">A</td>
+</tr>
+<tr>
+<td style="text-align:center">Python</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">A</td>
+</tr>
+<tr>
+<td style="text-align:center">Java</td>
+<td style="text-align:center">C</td>
+<td style="text-align:center">C</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">A</td>
+</tr>
+<tr>
+<td style="text-align:center">Ruby</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">A</td>
+<td style="text-align:center">B</td>
+<td style="text-align:center">A</td>
+</tr>
+</tbody>
+</table>
+<p>综合排序是: Scala &gt; Python/Ruby &gt; Java。其实可以发现，这个排序也对应了编程语言的复杂程度的由高到低。<br>其中线程安全问题这四个语言的实现都是大同小异的，无非就是加把锁就搞定了，各个语言里都有内置标准库的实现。</p>
+<p>通过本文分析，惰性求值解决了 数据量大 时程序初始化慢的问题，同时其平铺性和静态化表达式的特点 解耦了 数据逻辑之间依赖复杂 的问题。</p>
+<blockquote>
+<p>注: 本文其实是从个人在 2015 年为自己用 Python 写的 <a href="https://luiti.github.io/" target="_blank" rel="external">Luiti 离线任务调度框架</a> 做的一篇<br>    <a href="http://speakerdeck.com/mvj3/luiti-an-offline-task-management-framework" target="_blank" rel="external">演讲稿</a> 而延承过来的。虽然不同公司用的任务调度系统都各不相同，有用开源的，也有自研的，但是<br>    DAG 和惰性求值的核心思想应该都是一致的。我只是表达了个人的经验，希望得到同行的不吝指正。</p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/离线数据/" rel="tag">#离线数据</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/02/20/ReactiveCocoa 中 奇妙无比的“宏”魔法/" rel="next" title="ReactiveCocoa 中 奇妙无比的“宏”魔法">
+                <i class="fa fa-chevron-left"></i> ReactiveCocoa 中 奇妙无比的“宏”魔法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">13</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#惰性求值"><span class="nav-number">1.</span> <span class="nav-text">惰性求值</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#离线数据任务-的宏观和微观"><span class="nav-number">2.</span> <span class="nav-text">离线数据任务 的宏观和微观</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#DAG-结构-和-惰性求值-的显性关系"><span class="nav-number">3.</span> <span class="nav-text">DAG 结构 和 惰性求值 的显性关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#举一个常见的例子"><span class="nav-number">4.</span> <span class="nav-text">举一个常见的例子</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Python-的正确解法"><span class="nav-number">5.</span> <span class="nav-text">Python 的正确解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Java-的解决方案"><span class="nav-number">6.</span> <span class="nav-text">Java 的解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Scala-的语言级别解法"><span class="nav-number">7.</span> <span class="nav-text">Scala 的语言级别解法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Ruby-的解决方案"><span class="nav-number">8.</span> <span class="nav-text">Ruby 的解决方案</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#最后的总结比较"><span class="nav-number">9.</span> <span class="nav-text">最后的总结比较</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
