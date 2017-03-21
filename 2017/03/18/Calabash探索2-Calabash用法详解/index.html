@@ -1,0 +1,882 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="测试," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言上一篇Calabash Run起来以后，如果你立刻在自己的项目上进行尝试，我相信你一定会像我之前一样，一头雾水，那么从这篇开始，我们来对Calabash深挖。 大概从这几个方向开始：
+
+Feature、Scenario等关键字使用策略。
+Calabash预定义Steps的使用。
+自定义Steps。
+使用Ruby语法编写带逻辑判断的Steps。
+自定义Steps的使用策略。
+Ruby Query">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Calabash探索2-Calabash用法详解">
+<meta property="og:url" content="https://elelogistics.github.io/2017/03/18/Calabash探索2-Calabash用法详解/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="前言上一篇Calabash Run起来以后，如果你立刻在自己的项目上进行尝试，我相信你一定会像我之前一样，一头雾水，那么从这篇开始，我们来对Calabash深挖。 大概从这几个方向开始：
+
+Feature、Scenario等关键字使用策略。
+Calabash预定义Steps的使用。
+自定义Steps。
+使用Ruby语法编写带逻辑判断的Steps。
+自定义Steps的使用策略。
+Ruby Query">
+<meta property="og:image" content="http://img.blog.csdn.net/20170310132226312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMDI1NTEyNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+<meta property="og:updated_time" content="2017-03-21T02:53:42.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Calabash探索2-Calabash用法详解">
+<meta name="twitter:description" content="前言上一篇Calabash Run起来以后，如果你立刻在自己的项目上进行尝试，我相信你一定会像我之前一样，一头雾水，那么从这篇开始，我们来对Calabash深挖。 大概从这几个方向开始：
+
+Feature、Scenario等关键字使用策略。
+Calabash预定义Steps的使用。
+自定义Steps。
+使用Ruby语法编写带逻辑判断的Steps。
+自定义Steps的使用策略。
+Ruby Query">
+<meta name="twitter:image" content="http://img.blog.csdn.net/20170310132226312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMDI1NTEyNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2017/03/18/Calabash探索2-Calabash用法详解/"/>
+
+  <title> Calabash探索2-Calabash用法详解 | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Calabash探索2-Calabash用法详解
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-18T16:21:58+08:00" content="2017-03-18">
+              2017-03-18
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">暴打小女孩</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">测试</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/18/Calabash探索2-Calabash用法详解/" class="leancloud_visitors" data-flag-title="Calabash探索2-Calabash用法详解">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇Calabash Run起来以后，如果你立刻在自己的项目上进行尝试，我相信你一定会像我之前一样，一头雾水，那么从这篇开始，我们来对Calabash深挖。 大概从这几个方向开始：</p>
+<ul>
+<li>Feature、Scenario等关键字使用策略。</li>
+<li>Calabash预定义Steps的使用。</li>
+<li>自定义Steps。</li>
+<li>使用Ruby语法编写带逻辑判断的Steps。</li>
+<li>自定义Steps的使用策略。</li>
+<li>Ruby Query的使用。</li>
+</ul>
+<a id="more"></a>
+<h2 id="Feature、Scenario等关键字使用策略"><a href="#Feature、Scenario等关键字使用策略" class="headerlink" title="Feature、Scenario等关键字使用策略"></a>Feature、Scenario等关键字使用策略</h2><p>主要的关键字如下Feature、Scenario、Given、When、Then。前面我们也说了，其实这几个关键字实际是Cucumber体系下的，如果你想更进一步的了解，请查询<a href="https://github.com/cucumber/cucumber" target="_blank" rel="external">Cucumber相关资料</a>。<br>我们重点讲Feature、Scenario两个。</p>
+<p>一个.feature文件只能含有一个Feature，以此作为一个测试用例集，一个测试用例集（Feature）可以包含多个场景（Scenario）。</p>
+<p>在不指定具体的.feature文件及其顺序的情况下，Calabash会遍历features根目录下的所有Feature按随机顺序执行。<br>每执行一个Feature都会卸载重新安装App，而执行Scenario则不会重新卸载安装App，而是重新启动。</p>
+<p>举例我有以下两个文件：</p>
+<p><em>login.feature</em> ： 测试登录和注册两个业务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">Feature: Login 测试</div><div class="line"></div><div class="line">	Scenario: 使用无效手机号注册</div><div class="line"></div><div class="line">		Then I...</div><div class="line">    	...</div><div class="line">    </div><div class="line">	Scenario: 使用正确手机号、无效验证码注册</div><div class="line">  </div><div class="line">		Then I...</div><div class="line">		...</div><div class="line">    </div><div class="line">	Scenario: 使用正确手机号、正确验证码注册</div><div class="line">   </div><div class="line">        Then I...</div><div class="line">        ...</div><div class="line">	</div><div class="line">    Scenario: 使用错误手机号登录</div><div class="line">   </div><div class="line">        Then I...</div><div class="line">        ...</div><div class="line">    Scenario: 使用正确手机号登录</div><div class="line">   </div><div class="line">        Then I...</div><div class="line">        ...</div></pre></td></tr></table></figure>
+<p><em>health.feature</em> ： 测试上传健康证业务</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">Feature: Health 测试</div><div class="line"></div><div class="line">	Scenario: 登录</div><div class="line"></div><div class="line">		Then I...</div><div class="line">    	...</div><div class="line">    </div><div class="line">	Scenario: 使用错误健康证号码上传</div><div class="line">  </div><div class="line">		Then I...</div><div class="line">		...</div><div class="line">    </div><div class="line">	Scenario: 使用正确健康证号码上传</div><div class="line">   </div><div class="line">        Then I...</div><div class="line">        ...</div></pre></td></tr></table></figure>
+<p><strong>切记：在设计时，每个Feature都应该是完全独立，他们之间不能有任何耦合（App都卸载了，你互相依赖还有啥用）</strong><br>因为每个Feature都是独立的，所以完全不必在意他们的执行顺序。</p>
+<p>使用命令 <code>calabash-android run test.apk</code> 执行时，Calabash会遍历features主目录下所有的.feature文件进行执行。<br>当你只想执行某一个或某几个Feature时，直接在该命令后加Feature文件路径即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">calabash-android run test.apk ./login.feature ./health.feature</div></pre></td></tr></table></figure>
+<p>值的一提的是，当你指定执行哪些Feature时,Calabash会按照你指定的顺序进行执行。</p>
+<p>那么当我执行<code>calabash-android run test.apk</code> 会发生什么呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">1.安装App</div><div class="line">2.执行Feature: Login 测试</div><div class="line">3.启动App</div><div class="line">4.执行Scenario: 使用无效手机号注册</div><div class="line">5.关闭App,重启App</div><div class="line">6.执行Scenario: 使用正确手机号、无效验证码注册</div><div class="line">7.关闭App,重启App</div><div class="line">8.执行Scenario: 使用正确手机号、正确验证码注册</div><div class="line">9.关闭App,重启App</div><div class="line">10.执行Scenario: 使用错误手机号登录</div><div class="line">11.关闭App,重启App</div><div class="line">12.执行Scenario: 使用正确手机号登录</div><div class="line">13.卸载并重新安装App</div><div class="line">14.执行Feature: Health 测试</div><div class="line">15.启动App</div><div class="line">16.执行Scenario: 登录</div><div class="line">17.关闭App,重启App</div><div class="line">18.执行Scenario: 使用错误健康证号码上传</div><div class="line">19.关闭App,重启App</div><div class="line">20.执行Scenario: 使用正确健康证号码上传</div><div class="line">21.关闭App</div></pre></td></tr></table></figure>
+<p>基本上Calabash大的框框就是这样，所以我们在设计编写测试用例时，要按照这个框框来做。考虑什么情况分Feature,什么情况分Scenario，什么情况不能分，需要整体一大串的往下写。</p>
+<p>然后是Given、When、Then三个关键字，其实我并没有太搞明白他们之间的区别，似乎只是在概念上做了区分，实际的使用中并没有什么明显的区别，以我暂时的理解就是：在写法上，你用Then和用When都可以执行。只是理解上有区别。</p>
+<p>下面是Cucumber给出的定义：</p>
+<ul>
+<li>Feature（功能）— test suite （测试用例集）</li>
+<li>Scenario（情景） — test case （测试用例）</li>
+<li>Given（给定）— setup（创建测试所需环境）</li>
+<li>When（当）— test（触发被测事件）</li>
+<li>Then（则）— assert(断言，验证结果)</li>
+</ul>
+<p>虽然Then是用来验证结果的，但当When无法执行时，也会报错。我有怀疑过他们的超时时间不同，但经测试发现，他们超时时间也是一样的。这个还待深究……<br>虽然暂时认为他们在使用上是一样的，但我还是建议你在编写测试用例时，<strong>按照上面的区分进行编写，毕竟测试脚本还是需要有很强可读性的，你可以用对应关键字来区分哪些步骤是需要测试验证的重点。</strong></p>
+<h2 id="Calabash-预定义的Steps使用"><a href="#Calabash-预定义的Steps使用" class="headerlink" title="Calabash 预定义的Steps使用"></a>Calabash 预定义的Steps使用</h2><p>我只能说，Calabash最全的文档，除了安装步骤以外就是这套预定义的Steps了，虽然这个最全的指令也写的不那么友好。 <a href="https://github.com/calabash/calabash-android/blob/master/ruby-gem/lib/calabash-android/canned_steps.md" target="_blank" rel="external">轻戳跳转到Calabash 预定义Steps</a></p>
+<p>简单解释一下，看懂一两条基本上其他照着下面的说明看，用起来就没问题了。</p>
+<pre><code>Then /^I enter &quot;([^\&quot;]*)&quot; into input field number (\d+)$/ do |text, index|
+</code></pre><p>以这个Step为例。<br>我忍不住要吐槽了，首先要承认我正则表达式接触的很少，为了这个我还去恶补了一下，因为第一次看到上面这个我都不知道怎么用，/^是啥？要不要写上去？  那个 do 要不要加上？ 后面|text, index|看着应该是参数名，要不要也上去？ 好烦好烦~</p>
+<p>好了吐槽结束，开讲：</p>
+<p>正确的使用方法是： <code>Then I enter &quot;你好世界&quot; into input field number 1</code><br>其含义是在第一个输入框里输入 你好世界。<br>这里的1是指当前界面第一个输入框，至于为什么不像是数组一样，是从0开始的问题，我们在下一节讲<strong>自定义Steps</strong>时，会分析这条Steps的源码，到时候你就明白了。</p>
+<p>文档给出的写法实际是Step的定义写法，前面Then是关键字，我们不管它，所以 /^ $/  do |text, index| 通通都是定义语法，在使用中都是不用写上去的。这个等我们看到后面自定义Steps时就能理解了。<br>中间”([^\”]*)”  (\d+) 这两个就很简单了，就是两个正则表达式参数，正则所修饰的就是该参数所能接收的类型。</p>
+<h2 id="自定义Steps"><a href="#自定义Steps" class="headerlink" title="自定义Steps"></a>自定义Steps</h2><p>这一章我们暂只聊Calabash三种自定义Steps中的两种，第三种放到下一章进阶中讲。</p>
+<h3 id="自定义Steps-1"><a href="#自定义Steps-1" class="headerlink" title="自定义Steps"></a>自定义Steps</h3><p>Calabash提供的预定义Steps很明显不够用的嘛，那么就需要我们自己进行扩展。怎么扩展呢？</p>
+<p>在step_definitions文件夹下新建一个文件：first_steps.rb,然后进行修改：（这里我偷个懒，直接拿Calabash源码用来讲自定义方法）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Then /^I enter &quot;([^\&quot;]*)&quot; into input field number (\d+)$/ do |text, index|</div><div class="line">  enter_text(&quot;android.widget.EditText index:#&#123;index.to_i-1&#125;&quot;, text)</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>Then是前面的修饰符，这个没啥好说的<br>/^ $/ 成对出现，用来表示Steps方法名的开始和结尾<br>中间内容理解为方法名，随便写。可以在任意位置插入参数，参数用正在表达式表示<br>$/一个空格后 加关键字 do 开始定义方法体<br>如果有参数便按照|text, index| 格式添加参数，参数数目要和前面对应上，否则会报错<br>换行后就是真正的方法体，<code>enter_text()</code> 是Calabash基于Ruby编写的库方法。关于这些方法的文档我还没有找到，初期，你可以对照Calabash预定义的Steps源码找到可用的ruby库方法。<br>最后以end结尾。<br>steps定义结束。</p>
+<p>哦，还要解释一下上一节我们提到的：<strong>为什么这条指令的这里的1是指当前界面第一个输入框，而不像是数组一样，是从0开始的问题。</strong></p>
+<p>看下面的定义 <code>enter_text(&quot;android.widget.EditText index:#{index.to_i-1}&quot;, text)</code><br><strong>{index.to_i-1}</strong> 这里传参中，做了一个减1的操作，calabash在实际的处理上，还是从0开始的，但是Calabash为了最大程度保证语义的自然程度，做了这样的修改，（在自然语言中，我们从头数的话，说的都是第一个，而不是第零个）这也是我们在自定义指令时可以借鉴的一个地方。</p>
+<p>为什么说Calabash学起来很简单呢？因为他的语法简单，你完全可以照猫画虎的学。你可以在这个目录下<br><code>./Library/Ruby/Gems/2.0.0/gems/calabash-android-0.9.0/lib/calabash-android/steps</code></p>
+<p>找到Calabash预定义的Steps源码，通过对比源码来学习Steps的使用和自定义，同时寻找可用的ruby库方法。</p>
+<p>可以先看一下enter_text_steps.rb文件下的内容：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">Then /^I enter &quot;([^\&quot;]*)&quot; as &quot;([^\&quot;]*)&quot;$/ do |text, content_description|</div><div class="line">  enter_text(&quot;android.widget.EditText &#123;contentDescription LIKE[c] &apos;#&#123;content_description&#125;&apos;&#125;&quot;, text)</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I enter &quot;([^\&quot;]*)&quot; into &quot;([^\&quot;]*)&quot;$/ do |text, content_description|</div><div class="line">  enter_text(&quot;android.widget.EditText &#123;contentDescription LIKE[c] &apos;#&#123;content_description&#125;&apos;&#125;&quot;, text)</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I enter &quot;([^\&quot;]*)&quot; into input field number (\d+)$/ do |text, index|</div><div class="line">  enter_text(&quot;android.widget.EditText index:#&#123;index.to_i-1&#125;&quot;, text)</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I enter text &quot;([^\&quot;]*)&quot; into field with id &quot;([^\&quot;]*)&quot;$/ do |text, id|</div><div class="line">  enter_text(&quot;android.widget.EditText id:&apos;#&#123;id&#125;&apos;&quot;, text)</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I clear &quot;([^\&quot;]*)&quot;$/ do |identifier|</div><div class="line">  clear_text_in(&quot;android.widget.EditText marked:&apos;#&#123;identifier&#125;&apos;&#125;&quot;)</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I clear input field number (\d+)$/ do |index|</div><div class="line">  clear_text_in(&quot;android.widget.EditText index:#&#123;index.to_i-1&#125;&quot;)</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I clear input field with id &quot;([^\&quot;]*)&quot;$/ do |id|</div><div class="line">  clear_text_in(&quot;android.widget.EditText id:&apos;#&#123;id&#125;&apos;&quot;)</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>大概就长这样，稍微有点编程基础的，照猫画虎没啥问题。</p>
+<h3 id="封装以定义的Steps"><a href="#封装以定义的Steps" class="headerlink" title="封装以定义的Steps"></a>封装以定义的Steps</h3><p>以上面我们看到的health.feature为例，我只写了两个场景，因为细分的边界case会很多，所以实际过程中我可能要写很多个场景，那么每一个场景 进入到健康证上传页面这个步骤都是一模一样的，难道我要复制粘贴这么多下么？ 不不~，一个有追求的程序猿是百分百拒绝复制粘贴的！那么我就要把进入健康证上传页面这些个步骤封装起来变成一个命令，用起来省事，修改也简单！</p>
+<p>需要说一下的是，如果你用上面自定义Steps的方法直接在方法体中写自定义Steps的话，是不可行的，就像这样：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">Then /^I through welcomePages$/ do</div><div class="line">	Then I drag from 90:50 to 20:50 moving with 20 steps </div><div class="line">    Then I drag from 90:50 to 20:50 moving with 20 steps </div><div class="line">    Then I drag from 90:50 to 20:50 moving with 20 steps </div><div class="line">end</div></pre></td></tr></table></figure>
+<p>上面的代码是无法执行的。想要封装已定义的Steps你需要这样做：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">Then /^I through welcomePages with (\d+) steps$/ do |steps|</div><div class="line">	steps %&#123;</div><div class="line">    	Then I drag from 90:50 to 20:50 moving with #&#123;steps&#125; steps</div><div class="line">        Then I drag from 90:50 to 20:50 moving with #&#123;steps&#125; steps</div><div class="line">        Then I drag from 90:50 to 20:50 moving with #&#123;steps&#125; steps</div><div class="line">	&#125;</div><div class="line">end</div></pre></td></tr></table></figure>
+<p><code>%{}</code> 是ruby中表示多行字符串的格式，一对大括号之间的所有换行符和空格符都会原原本本的输出。</p>
+<p>如果需要再<code>%{}</code> 内部使用参数，直接写参数名是不会被识别的，需要使用<code>#{}</code>包裹。</p>
+<p>在自定义Steps时，你可能会遇到<strong>坑5：Calabash自定义的Steps,执行过程中提示未定义</strong></p>
+<h2 id="使用Ruby语法编写带逻辑判断的Steps"><a href="#使用Ruby语法编写带逻辑判断的Steps" class="headerlink" title="使用Ruby语法编写带逻辑判断的Steps"></a>使用Ruby语法编写带逻辑判断的Steps</h2><p>上面只是介绍了Steps的自定义方法，简单的对原有库方法或命令进行封装，修改方面名或参数值。扩展的能力有限，Calabash当然不会如此的初级，.rb是Ruby文件，所以这里使用的都是Ruby语法，你也当然可以通过Ruby语法为你的Steps添加各种逻辑。</p>
+<p><strong>Steps的定义不只是已有库方法和以后Steps的封装，他的内部定义同样可以非常丰富。</strong></p>
+<p>例如上一节我们封装的三行左划命令，如果我想增加一个扩展，通过传入的参数来控制左划的次数：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Then /^I drag toLeft (\d+) times$/ do |times|</div><div class="line">	$num = times.to_i</div><div class="line">	while $num &gt; 0 do</div><div class="line">		perform_action(&apos;drag&apos;, 90, 20, 50, 50, 20) </div><div class="line">		$num = $num-1</div><div class="line">	end</div><div class="line">    puts &quot;循环结束&quot;</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>即使你没有接触过Ruby，但是这个代码也应该可以大致看懂。<br><code>$num</code> 是Ruby定义变量的方法。<br><code>times.to_i</code> 是Ruby提供的类型转换函数</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">while conditional [do]</div><div class="line">   code</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>是Ruby的循环语法。</p>
+<p>前面一章我们还提到除了feature中编写的注释可以在执行中输出以外，你还可以使用ruby的输出语句<code>puts &quot;&quot;</code>来输出一些提示性语句。</p>
+<p>Ruby的语法真的非常简单，这里再次推荐<a href="http://www.runoob.com/ruby/ruby-loop.html" target="_blank" rel="external">Ruby的学习网站</a>。</p>
+<h2 id="自定义Steps的使用策略"><a href="#自定义Steps的使用策略" class="headerlink" title="自定义Steps的使用策略"></a>自定义Steps的使用策略</h2><p>自定义Steps是Calabash测试脚本的基石，就像砖块一样，只有齐整的砖块盖起房子来才会更容易，所以为了保证后期脚本维护的方便，以及让测试脚本的编写变得越来越轻松容易，接纳更多的人员参与，应该建立一套Steps规范，并建立一个Steps文档。</p>
+<p>下面是我的建议：</p>
+<h3 id="与业务完全解耦的自定义Steps："><a href="#与业务完全解耦的自定义Steps：" class="headerlink" title="与业务完全解耦的自定义Steps："></a>与业务完全解耦的自定义Steps：</h3><p>该种类型应该像Calabash预定义的Steps一样，完全与业务解耦，只是不同类型的动作及检查，开放有更多的参数，有很好的灵活性，复用性很强。同时<strong>每一个新建的Steps都要加入Steps库中，一直累加，禁止或尽量避免对原有Steps进行修改。对于这样的库我们称为：Steps库</strong><br>这类型自定义Steps更多的是使用Ruby函数库定义的Step,因为使用Ruby函数库定义的Step需要设计到很多Ruby语言，增加了学习树，所以这类型Steps应该保持更高的稳定性。</p>
+<p><strong>未来的展望：</strong> 中期Calabash测试脚本的开发将分为两个梯队，一个是Steps的开发，一个是测试用例开发，测试用例开发不需要对Calabash有过深入的了解，只需要对照着Steps文档即可编写测试脚本。如果需要新的Steps,就像Steps开发提需求即可。<br>到后期Steps库逐步完善，可能很久才会有新的Steps需求，那么这个时候Calabash自动化测试脚本就真的是谁都可以编写的了，BDD将不再是乌邦托。</p>
+<p>此类型的Steps建议以 <code>*_steps.rb</code> 格式建立文件。</p>
+<h3 id="与业务耦合的自定义Steps"><a href="#与业务耦合的自定义Steps" class="headerlink" title="与业务耦合的自定义Steps:"></a>与业务耦合的自定义Steps:</h3><p>为了保证Steps复用，不写大量重复代码，一些经常被使用、稳定性较高的操作应该封装起来作为一个Steps语句进行使用。<br>例如每次重新安装App后，都需要左划三次跳过欢迎界面，那么这样的操作，我们应该封装起来作为一个Step。<br>我们将这样的Steps库称为：Enca库</p>
+<p>毕竟与业务耦合，所以变动的可能性非常大，管理难度同样会跟着上升。<br>同一个Enca Steps可能在很多个场景中使用，如果因某个场景变更，而需要修改这个Steps的话，很容易导致其他场景出错，但像Steps库一样有变更就单纯累加Steps的方式显然也不明智，会导致后期Enca库存在大量以废弃但又不敢删除的Steps。<br>所以Enca库中Steps的设计原则应该高度耦合于固定的界面，每一个Step都应对应且只对应一个页面的一个操作，即使两个页面的某个操作高度类似，也应该编写两个Steps，保证在某个页面逻辑修改时不会因为这样的耦合关系而影响其他页面。</p>
+<h3 id="合适的语法糖"><a href="#合适的语法糖" class="headerlink" title="合适的语法糖"></a>合适的语法糖</h3><p>自然语言很强的可读性副带的缺点便是记忆与编写速度的下降，过于松散的语法结构将会对脚本编写带来很大的困扰，所以你需要自定义一套符合大多数人习惯的语法糖，从而在保证可读性的同时固化大部分指令格式，提高Steps的记忆和脚本编写速度。可能说的不太明白，举个例子吧</p>
+<pre><code>#我跳过欢迎界面
+Then I skip welcome page
+#我完成登录操作
+Then I have finished the login
+</code></pre><p>上面是两个滥用自然语言特性的自定义操作。如果你的所有测试脚本都是这样写的，虽然读起来没有问题，但写起来就完全离不开文档了。下面看一下较为建议的写法：</p>
+<pre><code>#我跳过欢迎界面
+Then I pass &quot;welcome&quot; scenario
+#我完成登录操作
+Then I pass &quot;login&quot; scenario
+</code></pre><p>两个Steps的实际含义其实仅只是直接通过某种操作，如果我们规范的定义适合自己的语法糖，非常杂乱的脚本将变得很有规律可循，保证可读性的同时你只需记住几个特定的指令，从而提高脚本编写速度。</p>
+<p>如果你一直抱怨现在正在使用的某种语言的某个语法多么的没人性，使用体验糟糕透顶！现在好了，做好开发一套属于自己的语言的准备了嘛？</p>
+<h3 id="严格的文档管理"><a href="#严格的文档管理" class="headerlink" title="严格的文档管理"></a>严格的文档管理</h3><p>无论是Stepks库还是Enca库，一定要建立完善的API文档，每一个入库的Steps一定要在文档中记录。添加新的Steps时需要现在Steps文档中查看是否已存在同样的Steps。</p>
+<h2 id="Ruby-Query的使用。"><a href="#Ruby-Query的使用。" class="headerlink" title="Ruby Query的使用。"></a>Ruby Query的使用。</h2><p>编写Calabash测试脚本，最大的难题在于定位到对应的元素。虽然预定的Steps中提供了通过文字、ID、Index的方式定位元素，但真实情况往往更加复杂。单纯通过肉眼的话，文字匹配对于图标无能为力，很多控件没有ID，也有很多控件你并不能很好的判断其类型，和其Index。</p>
+<p>元素定位很困难，但我们可以通过Ruby Query等命令帮助我们编写测试用例。</p>
+<p>首先第一步在终端中执行命令：<code>calabash-android console **.apk</code></p>
+<p>接下来会进入calabash命令行，提示符变为了 irb(main):001:0&gt;</p>
+<p>如果app未安装，先执行 <code>reinstall_apps</code><br>已安装直接执行 <code>start_test_server_in_background</code></p>
+<p>下面，先执行一个最简单的Query命令 <code>query(&quot;*&quot;)</code> 返回该页面所有view元素</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">irb(main):021:0&gt; query(&quot;*&quot;)</div><div class="line">[</div><div class="line">    [ 0] &#123;</div><div class="line">                     &quot;class&quot; =&gt; &quot;com.android.internal.policy.impl.PhoneWindow$DecorView&quot;,</div><div class="line">                       &quot;tag&quot; =&gt; nil,</div><div class="line">               &quot;description&quot; =&gt; &quot;com.android.internal.policy.impl.PhoneWindow$DecorView&#123;ebb9e78 V.E..... R....... 0,0-1080,1920&#125;&quot;,</div><div class="line">                        &quot;id&quot; =&gt; nil,</div><div class="line">                   &quot;visible&quot; =&gt; true,</div><div class="line">                      &quot;rect&quot; =&gt; &#123;</div><div class="line">              &quot;height&quot; =&gt; 1920,</div><div class="line">               &quot;width&quot; =&gt; 1080,</div><div class="line">                   &quot;y&quot; =&gt; 0,</div><div class="line">                   &quot;x&quot; =&gt; 0,</div><div class="line">            &quot;center_x&quot; =&gt; 540,</div><div class="line">            &quot;center_y&quot; =&gt; 960</div><div class="line">        &#125;,</div><div class="line">                   &quot;enabled&quot; =&gt; true,</div><div class="line">        &quot;contentDescription&quot; =&gt; nil</div><div class="line">    &#125;,</div><div class="line">    [ 1] &#123;</div><div class="line">                     &quot;class&quot; =&gt; &quot;android.widget.LinearLayout&quot;,</div><div class="line">                       &quot;tag&quot; =&gt; nil,</div><div class="line">               &quot;description&quot; =&gt; &quot;android.widget.LinearLayout&#123;27f6d6c3 V.E..... ........ 0,0-1080,1920&#125;&quot;,</div><div class="line">                        &quot;id&quot; =&gt; nil,</div><div class="line">                   &quot;visible&quot; =&gt; true,</div><div class="line">                      &quot;rect&quot; =&gt; &#123;</div><div class="line">              &quot;height&quot; =&gt; 1920,</div><div class="line">               &quot;width&quot; =&gt; 1080,</div><div class="line">                   &quot;y&quot; =&gt; 0,</div><div class="line">                   &quot;x&quot; =&gt; 0,</div><div class="line">            &quot;center_x&quot; =&gt; 540,</div><div class="line">            &quot;center_y&quot; =&gt; 960</div><div class="line">        &#125;,</div><div class="line">                   &quot;enabled&quot; =&gt; true,</div><div class="line">        &quot;contentDescription&quot; =&gt; nil</div><div class="line">    &#125;,</div><div class="line">    [ 2] &#123;</div><div class="line">           </div><div class="line">    </div><div class="line">    ...</div><div class="line">    </div><div class="line">    [38] &#123;</div><div class="line">                     &quot;class&quot; =&gt; &quot;me.ele.crowdsource.components.RedPacketView&quot;,</div><div class="line">                       &quot;tag&quot; =&gt; nil,</div><div class="line">               &quot;description&quot; =&gt; &quot;me.ele.crowdsource.components.RedPacketView&#123;1df1f92a V.ED..C. ........ 880,1531-1080,1710 #7f0d02e1 app:id/red_packet_view&#125;&quot;,</div><div class="line">                        &quot;id&quot; =&gt; &quot;red_packet_view&quot;,</div><div class="line">                   &quot;visible&quot; =&gt; true,</div><div class="line">                      &quot;rect&quot; =&gt; &#123;</div><div class="line">              &quot;height&quot; =&gt; 179,</div><div class="line">               &quot;width&quot; =&gt; 200,</div><div class="line">                   &quot;y&quot; =&gt; 1531,</div><div class="line">                   &quot;x&quot; =&gt; 880,</div><div class="line">            &quot;center_x&quot; =&gt; 980,</div><div class="line">            &quot;center_y&quot; =&gt; 1620</div><div class="line">        &#125;,</div><div class="line">                   &quot;enabled&quot; =&gt; true,</div><div class="line">        &quot;contentDescription&quot; =&gt; nil</div><div class="line">    &#125;</div><div class="line">]</div></pre></td></tr></table></figure>
+<p>返回数据是数组格式。里面的index,class，id都是编写测试用例的重要依据。</p>
+<p>查找某一类型的控件。 <code>query(&quot;android.support.v7.widget.AppCompatEditText&quot;)</code> 我们查到2个EditText。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div></pre></td><td class="code"><pre><div class="line">irb(main):025:0&gt; query(&quot;android.support.v7.widget.AppCompatEditText&quot;)</div><div class="line">[</div><div class="line">    [0] &#123;</div><div class="line">                     &quot;class&quot; =&gt; &quot;android.support.v7.widget.AppCompatEditText&quot;,</div><div class="line">                       &quot;tag&quot; =&gt; nil,</div><div class="line">               &quot;description&quot; =&gt; &quot;android.support.v7.widget.AppCompatEditText&#123;1006278d VFED..CL ........ 45,0-720,153 #7f0d02cf app:id/phone_verify_sheet_phone_number&#125;&quot;,</div><div class="line">                        &quot;id&quot; =&gt; &quot;phone_verify_sheet_phone_number&quot;,</div><div class="line">                      &quot;text&quot; =&gt; &quot;&quot;,</div><div class="line">                   &quot;visible&quot; =&gt; true,</div><div class="line">                      &quot;rect&quot; =&gt; &#123;</div><div class="line">              &quot;height&quot; =&gt; 153,</div><div class="line">               &quot;width&quot; =&gt; 675,</div><div class="line">                   &quot;y&quot; =&gt; 666,</div><div class="line">                   &quot;x&quot; =&gt; 90,</div><div class="line">            &quot;center_x&quot; =&gt; 427,</div><div class="line">            &quot;center_y&quot; =&gt; 742</div><div class="line">        &#125;,</div><div class="line">                   &quot;enabled&quot; =&gt; true,</div><div class="line">        &quot;contentDescription&quot; =&gt; nil</div><div class="line">    &#125;,</div><div class="line">    [1] &#123;</div><div class="line">                     &quot;class&quot; =&gt; &quot;android.support.v7.widget.AppCompatEditText&quot;,</div><div class="line">                       &quot;tag&quot; =&gt; nil,</div><div class="line">               &quot;description&quot; =&gt; &quot;android.support.v7.widget.AppCompatEditText&#123;1042aa90 VFED..CL ........ 0,155-990,308 #7f0d02d2 app:id/phone_verify_sheet_verifying_code&#125;&quot;,</div><div class="line">                        &quot;id&quot; =&gt; &quot;phone_verify_sheet_verifying_code&quot;,</div><div class="line">                      &quot;text&quot; =&gt; &quot;&quot;,</div><div class="line">                   &quot;visible&quot; =&gt; true,</div><div class="line">                      &quot;rect&quot; =&gt; &#123;</div><div class="line">              &quot;height&quot; =&gt; 153,</div><div class="line">               &quot;width&quot; =&gt; 990,</div><div class="line">                   &quot;y&quot; =&gt; 821,</div><div class="line">                   &quot;x&quot; =&gt; 45,</div><div class="line">            &quot;center_x&quot; =&gt; 540,</div><div class="line">            &quot;center_y&quot; =&gt; 897</div><div class="line">        &#125;,</div><div class="line">                   &quot;enabled&quot; =&gt; true,</div><div class="line">        &quot;contentDescription&quot; =&gt; nil</div><div class="line">    &#125;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>假设这两个输入框都没有id，也没有文字可以匹配，你可以使用它们的下标进行定位。比如我要对下标为1的输入框进行输入，使用上面我们两次提到的Step: <code>Then I enter 输入密码 into input field number 2</code><br>下标为1的输入框在自然语言中是指第二个输入框，上面我们也分析了这条Step的源码，对传入的参数做了减1操作，所以这里传入2。</p>
+<p>当然我们同样可以执行这样的命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">查询id等于phone_verify_sheet_verifying_code的ImageView</div><div class="line">irb(main):018:0&gt; query(&quot;android.widget.ImageView id:&apos;img1&apos;&quot;)  </div><div class="line"></div><div class="line">其他一些属性均可</div><div class="line">query(&quot;* visible:true&quot;)</div></pre></td></tr></table></figure>
+<p>同时你还可以指定返回的结果<code>query(&quot;*&quot;, :id)</code><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">irb(main):031:0&gt; query(&quot;*&quot;, :id)</div><div class="line">[</div><div class="line">    [ 0] nil,</div><div class="line">    [ 1] nil,</div><div class="line">    [ 2] nil,</div><div class="line">    [ 3] &quot;action_bar_root&quot;,</div><div class="line">    [ 4] &quot;content&quot;,</div><div class="line">    [ 5] nil,</div><div class="line">    [ 6] &quot;login_login_text&quot;,</div><div class="line">    [ 7] &quot;login_logo&quot;,</div><div class="line">    [ 8] &quot;login_sheet&quot;,</div><div class="line">    [ 9] nil,</div><div class="line">    [10] &quot;phone_verify_sheet_phone_number&quot;,</div><div class="line">    [11] &quot;phone_verify_sheet_send_code&quot;,</div><div class="line">    [12] &quot;phone_verify_sheet_divider&quot;,</div><div class="line">    [13] &quot;phone_verify_sheet_verifying_code&quot;,</div><div class="line">    [14] &quot;login_login&quot;,</div><div class="line">    [15] &quot;login_audio&quot;,</div><div class="line">    [16] &quot;login_register&quot;,</div><div class="line">    [17] &quot;statusBarBackground&quot;</div><div class="line">]</div></pre></td></tr></table></figure></p>
+<p>上面我们简单的使用了Quewy查询，更详细的介绍可以参考下面两篇文章：</p>
+<p><a href="https://github.com/calabash/calabash-android/wiki/05-Query-Syntax" target="_blank" rel="external">https://github.com/calabash/calabash-android/wiki/05-Query-Syntax</a><br><a href="http://blog.csdn.net/bigconvience/article/details/39182161" target="_blank" rel="external">http://blog.csdn.net/bigconvience/article/details/39182161</a></p>
+<h2 id="View定位技巧"><a href="#View定位技巧" class="headerlink" title="View定位技巧"></a>View定位技巧</h2><p>Calabash定位的主要方式有三种：文字、id、index。</p>
+<p>文字是最简单的一种定位方式，但也有缺点，那就是文字的非唯一性。<br>以Step:<code>Then /^I press &quot;([^\&quot;]*)&quot;$/ do |identifier|</code> 为例，当一个界面同时存在两个以上的目标文字时，按照这条命令的定义，Calabash会默认点击第一个符合条件的view。如果你想要可以选择下标的Step，就需要自定义了。<br>同时，如果有些纯图标的View，文字定位就无用了。</p>
+<p>Id虽然是唯一性的，但同样缺陷明显：1.有很多View没有ID,这个我们在上一节Query语句的结果中就可以看到了，这种情况不止存在于根布局，很多需要操作的View都存在这样的问题！<br>2.如果id的定义并不人性化，那么同样会导致脚本的可读性下降。<br>3.debug包和混淆过的release包ID往往不同，因为ID名也被混淆了，所以Debug包和relase包无法同用一套脚本。</p>
+<p>View下标是指：把当前页面的所有View当做一个数组，每一个View都有一个下标。通常这种排列都有迹可循，比如从上到下，从左到右，从深到浅。如果布局非常复杂，可以借助Query语句查询。</p>
+<p>基本原理知道了，从这几个方面找方法就很容易了。</p>
+<h3 id="肉眼"><a href="#肉眼" class="headerlink" title="肉眼"></a>肉眼</h3><p>Calabash最大的魅力在于其自然语言一样的脚本，如果可以，我还是建议尽量使用肉眼识别文字与下标的方式进行编写Calabash脚本，点击登录按钮，在第2个输入框中输入XXX，通过这样的方式保持测试脚本的自然性。毕竟奇奇怪怪的ID和奇奇怪怪的下标，尤其混淆以后的ID，和下标上升到十几位数以后，比如下面这种尴尬：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">When I press view with id &quot;c2&quot;</div><div class="line">Then I enter &quot;1&quot; into input field number 13</div></pre></td></tr></table></figure>
+<p>c2是什么鬼，第13个输入框？？？</p>
+<p>但毕竟人力有穷尽，很多view的定位并不是很容易。这只是建议。</p>
+<h3 id="Android-uiautomatorviewer"><a href="#Android-uiautomatorviewer" class="headerlink" title="Android uiautomatorviewer"></a>Android uiautomatorviewer</h3><p>uiautomatorviewer工具位于Android SDK目录下,在终端中切换到Android SDK的目录下，在tools目录下可以看到uiautomatorviewer工具，运行./uiautomatorviewer就可以打开uiautomatorviewer了。</p>
+<p>连接手机，打开要查看的页面，点击uiautomatorviewer左上角第二个按钮（Device Screenshot(uiautomator dump)），将会在屏幕上出现该页面，并在右上角的窗口中显示该页面的层级结构，点击页面上的View元素，会在右下角Node Detail窗口中出现该View的基本信息，包括ID，文字等等信息。</p>
+<p><img src="http://img.blog.csdn.net/20170310132226312?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvdTAxMDI1NTEyNw==/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast" alt="uiautomatorviewer"></p>
+<p>uiautomatorviewer的优点在于可以在不查看代码的情况下知道View的ID。对比Query查询，其优点在于更加直观，且不需要任何编程基础。毕竟Query是以数组形式返回，如果一个页面View特别多的话，将数组中的View与页面的View做对应是很麻烦的。</p>
+<p><strong>需要提醒的是：这里的index和我们用Query查到的数组下标并不是一回事，所以这里的index不可用</strong></p>
+<h3 id="Query"><a href="#Query" class="headerlink" title="Query"></a>Query</h3><p>uiautomatorviewer虽然可以看到View的ID，但没有办法看到View的下标。Query的查询更加精确一点但不够直观。</p>
+<p>所以最好的办法应该是肉眼、uiautomatorviewer、Query三者结合。当然前期可能会显得比较繁琐，但熟练了之后就会很简单了。</p>
+<h3 id="不定位了，找不到，直接点击屏幕吧"><a href="#不定位了，找不到，直接点击屏幕吧" class="headerlink" title="不定位了，找不到，直接点击屏幕吧"></a>不定位了，找不到，直接点击屏幕吧</h3><p>正常来说，所有的View都是可以定位到的，只是难易程度罢了，如果你要操作的View真的特别特别难以定位，直接点击屏幕也是办法。</p>
+<p>调用下面这条预定义Step即可</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Then /^I click on screen (\d+)% from the left and (\d+)% from the top$/ do |x, y|     </div><div class="line"></div><div class="line">use:</div><div class="line">Then I click on screen 23% from the left and 34% from the top</div></pre></td></tr></table></figure>
+<p>这里非常非常要注意的是，这条命令后面的<code>%</code>不可以省略，他是按照当前屏幕的百分比位置来点击的。</p>
+<p>但无论通过uiautomatorviewer还是Query命令，你都只能查到View的像素坐标，暂时还没有发现好的工具来查询百分比坐标。不过你可以使用像素坐标除以当前手机分辨率来计算百分比坐标。<br>看到这里，你也许会想，我根本不需要手动计算，直接把计算写在脚本里不就好了嘛：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">Then /^I click login button $/ do </div><div class="line">  %&#123;</div><div class="line">  	Then I click on screen 1323 from the left and 568 from the top for 1920x1080</div><div class="line">  &#125;</div><div class="line">end</div><div class="line"></div><div class="line">Then /^I click on screen (\d+) from the left and (\d+) from the top for 1920x1080$/ do |x, y|</div><div class="line">  perform_action(&apos;click_on_screen&apos;, x/1080, y/1920)</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>但我并不建议你这样去做，上面的自定义Step只适用于1920x1080的手机，在实际测试中，一定会涉及到替换不同手机跑case的，换一个手机就修改一下脚本明显不适用，尤其发展到云测阶段。这也是为什么预定义的Steps只提供了百分比坐标的点击事件。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>基本上了解上面的内容，就已经可以开始编写Calabash测试脚本进行测试了。当然Calabash还不止这些，我们将在下一章进阶中继续为你介绍Calabash使用技巧：</p>
+<ul>
+<li>在自定义的Steps中使用Query语句。</li>
+<li>自定义Steps支持环境变量扩展。</li>
+<li>Hooks。</li>
+<li>Calabash源码修改与扩展。</li>
+</ul>
+<p><br></p>
+<hr>
+<p><a href="https://lizhaoxuan.github.io/2017/03/20/Calabash探索1-Run%20Calabash/" target="_blank" rel="external">《Calabash探索1-Run Calabash》</a></p>
+<p>《Calabash探索2-Calabash用法详解》</p>
+<p><a href="https://lizhaoxuan.github.io/2017/03/17/Calabash探索3-Calabash进阶/" target="_blank" rel="external">《Calabash探索3-Calabash进阶》</a></p>
+<p><a href="https://lizhaoxuan.github.io/2017/03/16/Calabash探索4-Calabash踩坑总结/" target="_blank" rel="external">《Calabash探索4-Calabash踩坑总结》</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/测试/" rel="tag">#测试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/17/Calabash探索3-Calabash进阶/" rel="next" title="Calabash探索3-Calabash进阶">
+                <i class="fa fa-chevron-left"></i> Calabash探索3-Calabash进阶
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/20/Calabash探索1-Run Calabash/" rel="prev" title="Calabash探索1-Run Calabash">
+                Calabash探索1-Run Calabash <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Feature、Scenario等关键字使用策略"><span class="nav-number">2.</span> <span class="nav-text">Feature、Scenario等关键字使用策略</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calabash-预定义的Steps使用"><span class="nav-number">3.</span> <span class="nav-text">Calabash 预定义的Steps使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义Steps"><span class="nav-number">4.</span> <span class="nav-text">自定义Steps</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义Steps-1"><span class="nav-number">4.1.</span> <span class="nav-text">自定义Steps</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#封装以定义的Steps"><span class="nav-number">4.2.</span> <span class="nav-text">封装以定义的Steps</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#使用Ruby语法编写带逻辑判断的Steps"><span class="nav-number">5.</span> <span class="nav-text">使用Ruby语法编写带逻辑判断的Steps</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义Steps的使用策略"><span class="nav-number">6.</span> <span class="nav-text">自定义Steps的使用策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#与业务完全解耦的自定义Steps："><span class="nav-number">6.1.</span> <span class="nav-text">与业务完全解耦的自定义Steps：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与业务耦合的自定义Steps"><span class="nav-number">6.2.</span> <span class="nav-text">与业务耦合的自定义Steps:</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#合适的语法糖"><span class="nav-number">6.3.</span> <span class="nav-text">合适的语法糖</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#严格的文档管理"><span class="nav-number">6.4.</span> <span class="nav-text">严格的文档管理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Ruby-Query的使用。"><span class="nav-number">7.</span> <span class="nav-text">Ruby Query的使用。</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#View定位技巧"><span class="nav-number">8.</span> <span class="nav-text">View定位技巧</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#肉眼"><span class="nav-number">8.1.</span> <span class="nav-text">肉眼</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Android-uiautomatorviewer"><span class="nav-number">8.2.</span> <span class="nav-text">Android uiautomatorviewer</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Query"><span class="nav-number">8.3.</span> <span class="nav-text">Query</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不定位了，找不到，直接点击屏幕吧"><span class="nav-number">8.4.</span> <span class="nav-text">不定位了，找不到，直接点击屏幕吧</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">9.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>

@@ -1,0 +1,797 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="测试," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.png?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="前言上一篇我们讲了Calabash的基本用法，有了上一篇的经验，已经可以写基本的测试脚本了，只不过一些特殊情况会写的不那么方便，这一篇我们讲一些Calabash的进阶用法：大概是这几个方向：
+
+在自定义的Steps中使用Query语句。
+自定义Steps支持环境变量扩展。
+Hooks。
+Calabash源码修改与扩展。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Calabash探索3-Calabash进阶">
+<meta property="og:url" content="https://elelogistics.github.io/2017/03/17/Calabash探索3-Calabash进阶/index.html">
+<meta property="og:site_name" content="饿了么物流技术">
+<meta property="og:description" content="前言上一篇我们讲了Calabash的基本用法，有了上一篇的经验，已经可以写基本的测试脚本了，只不过一些特殊情况会写的不那么方便，这一篇我们讲一些Calabash的进阶用法：大概是这几个方向：
+
+在自定义的Steps中使用Query语句。
+自定义Steps支持环境变量扩展。
+Hooks。
+Calabash源码修改与扩展。">
+<meta property="og:updated_time" content="2017-03-21T02:53:50.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Calabash探索3-Calabash进阶">
+<meta name="twitter:description" content="前言上一篇我们讲了Calabash的基本用法，有了上一篇的经验，已经可以写基本的测试脚本了，只不过一些特殊情况会写的不那么方便，这一篇我们讲一些Calabash的进阶用法：大概是这几个方向：
+
+在自定义的Steps中使用Query语句。
+自定义Steps支持环境变量扩展。
+Hooks。
+Calabash源码修改与扩展。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"always"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 0,
+      author: '博主'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="https://elelogistics.github.io/2017/03/17/Calabash探索3-Calabash进阶/"/>
+
+  <title> Calabash探索3-Calabash进阶 | 饿了么物流技术 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?33a8f08969d781e7265ec9233381f09a";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">饿了么物流技术</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-invite">
+          <a href="/invite" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-heartbeat"></i> <br />
+            
+            招聘
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Calabash探索3-Calabash进阶
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-17T16:22:58+08:00" content="2017-03-17">
+              2017-03-17
+            </time>
+          </span>
+
+          
+
+          
+  
+       <span id="post_author">
+       &nbsp; | &nbsp; 作者&nbsp; <span id="post_author">暴打小女孩</span>
+       </span>
+
+        <span id="post_tags">
+       &nbsp; | &nbsp; 标签&nbsp; 
+        
+           <span id="post_tags">测试</span>
+        
+       
+       </span>
+        
+
+          
+            
+          
+
+          
+
+          
+          
+             <span id="/2017/03/17/Calabash探索3-Calabash进阶/" class="leancloud_visitors" data-flag-title="Calabash探索3-Calabash进阶">
+               &nbsp; | &nbsp;
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               <span class="post-meta-item-text">阅读次数 </span>
+               <span class="leancloud-visitors-count"></span>
+              </span>
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>上一篇我们讲了Calabash的基本用法，有了上一篇的经验，已经可以写基本的测试脚本了，只不过一些特殊情况会写的不那么方便，这一篇我们讲一些Calabash的进阶用法：大概是这几个方向：</p>
+<ul>
+<li>在自定义的Steps中使用Query语句。</li>
+<li>自定义Steps支持环境变量扩展。</li>
+<li>Hooks。</li>
+<li>Calabash源码修改与扩展。</li>
+</ul>
+<a id="more"></a>
+<h2 id="在自定义的Steps中使用Query语句"><a href="#在自定义的Steps中使用Query语句" class="headerlink" title="在自定义的Steps中使用Query语句"></a>在自定义的Steps中使用Query语句</h2><p>上一篇我们简单介绍了Query的用法和通过Query来帮助我们编写测试脚本。<br>但这个是建立在人工查询结果上，如果可以让脚本自己去查，是不是会更便捷？<br>Calabash提供的预定义Steps中，只有极个别几种View的Steps，类似ImageView等控件暂时还没有这种待遇，按照一般情况，我们只能选择通过ID，或者人工Query查询ImageView的index。那么如果可以只通过肉眼判断当前ImageView的index就可以编写脚本是不更好呢？</p>
+<p>我们来自定义一个Step：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">When /^I press imageView number (\d+)$/ do |index|</div><div class="line">	$imageView = query(&quot;android.support.v7.widget.AppCompatImageView&quot;)</div><div class="line">	touch($editText[index.to_i-1])</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>为了保证Steps的自然语义，这里我们也对index做了减1操作。<br>你也看到了，在Steps的定义体中，是可以使用Query语句的，不过这样的写法稍显繁琐了</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">When /^I press imageView number (\d+)$/ do |index|</div><div class="line">	tap_when_element_exists(&quot;android.support.v7.widget.AppCompatImageView index:#&#123;index.to_i-1&#125;&quot;)</div><div class="line">end</div></pre></td></tr></table></figure>
+<p><code>tap_when_element_exists</code>本身也支持一定程度的查询功能。</p>
+<p>你可能会问了，既然这些库方法已经支持这样的查询了，在内部写Query语句看起来也没啥用了啊。下面我们把Calabash预定义的Steps源码拿来瞅瞅你就知道用处在哪里了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">Then /^I select &quot;([^\&quot;]*)&quot; from &quot;([^\&quot;]*)&quot;$/ do |item_identifier, spinner_identifier|</div><div class="line">  spinner = query(&quot;android.widget.Spinner marked:&apos;#&#123;spinner_identifier&#125;&apos;&quot;)</div><div class="line"></div><div class="line">  if spinner.empty?</div><div class="line">    tap_when_element_exists(&quot;android.widget.Spinner * marked:&apos;#&#123;spinner_identifier&#125;&apos;&quot;)</div><div class="line">  else</div><div class="line">    touch(spinner)</div><div class="line">  end</div><div class="line"></div><div class="line">  tap_when_element_exists(&quot;android.widget.PopupWindow$PopupViewContainer * marked:&apos;#&#123;item_identifier&#125;&apos;&quot;)</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>解释一下：首先查询是否有对应描述的下拉列表控件，查询的结果是一个数组，如果结果是空的，那么就调用点击事件尝试点击一下，不出意外会报错找不到这个控件。<br>如果不是空的，那就点击这个查询结果的第零个元素。<br><code>touch</code>方法，如果传递的参数是一个数组，会默认点击第零个元素。<br>然后点击弹出的PopupWindow中的item。</p>
+<h2 id="自定义Steps支持环境变量扩展"><a href="#自定义Steps支持环境变量扩展" class="headerlink" title="自定义Steps支持环境变量扩展"></a>自定义Steps支持环境变量扩展</h2><p>有几个场景。</p>
+<ul>
+<li>如果测试不同的系统或者不同分辨率的手机，测试用例内部可能需要细微改变，为了应对这些改变，复制多套脚本进行修改显然不是特别合适。</li>
+<li>不同账号有不同的权限和数据，同一个测试用例可能需要不同的账号来测试，为了应对不同账号复制多套脚本进行修改显示不是特别合适。</li>
+<li>初期想要让android和iOS无缝的使用一套脚本不太现实，两套脚本几乎必然，但如果遇到上面的现象，测试中需要使用一套数据进行支持（账号），这个时候两边都维护一套一模一样的数据就不太合适了。</li>
+</ul>
+<p>以上场景的解决实质是，<strong>如何在不修改脚本的情况下，可以改变其中的参数？</strong><br>其解决方案便是：引入环境变量。</p>
+<p>新建一个新的自定义Step:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">Then /^I enter \$([^\$]*) into input field number (\d+)$/ do |text_ev, index|</div><div class="line">  text = ENV[text_ev]</div><div class="line">  enter_text(&quot;android.widget.EditText index:#&#123;index.to_i-1&#125;&quot;, text)</div><div class="line">end</div></pre></td></tr></table></figure>
+<p>有两处改变，方法名中的参数接收处：<code>\$([^\$]*)</code>和方法体中的参数获取：<code>text = ENV[text_ev]</code> 这里基本照猫画虎就好了。</p>
+<p>feature中这样调用：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">Then I enter $env_account_1 into input field number 1</div></pre></td></tr></table></figure>
+<p><code>$</code> 后面的变量名是环境变量名。</p>
+<p>在执行<code>calabash-android run **.apk</code>前先设置环境变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">set env_account_1 123456</div><div class="line">calabash-android run **.apk</div></pre></td></tr></table></figure>
+<p>这样，在脚本执行过程中，会将123456当做账号填写到输入框中。</p>
+<p>但这只是最基础的用法，当需要的环境变量非常多时，再使用这样的方式明显不太合适，这个时候可以将之放入ruby脚本中，也便于维护。</p>
+<p>新建test_data1.rb<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ENV[&quot;env_account_1&quot;]=&quot;1111111111&quot;</div><div class="line">ENV[&quot;env_password_1&quot;]=&quot;123456&quot;</div></pre></td></tr></table></figure></p>
+<p>新建test_data2.rb<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">ENV[&quot;env_account_1&quot;]=&quot;222222222&quot;</div><div class="line">ENV[&quot;env_password_1&quot;]=&quot;123456&quot;</div></pre></td></tr></table></figure></p>
+<p>终端中执行如下命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">Crowdsource-android git:(feature/testing) ✗ irb</div><div class="line">irb(main):001:0&gt; require &apos;./features/test_data1.rb&apos;</div><div class="line">=&gt; true</div><div class="line">irb(main):002:0&gt;ENV[&quot;env_account_1&quot;]</div><div class="line">=&gt; &quot;11111111&quot;</div><div class="line">irb(main):003:0&gt; exec(&apos;calabash-android run debug.apk &apos;)</div><div class="line">Feature: Login feature</div><div class="line">...</div><div class="line"></div><div class="line">#脚本执行完毕，切换另一套环境变量</div><div class="line">irb(main):001:0&gt; require &apos;./features/test_data1.rb&apos;</div><div class="line">=&gt; true</div><div class="line">irb(main):002:0&gt;ENV[&quot;env_account_2&quot;]</div><div class="line">=&gt; &quot;2222222&quot;</div><div class="line">irb(main):003:0&gt; exec(&apos;calabash-android run debug.apk &apos;)</div><div class="line">Feature: Login feature</div><div class="line">...</div></pre></td></tr></table></figure>
+<p>这样就可以整套整套的替换环境变量进行测试，<code>ENV[&quot;env_account_2&quot;]</code>命令用来查看环境变量的值。</p>
+<h2 id="Hooks"><a href="#Hooks" class="headerlink" title="Hooks"></a>Hooks</h2><p>关于Hooks，我们在前面第二章有简单提过一下。Hooks就是在监听程序运行的某个阶段，并做一些事情。在feature/support文件夹下有三个关于Hooks的文件：<br><code>app_installation_hooks.rb , app_life_cycle_hooks.rb , hooks.rb</code><br>前两个文件分别是对app安装的Hooks,和app生命周期的Hooks。hooks.rb文件夹是空的，由我们自己来编写。<br>这里暂时还没有做过什么特别的实践，我偷个懒，直接将 立成 <a href="http://richardcao.me" target="_blank" rel="external">@richardcao</a>博客中的关于这一部分的段落摘了过来，原文在这里：<a href="http://richardcao.me/2016/10/31/客户端自动化测试小探索/" target="_blank" rel="external">http://richardcao.me/2016/10/31/客户端自动化测试小探索/</a>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">我们看一个简单的app_life_cycle_hooks.rb理解理解：</div><div class="line"></div><div class="line">require &apos;calabash-android/management/adb&apos;</div><div class="line">require &apos;calabash-android/operations&apos;</div><div class="line">Before do |scenario|</div><div class="line">  start_test_server_in_background</div><div class="line">end</div><div class="line">After do |scenario|</div><div class="line">  if scenario.failed?</div><div class="line">    screenshot_embed</div><div class="line">  end</div><div class="line">  shutdown_test_server</div><div class="line">end</div><div class="line"></div><div class="line">这是默认就生成好的，从字面意思上看，就是app生命周期的hook，这里可以看到，在主要用到了Before和After关键字进行操作，这个显然很容易就看懂了，于是我自己写了一个在每个step执行之后都等待2秒的hook，下面的代码写在hooks.rb中（这个文件默认生成是空的）：</div><div class="line"></div><div class="line">require &apos;calabash-android/calabash_steps&apos;</div><div class="line">AfterStep do |scenario|</div><div class="line">	sleep 2</div><div class="line">end</div><div class="line"></div><div class="line">很容易对吧？关于这部分想多了解的可以看cucumber wiki中的Hooks部分。</div></pre></td></tr></table></figure>
+<p><a href="https://github.com/cucumber/cucumber/wiki/Hooks" target="_blank" rel="external">cucumber wiki中的Hooks部分</a>。</p>
+<h2 id="Calabash源码修改与扩展"><a href="#Calabash源码修改与扩展" class="headerlink" title="Calabash源码修改与扩展"></a>Calabash源码修改与扩展</h2><p>前面我们提到了两种自定义Calabash Steps的方法，分别是自定义Steps和封装已有的Steps。还有第三种更为深入的定制化方案，那就是修改Calabash源码自定义Actions，这里的Actions指的便是我们之前经常会看到的，类似这样的代码: <code>perform_action(&#39;swipe&#39;, &#39;right&#39;)  perform_action(&#39;tap_map_marker_by_title&#39;, marker_title, 60000)</code></p>
+<p>其中swipe,tap_map_marker_by_title实际是方法名，他们的核心，以Calabash-android为例，实际也是Android工程 java代码实现的。如果你有看过其他关于Calabash-android的博客，会有介绍修改其源码，创建自定义的Actions方法的实例。</p>
+<p>基本原理是：Calabash目录<code>/calabash-android/ruby-gem/test-server/instrumentation-backend</code> 是一个Android工程，在其包<code>/src/sh/calaba/instrumentationbackend/actions</code>中实现了我们用到的ruby库方法。<br>在其中创建我们自己的Action类，然后进行编译，即可创建我们自己的库方法并使用。</p>
+<p>但这样的博客都写于2016年之前，目前最新的Calabash-android项目的源码已经删除了<code>/calabash-android/ruby-gem/test-server</code>目录下的文件夹，通过翻阅Git记录得知：Calabash-android在2015.12.12日删除了本地的test_server目录，将其移动到了新的项目：<a href="https://github.com/calabash/calabash-android-server" target="_blank" rel="external">calabash-android-server</a>中。如果你将Calabash-android项目切换到2016年之前，还可以找到test_server目录，查看里面的Android工程，修改并重新编译。但我并不建议你这样去做，使用这种方式扩展意味着要放弃 Calabash一年以上的更新进度。</p>
+<p><a href="https://github.com/calabash/calabash-android-server" target="_blank" rel="external">calabash-android-server</a>同样是开源项目，虽然暂时我还没搞明白如何在这个项目中修改源码并应用到Calabash-android中，但只是单纯研究其源码还是非常有价值的！</p>
+<p>我挑了其中最简单的一个类，我们来研究一下：</p>
+<p>../actions/gestures/ClickOnScreen.java</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div></pre></td><td class="code"><pre><div class="line">package sh.calaba.instrumentationbackend.actions.gestures;</div><div class="line"></div><div class="line"></div><div class="line">import sh.calaba.instrumentationbackend.InstrumentationBackend;</div><div class="line">import sh.calaba.instrumentationbackend.Result;</div><div class="line">import sh.calaba.instrumentationbackend.actions.Action;</div><div class="line">import android.view.Display;</div><div class="line"></div><div class="line"></div><div class="line">public class ClickOnScreen implements Action &#123;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public Result execute(String... args) &#123;</div><div class="line">        Display display = InstrumentationBackend.solo.getCurrentActivity().getWindowManager().getDefaultDisplay();</div><div class="line">        </div><div class="line">        float x = Float.parseFloat(args[0]);</div><div class="line">        float y = Float.parseFloat(args[1]);</div><div class="line">        </div><div class="line">        int width = display.getWidth();</div><div class="line">        int height = display.getHeight();</div><div class="line">        </div><div class="line">        InstrumentationBackend.solo.clickOnScreen((x/100)*width, (y/100)*height);</div><div class="line">        return Result.successResult();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    @Override</div><div class="line">    public String key() &#123;</div><div class="line">        return &quot;click_on_screen&quot;;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>先看下Steps的定义中是怎么用这个方法的：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Then /^I click on screen (\d+)% from the left and (\d+)% from the top$/ do |x, y|</div><div class="line">  perform_action(&apos;click_on_screen&apos;, x, y)</div><div class="line">end</div></pre></td></tr></table></figure></p>
+<p><code>public String key()</code> 方法便是定义Action方法的名称。<code>public Result execute(String... args)</code>便是实现。</p>
+<p>Result返回值表示该动作是否执行成功。如果失败，会直接抛到终端中进行显示错误信息。<br>这里我们重点关注这个对象：<code>InstrumentationBackend.solo</code><br>获取界面信息，以及真正实现点击操作的，都是通过solo对象来实现的。那么这个solo对象是个啥？</p>
+<p>我们摘取<code>InstrumentationBackend</code>类的一段代码：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line">...</div><div class="line">import com.jayway.android.robotium.solo.SoloEnhanced;</div><div class="line">import sh.calaba.instrumentationbackend.automation.CalabashAutomation;</div><div class="line">import sh.calaba.instrumentationbackend.query.ui.UIObject;</div><div class="line"></div><div class="line">import java.util.*;</div><div class="line"></div><div class="line">/*</div><div class="line">    Utility class based on the current test-server life cycle.</div><div class="line"> */</div><div class="line">public class InstrumentationBackend &#123;</div><div class="line">    private static final String TAG = &quot;InstrumentationBackend&quot;;</div><div class="line"></div><div class="line">    public static List&lt;Intent&gt; intents = new ArrayList&lt;Intent&gt;();</div><div class="line">    private static Map&lt;ActivityIntentFilter, IntentHookWithCount&gt; intentHooks =</div><div class="line">            new HashMap&lt;ActivityIntentFilter, IntentHookWithCount&gt;();</div><div class="line"></div><div class="line">    private static CalabashAutomation calabashAutomation;</div><div class="line"></div><div class="line">    /* Instrumentation does not belong to this class. Here because of old architecture */</div><div class="line">    public static Instrumentation instrumentation;</div><div class="line"></div><div class="line">    public static SoloEnhanced solo;</div><div class="line">    public static Actions actions;</div><div class="line">    </div><div class="line">...</div></pre></td></tr></table></figure>
+<p>solo实际是com.jayway.android.robotium.solo.SoloEnhanced类。看到这里应该明白了，Calabash-android对UI的操作核心其实借助以Robotium来做的。</p>
+<p><em>Robotium是一款国外的Android自动化测试框架，主要针对Android平台的应用进行黑盒自动化测试，它提供了模拟各种手势操作（点击、长按、滑动等）、查找和断言机制的API，能够对各种控件进行操作</em></p>
+<p><strong>哦，还要提一点，Calabash不支持跨进程的原有就在于Robotium不支持跨进程，所以让Calabash支持跨进程的契机就在这里，修改其源码，调用uiautomator的API即可，具体可行性和方式还待探索，如果你有兴趣，不妨我们一起研究呀</strong></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>OK，大概就是这样了，Calabash进阶部分会随时更新，修改Calabash-android-server源码进行扩展的方法我也会继续研究下去，成功以后会随时更新博客。</p>
+<p><br></p>
+<hr>
+<p><a href="https://lizhaoxuan.github.io/2017/03/20/Calabash探索1-Run%20Calabash/" target="_blank" rel="external">《Calabash探索1-Run Calabash》</a></p>
+<p><a href="https://lizhaoxuan.github.io/2017/03/18/Calabash探索2-Calabash用法详解/" target="_blank" rel="external">《Calabash探索2-Calabash用法详解》</a></p>
+<p>《Calabash探索3-Calabash进阶》</p>
+<p><a href="https://lizhaoxuan.github.io/2017/03/16/Calabash探索4-Calabash踩坑总结/" target="_blank" rel="external">《Calabash探索4-Calabash踩坑总结》</a></p>
+
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/测试/" rel="tag">#测试</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/13/iOS-Flexbox/" rel="next" title="Flexbox优化">
+                <i class="fa fa-chevron-left"></i> Flexbox优化
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/18/Calabash探索2-Calabash用法详解/" rel="prev" title="Calabash探索2-Calabash用法详解">
+                Calabash探索2-Calabash用法详解 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/ico.png"
+               alt="饿了么物流" />
+          <p class="site-author-name" itemprop="name">饿了么物流</p>
+          <p class="site-description motion-element" itemprop="description">美好生活,触手可得</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#在自定义的Steps中使用Query语句"><span class="nav-number">2.</span> <span class="nav-text">在自定义的Steps中使用Query语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自定义Steps支持环境变量扩展"><span class="nav-number">3.</span> <span class="nav-text">自定义Steps支持环境变量扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Hooks"><span class="nav-number">4.</span> <span class="nav-text">Hooks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Calabash源码修改与扩展"><span class="nav-number">5.</span> <span class="nav-text">Calabash源码修改与扩展</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">饿了么物流</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+  
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.1.js"></script>
+  <script>AV.initialize("xsCURl6D1w7win0WU3s8IsSU-gzGzoHsz", "Iy4yIEhFA0O8JPTp4ko7g4fd");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+</body>
+</html>
